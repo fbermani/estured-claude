@@ -8,13 +8,13 @@ Hecho en `0b87bde`. Estado y pendientes: `docs/audits/PLAN_SEGURIDAD_2026-11-12.
 
 ## Ola 0 de la auditoría legal (DR65) — 2026-11-22 a 2026-11-25
 
-Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commits en `staging`: f6265e2 (1 y 2), b2dbb9a (3), 511f056 (4), 6b724e8 (5 y 6), 0ac642f (7), 10de285 (10).
+Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commits en `staging`: f6265e2 (1 y 2), b2dbb9a (3), 511f056 (4), 6b724e8 (5 y 6), 0ac642f (7), 10de285 (10), 6c58053 (bloque 9), 5d8ae64 y 44d6471 (bloque 8).
 
 | # | Ítem | Estado |
 |---|---|---|
 | 1 | Datos del titular, `/terms` y `/privacy` sin placeholders | Hecho. Titular solo en `/terms#quienes-somos` (decisión del dueño). Falta crear la casilla `hola@estured.com` (runbook). |
 | 2 | Sin antecedentes penales | Hecho (DR65 (a); FAQ-11 en 0109). |
-| 3 | Cuenta del menor en espera | **Pendiente.** Bloque L: gate server-side por `birth_date` + consentimiento del familiar (`consents` con su `user_id`), también en `activateResidentStay`, piso de 14 años, reescribir `privacyText` §6 y `termsText` §5, seed de Valentina. |
+| 3 | Cuenta del menor en espera | Hecho (bloque 8, DR65 (e); `5d8ae64` y `44d6471`). Probado en staging el 2026-11-25 con Valentina y Martín: aviso, guardado bloqueado, consentimiento, guardado habilitado. El alta de un menor se probó solo con test (el alta abierta tiene CAPTCHA). |
 | 4 | `/verify` sin nombre de menor | Hecho. |
 | 5 | TP-01 y TP-02 en `/privacy` | Hecho. §4 dice «estamos formalizando» las garantías hasta archivar los DPA. |
 | 6 | Arrepentimiento | Hecho (DR65 (b)): sin «uso indebido», código ARR por email; se mantiene el login. |
@@ -24,11 +24,13 @@ Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commit
 | 10 | Sin aprobación admin de datos de cobro | Hecho (DR65 (c), 0109). Ver riesgo de seguridad abajo. |
 | 11 | Claims de `/nosotros`, `CostsBoard` y sello | Hecho. |
 | 12 | «Datos de ejemplo» y SEO | Hecho. |
-| 13 | MFA admin y confirmación de email | **Pendiente de código.** Decisiones del dueño tomadas (DR65 (d), 2026-11-25): admins demo exentos en staging; confirmación de email solo con `EMAIL_FROM` configurado. |
+| 13 | MFA admin y confirmación de email | Hecho en código (bloque 9, DR65 (d), `6c58053`). Build verde con `44d6471`. **Sin prueba manual:** en staging los admins demo están exentos y la confirmación de email no se exige. Se prueba en producción (runbook). |
 | 14 | Número de Factura C | Hecho (registro manual en «Cobrados»). |
 
 **Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. Mitigación aplicada: cada cambio manda un email al dueño (sin los datos) además del aviso in-app. Si el atacante también cambia el email de la cuenta, el aviso se pierde: evaluar avisar al email anterior al cambiar el email. Revisión de seguridad de los bloques 3, 4, 5–6, 7 y 10 (2026-11-25): sin hallazgos de alta confianza.
-**Test con datos de dev:** `lib/reservations/recordResidencePaymentReceived.test.ts` falla en el `beforeAll` porque el estudiante demo ya tiene 2 solicitudes activas en estured-dev (trigger P0001); no es del código.
+**Tests con datos de dev:** `recordFamilyProposalResponse.test.ts` y `recordResidencePaymentReceived.test.ts` fallan si el estudiante demo tiene 2 solicitudes activas por residuos de tests. No es del código. El 2026-11-25 se borraron dos residencias de test viejas y ambos pasan. Antes de usar `scripts/cleanup-test-residences.mjs --apply`, verificá que ninguna otra sesión esté corriendo tests.
+
+**Pendientes del bloque 8 (decidir):** (1) un menor en espera todavía puede preguntar en la ficha y guardar favoritos; (2) las acciones sobre solicitudes o reservas previas (propuesta de ajuste, avisos de pago, fee, renovaciones, cambios) no revisan la espera: solo aplica si se revoca el vínculo; (3) el aviso dice «tiene que vincularse» aunque el familiar ya esté vinculado; (4) `docs/00` DR65 (d) todavía dice «sin implementar».
 
 ## DR63: cobro de la reserva a la residencia y medios del fee — 2026-11-20
 

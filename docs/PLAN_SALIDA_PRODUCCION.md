@@ -446,7 +446,7 @@ Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código 
 - [ ] `npx playwright test` contra staging con las migraciones al día (ver «Antes de prod»).
 
 **K3. Admin y seguridad**
-- [ ] **2FA obligatorio para admin y superadmin** (decidido en `docs/00` §31 «desde la beta privada»). Hoy el código no tiene MFA (sin referencias a TOTP/MFA): implementarlo o dejar el desvío documentado antes de la beta.
+- [ ] **2FA obligatorio para admin y superadmin** (decidido en `docs/00` §31 «desde la beta privada»). Código hecho (`6c58053`, DR65 (d)). Falta probarlo en producción: ver «Ola 0 de la auditoría legal».
 - [ ] El admin puede operar sin tocar la base: solicitudes, pagos, comprobantes, soporte, propuestas del familiar, negociaciones y registro de acciones (`/admin/logs`).
 - [ ] Toda acción crítica del admin queda en el registro de auditoría con motivo.
 
@@ -484,7 +484,9 @@ Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código 
 - [ ] **[Vos] Factura C manual por cada fee cobrado** (LEG-002): emitila en ARCA (monotributo) a nombre de quien pagó y registrá el número y la fecha en `/admin/payments` → «Cobrados» → columna «Factura C». Formato `00001-00000123`. Un número no se repite.
 - [ ] **[Vos] Datos del titular**: viven solo en `lib/legal/operator.ts` y se publican en `/terms#quienes-somos` (decisión del dueño: no en el pie). Domicilio publicado: solo «Ciudad Autónoma de Buenos Aires, Argentina» (riesgo aceptado).
 - [ ] **[Vos] Región gru1 en Vercel** al armar producción (decisión del dueño; ver también P19-13 arriba).
-- [ ] **[Yo] MFA de admin y confirmación de email en el alta** (bloque 9 de la Ola 0): pendiente. Cuando entre, cada admin enrola su app de autenticación antes de abrir.
+- [ ] **[Vos] MFA de admin** (bloque 9, `6c58053`): en Supabase prod → Authentication → Multi-Factor, TOTP habilitado. Cada admin entra, enrola su app de autenticación en `/admin-mfa` y verifica el código, antes de abrir. `DEMO_LOGIN_ENABLED` no existe en Production (si existe, no se exige MFA).
+- [ ] **[Vos] Confirmación de email** (bloque 9): se exige cuando `EMAIL_FROM` es válido (ya cargada en Production) y rige al apagar `PREAPERTURA`. Dejá activado *Confirm email* en Supabase prod. Probá: una cuenta nueva no ingresa sin confirmar y el enlace (`/auth/confirmar`, usa `NEXT_PUBLIC_APP_URL`) abre la sesión.
+- [ ] **[Vos] Cuenta del menor en espera** (bloque 8, DR65 (e)): sin migración ni variables. No corras `seed-demo-guardian-consent.mjs` en prod. Al apagar `PREAPERTURA`, probá un alta de 14 a 17: queda en espera hasta que el familiar vinculado da su consentimiento.
 - Al cambiar un texto legal: actualizá su fecha en `lib/legal/versions.ts`. El hash de `consents.version` cambia solo (`lib/legal/consentVersion.ts`).
 - [ ] **[Vos] Migración 0110** (`db/migrations/0110_payment_reopen_cap_and_escalation.sql`, DR66, 2026-11-25): agrega `reopen_count` y `admin_escalated_at` a `external_residence_payments` y `estured_fee_payments` (tope de 2 reaperturas y escalado a los 7 días a los superadmin) y actualiza el comentario de `preferred_payment_method` («Otro»). Aditiva, idempotente, sin grants (solo service role). Necesita 0102 y 0105. Entra sola con `node scripts/build-bootstrap.mjs prod`; si prod ya existe, pegala en su SQL Editor (https://supabase.com/dashboard/project/mrwooskdcnkbitkhcvbf/sql/new). **Aplicala ANTES de desplegar el código de DR66:** el código lee `reopen_count` y falla sin la migración. Después corré las verificaciones del pie del archivo (las 4 columnas con `has_column_privilege` en false). Aplicada hoy solo en estured-dev.
 - [ ] **[Vos] Migración 0107** (`db/migrations/0107_privilege_hardening.sql`, 2026-11-25, aplicada en dev): quita lecturas sin uso a `anon`/`authenticated`. Entra sola con el bootstrap; si prod ya existe, pegala en su SQL Editor.
