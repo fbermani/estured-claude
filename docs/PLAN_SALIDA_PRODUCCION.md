@@ -150,7 +150,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 - [x] `NEXT_PUBLIC_SITE_URL` por defecto = `https://estured.com` (`lib/siteUrl.ts`, `lib/arrival/reminderCopy.ts`); antes caía a `estured.vercel.app` (sitemap, canonical, links de mails).
 - [x] `scripts/create-admin.mjs` acepta `--superadmin` (antes solo creaba `admin` y `/admin/payment-settings` exige `superadmin`).
 - [x] Remitente de mails: ya sale de `EMAIL_FROM` (el cambio de código que figuraba como pendiente no hace falta; solo la variable).
-- [ ] Antes del push final: `npm run typecheck && npm run lint && npm run build` en verde, con el dev server parado (si hubo cambios de componentes, `rm -rf .next` antes).
+- [x] Antes del push final: `typecheck`, `lint` (0 errores, 34 avisos) y `build` en verde sobre el commit `d89043f` en un worktree limpio (2026-11-25). Repetir si entra código nuevo.
 - [ ] Merge de `hardening/pre-produccion-2026-11` a `main` **solo cuando la sección E (variables de Vercel) esté hecha**.
 
 ---
@@ -206,7 +206,7 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
 - **Control del 2026-11-25:** OK `tablas` 77, sin RLS 0, escritura pública 0, `policies` 124, permisos por defecto, huella de tablas, huella de columnas y cron. `huella_funciones` dio `699ed288b7c87ab2870004134904a7b1`: la única diferencia es `public.rls_auto_enable()` (solo en prod, devuelve `event_trigger`). Las 27 funciones propias coinciden por nombre y firma. Por nombre y tipo parece el activador automático de RLS que Supabase agrega a proyectos nuevos; no se borra. `anon` figura con *execute*, pero por la API REST responde error 400.
 - [x] Confirmada (2026-11-25): activador `ensure_rls` (`ddl_command_end`, habilitado), dueño `postgres`, `SECURITY DEFINER`. Su cuerpo activa RLS en cada tabla nueva de `public`. Se deja.
 - [x] *Security Advisor* (2026-11-25): 0 errores; 12 avisos = `pg_net` en `public`, 9 helpers propios de RLS y 2 de `rls_auto_enable()`; 28 sugerencias informativas. 0 usuarios en `auth.users`.
-- [ ] **[Vos] Cargar el secreto del cron en Vault** (el control dice «falta cargarlo»).
+- [ ] **[Vos] Cargar el secreto del cron en Vault** (el control dice «falta cargarlo»). Sin SQL: [Integrations → Vault → Secrets](https://supabase.com/dashboard/project/hioscbefryufsbypsmtx/integrations/vault/secrets) → `cron_secret` → ⋮ → *Edit* → *Secret value*: pegar el `CRON_SECRET` de Vercel → *Update secret*. Control: la consulta de huella o `select length(decrypted_secret) = 64 from vault.decrypted_secrets where name = 'cron_secret';`.
 - [ ] Copiar el SQL (`pbcopy < ~/Desktop/prod_bootstrap_LISTO.sql`) → SQL Editor del proyecto `hioscbefryufsbypsmtx` → Run. Si pide confirmar una operación destructiva, confirmar (la base está vacía).
 - [ ] **Si falla:** no reintentar ni recrear el proyecto. Los `begin;`/`commit;` internos dejan aplicado lo anterior. Pasar el texto del error y el archivo (`-- ===== 0xxx =====`) donde cortó; se sigue desde ahí.
 - [ ] Borrar el *snippet* guardado en el SQL Editor y el archivo `~/Desktop/prod_bootstrap_LISTO.sql`: los dos tienen el secreto.
@@ -246,7 +246,7 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   ```
 
 ### D3. Supabase Auth [Vos]
-- Estado 2026-11-25: URLs cargadas y registro apagado (`disable_signup: true` verificado). CAPTCHA nativo apagado (correcto). Falta SMTP propio y revisar la plantilla de *Reset Password*. La configuración pública de Auth (`/auth/v1/settings`) coincide con la de dev; MFA TOTP habilitado.
+- Estado 2026-11-25: URLs cargadas y registro apagado (`disable_signup: true` verificado). CAPTCHA nativo apagado (correcto). Falta SMTP propio y revisar la plantilla de *Reset Password* (el panel no deja editar plantillas sin SMTP propio; al activarlo el límite pasa a 30 mails por hora, ajustable en *Rate Limits*). La configuración pública de Auth (`/auth/v1/settings`) coincide con la de dev; MFA TOTP habilitado.
 - [x] Authentication → URL Configuration: **Site URL** `https://estured.com`; **Redirect URLs**: `https://estured.com/reset-password` y `https://www.estured.com/reset-password`.
 - [x] Authentication → Sign In / Providers → **"Allow new users to sign up": apagado** → *Save* (confirmar el ref). Todas las altas usan `auth.admin.createUser` desde el servidor. Verificación: `curl -s https://<ref>.supabase.co/auth/v1/settings -H "apikey: <anon key>"` → `"disable_signup": true`.
 - [ ] Authentication → SMTP Settings: SMTP propio con Resend (`smtp.resend.com`, puerto `465`, usuario `resend`, contraseña = API key de C3, remitente `no-reply@estured.com`). El SMTP por defecto de Supabase tiene un límite muy bajo.
@@ -309,7 +309,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 ### F2. Push y deploy [Vos con mi ayuda]
 - [ ] Sección B completa (typecheck/lint/build) y sección E completa.
-- [ ] Yo hago el merge a `main` y te digo el comando; el push a `origin/main` lo hacés vos (dispara el deploy).
+- [ ] `main` es ancestro de `staging`: no hace falta commit de merge. Yo te paso el comando `git push origin <commit validado>:main`; lo corrés vos (dispara el deploy).
 - [ ] Éxito: deploy *Ready*; `https://estured.com/` carga (popup de preapertura si A1 = on), `/login` carga, **sin** widget de "Simular usuario" en la esquina.
 
 ---
