@@ -544,6 +544,8 @@ El sistema debe registrar: fecha/hora de la solicitud de revocación; asociació
 
 **EstuRed emite Factura C, operando como monotributista, mediante integración con TusFacturas.app.**
 
+> **Mientras no haya integración (Ola 0 legal, LEG-002, decisión del dueño 2026-11-21):** el titular es monotributista y emite la Factura C **a mano** en ARCA por cada fee cobrado. El admin registra su número (`PPPPP-NNNNNNNN`) y fecha en `/admin/payments` → «Cobrados»; queda en `estured_fee_payments.fiscal_invoice_*` (`issued`), auditado (`fiscal_invoice_recorded`). Un número no se repite entre fees.
+
 La factura se emite automáticamente cuando el fee se confirma como pagado (cobro automático o validación manual de admin). Se emite a nombre de quien paga. Si paga un familiar, sale a nombre del familiar pagador.
 
 La descripción debe indicar el beneficiario del servicio reservado:

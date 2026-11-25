@@ -94,6 +94,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_payment_collection_chosen: "definió cómo se cobra la reserva de una solicitud",
   residence_reservation_collection_updated: "actualizó el cobro de la reserva de la residencia",
   residence_collection_account_updated: "actualizó datos de cobro de la reserva",
+  fiscal_invoice_recorded: "registró el número de la Factura C del fee",
   residence_collection_account_pending: "envió datos de cobro de la reserva para su aprobación",
   residence_collection_account_approved: "aprobó datos de cobro de la reserva",
   residence_collection_account_rejected: "rechazó datos de cobro de la reserva",

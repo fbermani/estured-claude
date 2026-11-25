@@ -8,6 +8,7 @@ import { recordRenewalManualFeePayment } from "@/lib/renewals/recordRenewalManua
 import { disputeFeePaymentCore, resolveFeePaymentIssueCore } from "@/lib/payments/feeAdminActions";
 import { reopenEsturedFeeWindow } from "@/lib/reservations/reopenEsturedFeeWindow";
 import { adminActorRole, getAdminSession } from "@/lib/auth/requireAdmin";
+import { registerFiscalInvoice } from "@/lib/payments/registerFiscalInvoice";
 
 export type MarkFeePaidState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -165,4 +166,29 @@ export async function reopenFeePaymentAction(feePaymentId: string, _prev: MarkFe
   revalidatePath("/admin/payments");
   if (result.status === "error") return { status: "error", message: result.message };
   return { status: "saved", message: "Reabriste el pago. El pagador tiene 48 horas para elegir el medio y subir otro comprobante." };
+}
+
+/**
+ * LEG-002 (Ola 0 legal): registra el número de la Factura C emitida a mano en ARCA para un fee cobrado. Capa fina: sesión admin,
+ * parseo y delega en `registerFiscalInvoice` (valida estado, formato, fecha y duplicados en el servidor).
+ */
+export async function registerFiscalInvoiceAction(
+  feePaymentId: string,
+  _prev: MarkFeePaidState,
+  formData: FormData,
+): Promise<MarkFeePaidState> {
+  const sessionUser = await getAdminSession();
+  if (!sessionUser) return { status: "error", message: "No tenés permiso para esta acción." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+  const result = await registerFiscalInvoice(admin, {
+    feePaymentId,
+    invoiceNumber: formData.get("invoice_number"),
+    issuedOn: formData.get("issued_on"),
+    actorUserId: sessionUser.id,
+    actorRole: adminActorRole(sessionUser),
+  });
+  revalidatePath("/admin/payments");
+  if (!result.ok) return { status: "error", message: result.error };
+  return { status: "saved" };
 }

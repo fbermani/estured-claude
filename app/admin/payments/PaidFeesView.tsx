@@ -9,6 +9,7 @@ import { paymentChannelLabel } from "@/lib/format/payerLabels";
 import { formatArs } from "@/lib/mock/exchange";
 import { loadUnconfirmedPaidFees } from "@/lib/payments/loadUnconfirmedPaidFees";
 import { RetryConfirmationButton } from "@/app/admin/payments/RetryConfirmationButton";
+import { FiscalInvoiceForm } from "@/app/admin/payments/FiscalInvoiceForm";
 
 /**
  * Histórico de fees cobrados (auditoría 2026-10-20, H25): hasta ahora
@@ -22,6 +23,9 @@ type PaidRow = {
   payment_channel: string | null;
   paid_at: string | null;
   renewal_offer_id: string | null;
+  fiscal_invoice_status: string | null;
+  fiscal_invoice_number: string | null;
+  fiscal_invoice_issued_at: string | null;
   reservations: {
     residences: { name: string } | null;
     student_profiles: { first_name: string; last_initial: string } | null;
@@ -40,7 +44,7 @@ export async function PaidFeesView() {
     ? await admin
         .from("estured_fee_payments")
         .select(
-          "id, status, fee_amount_ars, payment_channel, paid_at, renewal_offer_id, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial)), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial))",
+          "id, status, fee_amount_ars, payment_channel, paid_at, renewal_offer_id, fiscal_invoice_status, fiscal_invoice_number, fiscal_invoice_issued_at, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial)), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial))",
         )
         .in("status", ["paid", "refunded"])
         .order("paid_at", { ascending: false, nullsFirst: false })
@@ -99,7 +103,7 @@ export async function PaidFeesView() {
           <table className="w-full text-left text-sm">
             <thead style={{ backgroundColor: cmd.surfaceContainerLow, borderBottom: `1px solid ${cmd.border}` }}>
               <tr>
-                {["Cobrado el", "Estudiante", "Residencia", "Concepto", "Monto", "Medio", "Estado"].map((h) => (
+                {["Cobrado el", "Estudiante", "Residencia", "Concepto", "Monto", "Medio", "Estado", "Factura C"].map((h) => (
                   <th key={h} className="px-4 py-2.5 text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
                     {h}
                   </th>
@@ -136,6 +140,18 @@ export async function PaidFeesView() {
                         <AdminBadge tone={r.status === "paid" ? "emerald" : "neutral"}>
                           {r.status === "paid" ? "Cobrado" : "Reintegrado"}
                         </AdminBadge>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {r.fiscal_invoice_number ? (
+                        <span className="whitespace-nowrap font-mono text-xs" style={{ color: cmd.onSurface }}>
+                          {r.fiscal_invoice_number}
+                          {r.fiscal_invoice_issued_at ? ` · ${formatDate(r.fiscal_invoice_issued_at)}` : ""}
+                        </span>
+                      ) : r.status === "paid" && r.fiscal_invoice_status === "pending_issue" ? (
+                        <FiscalInvoiceForm feePaymentId={r.id} />
+                      ) : (
+                        <span className="text-xs" style={{ color: cmd.outline }}>—</span>
                       )}
                     </td>
                   </tr>
