@@ -282,8 +282,8 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 | `FOUNDERS_CLOSE_AT` | opcional (A5) |
 | `GEOCODER_USER_AGENT` | opcional (DF6, `docs/00` §31): identifica a la app ante Nominatim, p. ej. `EstuRed/1.0 (contacto@estured.com)`. Solo server; sin ella se usa un valor genérico |
 
-- [ ] **`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` y `NEXT_PUBLIC_STAGING` NO existen en Production** (solo en Preview de la rama `staging`, ver A0.2). Verificar con el MCP/dashboard que ninguna tenga `production` entre sus entornos.
-- [ ] Cargadas todas **antes** del primer deploy a prod.
+- [x] **`DEMO_LOGIN_ENABLED`, `DEMO_USERS_PASSWORD` y `NEXT_PUBLIC_STAGING` NO existen en Production** (solo en Preview de la rama `staging`, ver A0.2). Verificar con el MCP/dashboard que ninguna tenga `production` entre sus entornos. Verificado el 2026-11-25: las tres solo en Preview de `staging`.
+- [x] Cargadas todas **antes** del primer deploy a prod. Verificado el 2026-11-25; faltan solo las opcionales `FOUNDERS_CLOSE_AT` y `NEXT_PUBLIC_META_PIXEL_ID`.
 
 ---
 
@@ -303,9 +303,9 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 > **C3 hecho (2026-11-25):** API key de Resend `estured-prod-sending` (id `fce07fac-554d-482f-9db7-fbf510a810ac`, permiso *Sending access* limitado a `estured.com`) creada y cargada solo en Vercel Production como `RESEND_API_KEY` (*Sensitive*; el valor no se guardó en ningún archivo ni se mostró en el chat). También en Production: `EMAIL_FROM=no-reply@estured.com` y `EMAIL_DOMAIN_VERIFIED=true`. Pendiente de la tabla E: variables de Supabase, `NEXT_PUBLIC_APP_URL`, `CRON_SECRET`, VAPID, Turnstile y `PREAPERTURA`. Falta probar un envío real tras el deploy de `main`; el SMTP de Supabase Auth usa esta misma key (sección D).
 > **Cookies verificadas (2026-11-21):** ninguna cookie de la app define `Domain` (`lib/supabase/cookie-options.ts`, `server.ts`, `middleware.ts`): son host-only, `httpOnly` + `Secure` en prod + `SameSite=Lax`. Un subdominio futuro (`blog.`, `status.`) no puede leer la sesión. Mantener así: no agregar `domain: ".estured.com"`.
 > **Opción futura (no se hace ahora): aislar los paneles en `app.estured.com`.** Hoy sitio público y paneles viven juntos en `estured.com` a propósito: el SEO depende de `/search`, fichas y guías, y el dominio está en `SITE_URL`, canonicals, sitemap, robots, CSP, Turnstile, Redirect URLs de Supabase Auth y links de mails. Se reconsidera si los paneles pesan en el rendimiento del sitio público o si hace falta aislar seguridad. Si se hace: (1) agregar `app.estured.com` al proyecto en Vercel y su CNAME en Hostinger; (2) mover paneles y login a ese host y dejar redirects 308 desde las rutas viejas; (3) actualizar Site URL y Redirect URLs de Supabase, dominios de Turnstile, CSP y `NEXT_PUBLIC_APP_URL` (`NEXT_PUBLIC_SITE_URL` queda en el apex); (4) los usuarios deberán volver a iniciar sesión (cookies host-only); (5) `noindex` en el host de la app.
-- [ ] Vercel → proyecto → Settings → Domains → agregar `estured.com` y `www.estured.com` (www redirige al apex). Vercel muestra los registros exactos.
-- [ ] Hostinger → DNS zone: **borrar** los registros A/AAAA/CNAME de `@` y `www` que haya por defecto (parking) y crear los que indica Vercel (normalmente `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com`; **usar los valores que muestre Vercel**). No tocar los registros de Resend ni los MX del correo.
-- [ ] Esperar a que Vercel ponga ambos dominios en verde (HTTPS automático; propagación de minutos a horas).
+- [x] Vercel → proyecto → Settings → Domains → agregar `estured.com` y `www.estured.com` (www redirige al apex). Vercel muestra los registros exactos.
+- [x] Hostinger → DNS zone: **borrar** los registros A/AAAA/CNAME de `@` y `www` que haya por defecto (parking) y crear los que indica Vercel (normalmente `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com`; **usar los valores que muestre Vercel**). No tocar los registros de Resend ni los MX del correo.
+- [x] Esperar a que Vercel ponga ambos dominios en verde (HTTPS automático; propagación de minutos a horas). Verificado el 2026-11-25: DNS sin errores (`misconfigured: false`).
 
 ### F2. Push y deploy [Vos con mi ayuda]
 - [ ] Sección B completa (typecheck/lint/build) y sección E completa.
@@ -458,7 +458,7 @@ Sin hallazgos altos. Dos medios y cuatro bajos. Propuestas pendientes de aprobac
 - [x] Diagnóstico inicial gratuito hecho sobre staging. Único hallazgo: E-01, CSP en `Report-Only` con `unsafe-inline` (ya conocido, M5). Next.js 15.5.29 confirmada con los parches vigentes.
 - [ ] **Decidir y contratar el pentest focalizado (USD 250)**, solo contra staging y con usuarios demo. Firmar antes NDA y orden de trabajo. Alcance: solicitudes, pagos, comprobantes y Storage con rol estudiante y rol residencia. No entregar claves de producción ni `SERVICE_ROLE_KEY`.
 - [ ] Pasar a los pentesters la lista de hallazgos ya conocidos (ver el informe) para evitar duplicados.
-- [ ] **Versión de Next:** cotejar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar versión exacta (hoy `^15.5.29`).
+- [ ] **Versión de Next:** cotejar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar versión exacta (hoy `^15.5.29`). 2026-11-25: el lock fija 15.5.29 y `npm audit --omit=dev` da 0 avisos; no se toca `package.json` antes del primer deploy. Falta mirar el log del build de producción.
 - [ ] **E-01:** pasar la CSP a enforce y quitar `unsafe-inline` con nonces o hashes, después de revisar `[csp-report]` en producción. Probar Turnstile, mapas y la caché de rutas públicas. Ya figura en I y en «Post-producción (seguridad)».
 - Servicios descartados por ahora: auditoría de código (USD 550), pruebas de carga (USD 400), optimización (USD 450). Reevaluar con usuarios reales.
 
@@ -473,7 +473,7 @@ Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables 
 - [ ] E: verificar el nombre exacto de la variable que exige `lib/appUrl.ts:9` (`NEXT_PUBLIC_APP_URL`) y agregarlo a la tabla si falta (P19-04).
 
 **Tareas nuevas antes de abrir (bloqueantes)**
-- [ ] Crear `app/global-error.tsx` y `app/(preapertura)/error.tsx` en español (P19-05).
+- [x] Páginas de error en español (P19-05): `app/global-error.tsx` creado el 2026-11-25. `(preapertura)/error.tsx` no hace falta: `app/error.tsx` ya cubre esas rutas.
 - [ ] Definir monitoreo: alertas de Vercel y guardia; Sentry opcional. Anotar la decisión (P19-06).
 - [ ] Rendimiento: cachear el catálogo y quitar `force-dynamic` de `/` (R19-03, R19-04); quitar `animate.css` (R19-05). Repetir la carga con `e2e/load/k6-publica.js`; meta: 25 usuarios con p95 menor a 2 s.
 

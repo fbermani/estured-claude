@@ -10,7 +10,7 @@ Estado de cada ítem: `[ ]` pendiente, `[x]` hecho. Quién: **[Vos]** panel o cu
 - [ ] **[Vos] «Leaked password protection»** en Supabase Auth, en prod y en dev. Solo en plan Pro. Rechaza contraseñas filtradas en internet.
 - [ ] **[Vos] Versión de Next.js.** Mirar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar una versión exacta: hoy `package.json` pide `^15.5.29`.
 - [ ] **[Vos] Alertas de errores.** Elegir Sentry o las alertas de Vercel (P19-06). Sin esto un problema se nota tarde.
-- [ ] **[Yo] Páginas de error en español:** `app/global-error.tsx` y `app/(preapertura)/error.tsx` (P19-05). Hoy un error grave muestra una pantalla en inglés.
+- [x] **[Yo] Páginas de error en español** (2026-11-25): `app/global-error.tsx` creado; `app/error.tsx` ya cubre la preapertura (P19-05).
 
 ## B. Seguridad — migración 0107 (aplicada en dev 2026-11-25; falta prod)
 - [x] **`profile_availability.last_confirmed_by`:** ya no se lee con la clave pública ni con sesión.
