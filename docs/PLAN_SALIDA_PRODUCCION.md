@@ -193,7 +193,8 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   ```
 - [ ] **Guardar el secreto ya** (gestor de contraseñas): es el valor de `CRON_SECRET` de Vercel (sección E) y el portapapeles se pisa fácil.
 - [x] **Antes de copiar el SQL:** crear `CRON_SECRET` en Vercel (Production, *Sensitive*) con ese valor [Vos] (creada el 2026-11-25).
-- Para regenerar el SQL **con el mismo secreto** ya guardado (va directo al portapapeles, sin archivo en el Escritorio):
+- **Camino simple (usado el 2026-11-25):** [Yo] genero el SQL sin secreto y lo dejo en el portapapeles. [Vos] pegar y *Run*. Después, en una consulta nueva, reemplazar el texto de relleno por el `CRON_SECRET` y correr: `select vault.update_secret((select id from vault.secrets where name = 'cron_secret'), 'PEGA-ACA-EL-SECRETO');`. Borrar esa consulta guardada.
+- Alternativa: regenerar el SQL **con el mismo secreto** ya guardado (va directo al portapapeles, sin archivo en el Escritorio):
   ```bash
   cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && read -rs 'S?Pegá el CRON_SECRET guardado y tocá Enter: ' && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql | pbcopy; unset S
   ```
