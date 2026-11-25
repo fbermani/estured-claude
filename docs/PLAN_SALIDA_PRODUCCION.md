@@ -20,7 +20,8 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - **Variables de Production ya cargadas en Vercel:** `EMAIL_FROM`, `EMAIL_DOMAIN_VERIFIED=true`, `RESEND_API_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, VAPID (par propio de Production), `VAPID_SUBJECT`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SITE_URL`, `PREAPERTURA=on`, `GEOCODER_USER_AGENT`.
 - **Proyecto nuevo:** `estured-prod`, ref `hioscbefryufsbypsmtx` (creado 2026-11-25). `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de Production ya apuntan ahí.
 - `SUPABASE_SERVICE_ROLE_KEY` de Production actualizada por el dueño (2026-11-25).
-- **Faltan:** confirmar la región del proyecto (C2), `CRON_SECRET` (se genera en D1), bootstrap y buckets (D1, D2), Auth (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
+- **Base creada** (D1, control del 2026-11-25). Región confirmada: São Paulo (`sa-east-1`).
+- **Faltan:** cargar el secreto del cron en Vault (D1), buckets (D2), Auth (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
 - ⚠ **`estured.com` hoy sirve el deploy viejo de `main`** (Ciclo 30bis, abierto y sin base). Se reemplaza en F2. No hay datos reales en riesgo (la base vieja ya no existe).
 
 ### Etapas
@@ -165,7 +166,8 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 - [ ] **[Vos] Rotar la secret key de Supabase prod y cargar la nueva** (nueva cargada en Vercel el 2026-11-25; falta confirmar que la anterior quedó borrada) (la primera se pegó en el chat el 2026-11-25): Supabase → Project Settings → API Keys → crear una *secret key* nueva; pegarla en Vercel en `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor); borrar la vieja en Supabase. No pegarla en ningún chat.
 - Las claves nuevas se llaman distinto: *publishable* (`sb_publishable_…`) va en `NEXT_PUBLIC_SUPABASE_ANON_KEY`; *secret* (`sb_secret_…`) va en `SUPABASE_SERVICE_ROLE_KEY`. `SUPABASE_JWKS_URL` no se usa.
 - Las 3 variables de Supabase de Production son *Sensitive* y Vercel no deja cambiarles el tipo. La pantalla rechaza guardar las `NEXT_PUBLIC_*` así; por API se actualizó solo el valor (2026-11-25). Si el build de F2 no las toma, borrarlas y recrearlas como *Config*.
-- [ ] Región de funciones de Vercel: configurar São Paulo (`gru1`) antes de F2 para que quede junto a la base [Yo]. Afecta también al staging (base en `us-east-1`): algo más lento, aceptado.
+- [x] Región del proyecto confirmada: `sa-east-1` (2026-11-25; la IPv6 de `db.<ref>.supabase.co` cae en el rango de AWS de esa región).
+- [x] Región de funciones de Vercel: `gru1` en `vercel.json` (2026-11-25) [Yo]. Afecta también al staging (base en `us-east-1`): algo más lento, aceptado.
 - [ ] Anotar el **ref** (el subdominio de la URL), la **URL**, la **anon key** y la **service role key** (Project Settings → API; la service role es secreta).
 - [x] Yo agrego el ref a `scripts/production-refs.json` (`hioscbefryufsbypsmtx`, 2026-11-25; así tests y seeds se niegan a correr contra él).
 
@@ -198,7 +200,10 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   ```bash
   cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && read -rs 'S?Pegá el CRON_SECRET guardado y tocá Enter: ' && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql | pbcopy; unset S
   ```
-- Estado 2026-11-25: bootstrap ejecutado en `hioscbefryufsbypsmtx` (tablas visibles por API; un segundo Run dio `type "user_role" already exists`, esperado: **no volver a correrlo**). Falta el control de huella y revisar el secreto del cron.
+- Estado 2026-11-25: bootstrap ejecutado en `hioscbefryufsbypsmtx` (un segundo Run dio `type "user_role" already exists`, esperado: **no volver a correrlo**).
+- **Control del 2026-11-25:** OK `tablas` 77, sin RLS 0, escritura pública 0, `policies` 124, permisos por defecto, huella de tablas, huella de columnas y cron. `huella_funciones` dio `699ed288b7c87ab2870004134904a7b1`: la única diferencia es `public.rls_auto_enable()` (solo en prod, devuelve `event_trigger`). Las 27 funciones propias coinciden por nombre y firma. Por nombre y tipo parece el activador automático de RLS que Supabase agrega a proyectos nuevos; no se borra. `anon` figura con *execute*, pero por la API REST responde error 400.
+- [ ] Confirmar (SQL) que está enganchada: `select evtname from pg_event_trigger where evtfoid = 'public.rls_auto_enable'::regproc;` y mirar *Advisors*.
+- [ ] **[Vos] Cargar el secreto del cron en Vault** (el control dice «falta cargarlo»).
 - [ ] Copiar el SQL (`pbcopy < ~/Desktop/prod_bootstrap_LISTO.sql`) → SQL Editor del proyecto `hioscbefryufsbypsmtx` → Run. Si pide confirmar una operación destructiva, confirmar (la base está vacía).
 - [ ] **Si falla:** no reintentar ni recrear el proyecto. Los `begin;`/`commit;` internos dejan aplicado lo anterior. Pasar el texto del error y el archivo (`-- ===== 0xxx =====`) donde cortó; se sigue desde ahí.
 - [ ] Borrar el *snippet* guardado en el SQL Editor y el archivo `~/Desktop/prod_bootstrap_LISTO.sql`: los dos tienen el secreto.
@@ -218,14 +223,26 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   Esperado (dev al 2026-11-25): `tablas` 77 · `tablas_sin_rls` 0 · `escritura_publica` 0 · `policies` 124 · `cron` 1 · `permisos` `{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=rm/postgres,service_role=arwdDxtm/postgres}` · `huella_tablas` `2faa89b6ffa30e7981702807c9887063` · `huella_columnas` `a1d005b7969299937d3d2916c9d0d93f` · `huella_funciones` `a605f5e281866781c8a5e20dcfea231c`. Si una huella difiere, comparar solo las listas de nombres (sin datos).
 - El cron llama a `estured.com` cada hora desde D1. Falla hasta F2 (deploy viejo): es esperado.
 
-### D2. Buckets de Storage [Vos con mi ayuda]
-- [ ] Con las credenciales del proyecto **nuevo** solo en esa invocación (sin tocar `.env.local`):
+### D2. Buckets de Storage [Yo, con acceso al SQL Editor]
+- [ ] SQL Editor del proyecto `hioscbefryufsbypsmtx` (copia de los 5 buckets de `estured-dev`; se puede repetir):
+  ```sql
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
+    ('public-residence-media', 'public-residence-media', true, 5242880, array['image/jpeg','image/png','image/webp']),
+    ('private-residence-documents', 'private-residence-documents', false, 10485760, array['application/pdf']),
+    ('payment-proofs', 'payment-proofs', false, 10485760, array['application/pdf','image/jpeg','image/png','image/webp']),
+    ('support-evidence', 'support-evidence', false, 26214400, array['application/pdf','image/jpeg','image/png','image/webp','video/mp4','video/quicktime','audio/mpeg','audio/mp4','audio/ogg']),
+    ('student-documents', 'student-documents', false, 10485760, array['application/pdf','image/jpeg','image/png','image/webp'])
+  on conflict (id) do nothing;
+  select count(*) as buckets, md5(string_agg(id||':'||public::text||':'||file_size_limit::text||':'||array_to_string(allowed_mime_types, ','), ';' order by id collate "C")) as huella from storage.buckets;
+  ```
+- [ ] Éxito: `buckets` 5 y `huella` `6a609523f5d56026a3841434f68acb0a` (dev al 2026-11-25). Solo `public-residence-media` es público. **No agregar policies de Storage** (el acceso privado es por service role).
+- Alternativa por Terminal (credenciales solo en esa invocación):
   ```bash
   read -rs 'SR?Pegá la secret key de prod: ' && SUPABASE_SERVICE_ROLE_KEY=$SR NEXT_PUBLIC_SUPABASE_URL=https://hioscbefryufsbypsmtx.supabase.co node scripts/setup-storage.mjs; unset SR
   ```
-- [ ] Éxito: 5 buckets (`public-residence-media`, `private-residence-documents`, `payment-proofs`, `support-evidence`, `student-documents`); solo el primero es *Public*. **No agregar policies de Storage** (el acceso privado es por service role).
 
 ### D3. Supabase Auth [Vos]
+- ⚠ 2026-11-25: `disable_signup` sigue en `false`. Cualquiera con la publishable key puede registrarse contra prod. Apagarlo cuanto antes.
 - [ ] Authentication → URL Configuration: **Site URL** `https://estured.com`; **Redirect URLs**: `https://estured.com/reset-password` y `https://www.estured.com/reset-password`.
 - [ ] Authentication → Sign In / Providers → **"Allow new users to sign up": apagado** → *Save* (confirmar el ref). Todas las altas usan `auth.admin.createUser` desde el servidor. Verificación: `curl -s https://<ref>.supabase.co/auth/v1/settings -H "apikey: <anon key>"` → `"disable_signup": true`.
 - [ ] Authentication → SMTP Settings: SMTP propio con Resend (`smtp.resend.com`, puerto `465`, usuario `resend`, contraseña = API key de C3, remitente `no-reply@estured.com`). El SMTP por defecto de Supabase tiene un límite muy bajo.
@@ -457,7 +474,7 @@ Informe: `docs/audits/AUDITORIA_PRE_PRODUCCION_2026-11-19.md`. No hay variables 
 - [ ] Rendimiento: cachear el catálogo y quitar `force-dynamic` de `/` (R19-03, R19-04); quitar `animate.css` (R19-05). Repetir la carga con `e2e/load/k6-publica.js`; meta: 25 usuarios con p95 menor a 2 s.
 
 **No bloqueantes**
-- [ ] Fijar región de funciones en gru1 si el plan lo permite (P19-13).
+- [x] Región de funciones en `gru1` (P19-13): `vercel.json`, 2026-11-25.
 - [ ] Redactar errores de Supabase en los logs de registro y auth (S19-05, P19-17).
 - [ ] CI mínimo con typecheck, lint y tests (P19-18).
 - [ ] Agregar `scratchpad/` a `.gitignore` y `@source not` en `globals.css` (S19-06, R19-07).
@@ -525,7 +542,7 @@ Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código 
 - [ ] **[Vos] Migración 0107** (`db/migrations/0107_privilege_hardening.sql`, 2026-11-25, aplicada en dev): quita lecturas sin uso a `anon`/`authenticated`. Entra sola con el bootstrap; si prod ya existe, pegala en su SQL Editor.
 - [ ] **[Vos] Factura C manual por cada fee cobrado** (LEG-002): emitila en ARCA (monotributo) a nombre de quien pagó y registrá el número y la fecha en `/admin/payments` → «Cobrados» → columna «Factura C». Formato `00001-00000123`. Un número no se repite.
 - [ ] **[Vos] Datos del titular**: viven solo en `lib/legal/operator.ts` y se publican en `/terms#quienes-somos` (decisión del dueño: no en el pie). Domicilio publicado: solo «Ciudad Autónoma de Buenos Aires, Argentina» (riesgo aceptado).
-- [ ] **[Vos] Región gru1 en Vercel** al armar producción (decisión del dueño; ver también P19-13 arriba).
+- [x] **Región gru1 en Vercel** (decisión del dueño; hecha en `vercel.json` el 2026-11-25, ver C2).
 - [ ] **[Vos] MFA de admin** (bloque 9, `6c58053`): en Supabase prod → Authentication → Multi-Factor, TOTP habilitado. Cada admin entra, enrola su app de autenticación en `/admin-mfa` y verifica el código, antes de abrir. `DEMO_LOGIN_ENABLED` no existe en Production (si existe, no se exige MFA).
 - [ ] **[Vos] Confirmación de email** (bloque 9): se exige cuando `EMAIL_FROM` es válido (ya cargada en Production) y rige al apagar `PREAPERTURA`. **Obligatorio antes de abrir:** *Confirm email* activado en Supabase prod (Authentication → Sign In / Providers → Email). El login solo bloquea cuando Supabase responde `email_not_confirmed`; con la opción apagada, una cuenta sin confirmar entra igual. Probá: una cuenta nueva no ingresa sin confirmar y el enlace (`/auth/confirmar`, usa `NEXT_PUBLIC_APP_URL`) abre la sesión.
 - [ ] **[Vos] Cuenta del menor en espera** (bloque 8, DR65 (e)): sin migración ni variables. No corras `seed-demo-guardian-consent.mjs` en prod. Al apagar `PREAPERTURA`, probá un alta de 14 a 17: queda en espera hasta que el familiar vinculado da su consentimiento.
