@@ -27,7 +27,13 @@
       "chosen_method",
       "student_reported_paid_at",
       "student_payment_issue_at",
-      "student_payment_issue_resolved_at"
+      "student_payment_issue_resolved_at",
+      "reopen_count",
+      "admin_escalated_at"
+    ],
+    "external_residence_payments": [
+      "reopen_count",
+      "admin_escalated_at"
     ]
   },
   "privateTables": [

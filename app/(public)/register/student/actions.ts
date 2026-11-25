@@ -252,6 +252,18 @@ export async function registerStudent(
     category: "admin_signups",
   });
 
+  // DR65 (e): un menor queda en espera hasta el consentimiento del familiar: no se activa la estadía (la invitación de la residencia no se
+  // consume y la usa después) ni se piden vínculos con residencias. Entra al panel, que le explica cómo invitar a su familiar.
+  if (isMinor) {
+    if (needsEmailConfirmation) {
+      const sent = await sendSignupConfirmationEmail(admin, email);
+      redirect(sent ? "/login?confirmar=enviado" : "/login?confirmar=error");
+    }
+    const minorSession = await getSupabaseServer();
+    if (minorSession) await minorSession.auth.signInWithPassword({ email, password });
+    redirect("/students/dashboard");
+  }
+
   // DR65 (d): sin email confirmado no hay sesión. Los avisos de «Ya vivo en una residencia» salen igual (no dependen de la sesión).
   if (needsEmailConfirmation) {
     if (linkResidenceId || missingName) {

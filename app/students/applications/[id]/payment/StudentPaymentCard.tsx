@@ -47,12 +47,12 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
           <Icon name="chat" className="mt-0.5 shrink-0 text-lg text-forest-700" />
           <span>
             {view.isMinor && !forFamily
-              ? "La residencia le va a escribir a tu familiar vinculado por WhatsApp con el monto final y cómo pagar."
-              : "La residencia te va a escribir por WhatsApp con el monto final y cómo pagar."}
+              ? "La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar."
+              : "La residencia te va a indicar el monto final y cómo pagar."}
           </span>
         </p>
         <p className="mt-3 text-xs text-ink-faint">
-          No transfieras dinero a datos que no te haya pasado la residencia por ese canal. EstuRed no custodia ni garantiza este pago.
+          No transfieras dinero a datos que no te haya indicado la residencia. EstuRed no custodia ni garantiza este pago.
         </p>
       </Card>
     );
@@ -89,8 +89,8 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
         <h2 className="text-base font-bold text-ink">Avisaste que no pudiste pagar</h2>
         <p className="mt-2 text-sm text-ink-soft">
           {view.isMinor
-            ? "La residencia va a contactar a tu familiar vinculado por WhatsApp o va a habilitar de nuevo el pago."
-            : "La residencia te va a contactar por WhatsApp o va a habilitar de nuevo el pago."}{" "}
+            ? "La residencia va a contactar a tu familiar vinculado o va a habilitar de nuevo el pago."
+            : "La residencia te va a contactar o va a habilitar de nuevo el pago."}{" "}
           Mientras tanto el plazo queda frenado.
         </p>
         <SupportButton />

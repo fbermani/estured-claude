@@ -35,6 +35,8 @@ const baseFee: Row = {
   payer_reminder_sent_at: null,
   admin_reminder_sent_at: null,
   admin_alert_sent_at: null,
+  admin_escalated_at: null,
+  reopen_count: 0,
 };
 
 function world(feeOver: Row = {}, extra: Partial<Record<string, Row[]>> = {}): Record<string, Row[]> {
@@ -173,5 +175,50 @@ describe("aviso de 24 h y alerta de 72 h a los admin", () => {
     expect(await run()).toMatchObject({ adminAlerts: 1 });
     expect(fake.tables.support_cases).toHaveLength(0);
     expect(notices.every((n) => n.relatedEntityType === "estured_fee_payments" && n.relatedEntityId === "fee-1")).toBe(true);
+  });
+});
+
+describe("escalado a los 7 días a todos los superadmin (DR66 (a))", () => {
+  // A los 7 días la alerta de 72 h ya salió (`admin_alert_sent_at` seteada): el escalado NO puede depender de ella.
+  const afterAlert = { admin_alert_sent_at: hoursAgo(90), admin_reminder_sent_at: hoursAgo(140) };
+  const superOnly = () => notices.filter((n) => n.title.includes("7 días"));
+
+  it("«Ya pagué» sin validar a los 7 días: avisa SOLO a los superadmin, una sola vez, con la alerta de 72 h ya enviada", async () => {
+    boot(world(reported(24 * 7 + 1, afterAlert)));
+    expect(await run()).toMatchObject({ superadminEscalations: 1, adminAlerts: 0 });
+    expect(superOnly().map((n) => n.userId)).toEqual(["u-super"]);
+    expect(fee()).toMatchObject({ status: "pending_manual_payment", admin_escalated_at: NOW.toISOString() });
+    expect(audits.some((a) => a.action === "estured_fee_escalated_to_superadmin" && a.actorUserId === null)).toBe(true);
+    expect(await run()).toMatchObject({ superadminEscalations: 0 });
+    expect(superOnly()).toHaveLength(1);
+  });
+
+  it("«No pude realizar el pago» sin responder también escala, sin vencer ni cambiar el estado", async () => {
+    boot(world(issue(24 * 8, afterAlert)));
+    expect(await run()).toMatchObject({ superadminEscalations: 1 });
+    expect(fee()).toMatchObject({ status: "pending_payment_method", student_payment_issue_resolved_at: null });
+    expect(fee().expires_at).toBe(inHours(40));
+  });
+
+  it("antes de los 7 días, con disputa abierta o con el aviso ya respondido no escala", async () => {
+    for (const over of [reported(24 * 6, afterAlert), reported(24 * 9, { ...afterAlert, admin_disputed_at: hoursAgo(5) }), issue(24 * 9, { ...afterAlert, student_payment_issue_resolved_at: hoursAgo(1) })]) {
+      boot(world(over));
+      expect(await run()).toMatchObject({ superadminEscalations: 0 });
+    }
+    expect(superOnly()).toHaveLength(0);
+  });
+
+  it("sin superadmin activo devuelve la marca para reintentar; un admin común no cuenta", async () => {
+    boot(world(reported(24 * 7 + 1, afterAlert), { user_roles: [{ user_id: "u-admin1", role: "admin", is_active: true }, { user_id: "u-super-baja", role: "superadmin", is_active: false }] }));
+    expect(await run()).toMatchObject({ superadminEscalations: 0 });
+    expect(fee().admin_escalated_at).toBeNull();
+    expect(notices.filter((n) => n.title.includes("7 días"))).toHaveLength(0);
+  });
+
+  it("un evento nuevo que limpia la marca vuelve a habilitar el escalado (solo se libera la marca propia)", async () => {
+    boot(world(reported(24 * 7 + 1, afterAlert)));
+    await run();
+    fake.tables.estured_fee_payments[0].admin_escalated_at = null;
+    expect(await run()).toMatchObject({ superadminEscalations: 1 });
   });
 });

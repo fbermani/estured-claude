@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useActionState } from "react";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
+import { FEE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import { reopenFeeWindowAction, type ReopenFeeWindowActionState } from "@/app/admin/reservations/actions";
 
 const initialState: ReopenFeeWindowActionState = { status: "idle" };
 
-export function ReopenFeeWindowControl({ feePaymentId }: { feePaymentId: string }) {
+export function ReopenFeeWindowControl({ feePaymentId, limitReached = false }: { feePaymentId: string; limitReached?: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const action = reopenFeeWindowAction.bind(null, feePaymentId);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -17,6 +18,14 @@ export function ReopenFeeWindowControl({ feePaymentId }: { feePaymentId: string 
     return (
       <span className="text-xs font-semibold" style={{ color: cmd.emerald }}>
         {state.message}
+      </span>
+    );
+  }
+
+  if (limitReached) {
+    return (
+      <span className="text-xs font-semibold" style={{ color: cmd.amber }} title={FEE_REOPEN_CAP_MESSAGE}>
+        Ya se reabrió 2 veces: solo Soporte
       </span>
     );
   }

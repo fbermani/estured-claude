@@ -5,6 +5,7 @@ import { validateDisputeReason, validateResolveReason } from "@/lib/payments/fee
 import { isFeeIssueOpen } from "@/lib/payments/feeCollection";
 import { openFeeReviewSupportCase } from "@/lib/payments/feeSupportCase";
 import { notifyFeePayer } from "@/lib/payments/feePayerNotices";
+import { FEE_REOPEN_CAP_MESSAGE, normalizeReopenCount, reopenCapReached } from "@/lib/payments/reopenCap";
 
 /**
  * Acciones del ADMIN sobre un fee de EstuRed en revisión (DR64 (d) y (e); `docs/07` §17.9). Capa de negocio `(admin, params)` sin
@@ -15,7 +16,7 @@ import { notifyFeePayer } from "@/lib/payments/feePayerNotices";
  *  - `resolveFeePaymentIssueCore` (responde «No pude realizar el pago»): «Contactar al pagador» o «Reabrir el pago». Ambas cierran el
  *    aviso y reinician el plazo de 48 h.
  * Los avisos no llevan el motivo ni datos de cobro. La auditoría guarda el motivo del admin en `reason_text` (no datos de cobro).
- * NO implementa el tope de reaperturas (pendiente del dueño, `docs/00` DR64 (i)).
+ * Tope de reaperturas (DR66 (a)): «Reabrir el pago» cuenta en `reopen_count` (máximo 2); «Contactar al pagador» no cuenta.
  */
 
 export type FeeAdminResult = { ok: true } | { ok: false; error: string };
@@ -25,7 +26,7 @@ const SAVE_FAILED = "No pudimos guardar el cambio. Intentá de nuevo en unos min
 const STALE = "El pago cambió mientras lo revisabas. Recargá la pantalla para ver su estado actual.";
 const NOT_FOUND = "No encontramos ese pago.";
 
-const CLEAR_MARKS = { payer_reminder_sent_at: null, admin_reminder_sent_at: null, admin_alert_sent_at: null } as const;
+const CLEAR_MARKS = { payer_reminder_sent_at: null, admin_reminder_sent_at: null, admin_alert_sent_at: null, admin_escalated_at: null } as const;
 
 type Actor = { actorUserId: string; actorRole: "admin" | "superadmin" };
 
@@ -44,9 +45,11 @@ type FeeRow = {
   payer_reminder_sent_at: string | null;
   admin_reminder_sent_at: string | null;
   admin_alert_sent_at: string | null;
+  admin_escalated_at: string | null;
+  reopen_count: number | null;
 };
 const FEE_COLUMNS =
-  "id, status, reservation_id, renewal_offer_id, payer_user_id, expires_at, manual_payment_file_id, admin_disputed_at, student_payment_issue_at, student_payment_issue_resolved_at, chosen_method, payer_reminder_sent_at, admin_reminder_sent_at, admin_alert_sent_at";
+  "id, status, reservation_id, renewal_offer_id, payer_user_id, expires_at, manual_payment_file_id, admin_disputed_at, student_payment_issue_at, student_payment_issue_resolved_at, chosen_method, payer_reminder_sent_at, admin_reminder_sent_at, admin_alert_sent_at, admin_escalated_at, reopen_count";
 
 async function loadFee(admin: SupabaseClient, feePaymentId: string): Promise<{ fee: FeeRow | null; failed: boolean }> {
   const { data, error } = await admin.from("estured_fee_payments").select(FEE_COLUMNS).eq("id", feePaymentId).maybeSingle();
@@ -159,11 +162,21 @@ export async function resolveFeePaymentIssueCore(
     if (!reservation || reservation.status !== "pending_estured_fee") return { ok: false, error: "La reserva ya no está esperando el pago del fee. Recargá la pantalla." };
   }
 
+  // DR66 (a): máximo 2 reaperturas por pago. Solo «Reabrir el pago» cuenta.
+  const reopenCount = normalizeReopenCount(fee.reopen_count);
+  if (resolution === "reopen_payment" && reopenCapReached(reopenCount)) return { ok: false, error: FEE_REOPEN_CAP_MESSAGE };
+
   const newExpiresAt = new Date(now.getTime() + FEE_WINDOW_MS).toISOString();
   const { data: claimed, error: claimError } = await admin
     .from("estured_fee_payments")
-    .update({ student_payment_issue_resolved_at: now.toISOString(), expires_at: newExpiresAt, ...CLEAR_MARKS })
+    .update({
+      student_payment_issue_resolved_at: now.toISOString(),
+      expires_at: newExpiresAt,
+      ...(resolution === "reopen_payment" ? { reopen_count: reopenCount + 1 } : {}),
+      ...CLEAR_MARKS,
+    })
     .eq("id", fee.id)
+    .eq("reopen_count", reopenCount)
     .eq("status", "pending_payment_method")
     .eq("student_payment_issue_at", fee.student_payment_issue_at as string)
     .is("student_payment_issue_resolved_at", null)
@@ -193,6 +206,7 @@ export async function resolveFeePaymentIssueCore(
           payer_reminder_sent_at: fee.payer_reminder_sent_at,
           admin_reminder_sent_at: fee.admin_reminder_sent_at,
           admin_alert_sent_at: fee.admin_alert_sent_at,
+          admin_escalated_at: fee.admin_escalated_at,
         })
         .eq("id", fee.id)
         .eq("student_payment_issue_resolved_at", now.toISOString());
@@ -207,7 +221,13 @@ export async function resolveFeePaymentIssueCore(
     action: "estured_fee_payment_issue_resolved",
     entityType: "estured_fee_payments",
     entityId: fee.id,
-    newValue: { resolution, expires_at: newExpiresAt, chosen_method: fee.chosen_method, support_case_id: supportCaseId },
+    newValue: {
+      resolution,
+      expires_at: newExpiresAt,
+      chosen_method: fee.chosen_method,
+      support_case_id: supportCaseId,
+      reopen_count: resolution === "reopen_payment" ? reopenCount + 1 : reopenCount,
+    },
     reasonText: reason.value,
     source: "admin",
   });

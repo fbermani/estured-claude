@@ -20,7 +20,7 @@ import { evaluateCollectionRequirement, type ReservationCollectionConfig } from 
  * 9. Condiciones de reserva completas: ajuste de tarifa, pago inicial coherente con lo que se cobra, matrícula y depósito excluyentes,
  *    matrícula manual con monto y, si cobra mes vacío, su porcentaje.
  * 10. Cobro de la reserva (DR63): «Contacto directo por WhatsApp», o «Cobro con medios habilitados» con al menos 1 medio y los datos de
- *    cobro de cada medio aceptado cargados (aprobados o pendientes de aprobación: la primera carga la aprueba el admin al verificar).
+ *    cobro de cada medio aceptado cargados. No se exige aprobación: desde DR65 (c) EstuRed no aprueba los datos de cobro (DR66 (c)).
  *    Sin ninguna opción elegida no cumple. Si el entorno no tiene la migración 0102 (`reservationCollection: null`), no se exige.
  *
  * Condicionales (solo se exigen si la residencia eligió la opción): depósito con monto, y salida anticipada con costos Y condiciones.

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { isPaymentMethodKey } from "@/lib/payments/paymentMethods";
 import {
+  ALTERNATIVE_PREFERENCE_KEY,
+  COLLECTION_ALTERNATIVE_LABEL,
+  COLLECTION_ALTERNATIVE_RESIDENCE_LABEL,
   COLLECTION_LIABILITY_NOTICE,
+  COLLECTION_PREFERENCE_NOTICE,
+  collectionAlternativeNotice,
   contactCollectionNotice,
   methodsPreferenceNotice,
   offeredReservationCollection,
@@ -102,7 +108,7 @@ describe("resolvePreferredPaymentMethod", () => {
   };
   const contact: ReservationCollectionOffer = { kind: "contact" };
 
-  it("ausente o vacío («Lo coordino con la residencia») guarda null", () => {
+  it("ausente o vacío (sin preferencia) guarda null", () => {
     expect(resolvePreferredPaymentMethod(null, methods)).toEqual({ ok: true, value: null });
     expect(resolvePreferredPaymentMethod(undefined, methods)).toEqual({ ok: true, value: null });
     expect(resolvePreferredPaymentMethod("", methods)).toEqual({ ok: true, value: null });
@@ -134,6 +140,35 @@ describe("resolvePreferredPaymentMethod", () => {
     expect(resolvePreferredPaymentMethod("mercadopago", contact)).toEqual({ ok: true, value: null });
   });
 
+  describe("«Otro» (DR66 (b))", () => {
+    it("con medios ofrecidos se guarda la clave reservada, también con espacios", () => {
+      expect(resolvePreferredPaymentMethod("alternative", methods)).toEqual({ ok: true, value: ALTERNATIVE_PREFERENCE_KEY });
+      expect(resolvePreferredPaymentMethod("  alternative ", methods)).toEqual({ ok: true, value: "alternative" });
+    });
+    it("con oferta de contacto no hay selector: guarda null sin error", () => {
+      expect(resolvePreferredPaymentMethod("alternative", contact)).toEqual({ ok: true, value: null });
+    });
+    it("no se confunde con la clave `other` del catálogo ni acepta variantes", () => {
+      expect(ALTERNATIVE_PREFERENCE_KEY).not.toBe("other");
+      expect(isPaymentMethodKey(ALTERNATIVE_PREFERENCE_KEY)).toBe(false);
+      for (const bad of ["Alternative", "alternativo", "alternative;", "otro"]) {
+        expect(resolvePreferredPaymentMethod(bad, methods).ok).toBe(false);
+      }
+    });
+    it("la clave cumple el CHECK de la base", () => {
+      expect(ALTERNATIVE_PREFERENCE_KEY).toMatch(/^[a-z][a-z0-9_]{1,39}$/);
+    });
+    it("texto exacto del dueño, con variante para el familiar de un menor y sin WhatsApp", () => {
+      expect(COLLECTION_ALTERNATIVE_LABEL).toBe("Otro");
+      expect(collectionAlternativeNotice(false)).toBe("La residencia se pondrá en contacto con vos para definir una forma de pago alternativa.");
+      expect(collectionAlternativeNotice(true)).toContain("familiar vinculado");
+      for (const text of [collectionAlternativeNotice(false), collectionAlternativeNotice(true), COLLECTION_ALTERNATIVE_RESIDENCE_LABEL]) {
+        expect(text).not.toMatch(/whatsapp/i);
+      }
+      expect(COLLECTION_ALTERNATIVE_RESIDENCE_LABEL).toBe("Otro: coordinar forma de pago alternativa");
+    });
+  });
+
   it("el mensaje de error es accionable y sin jerga", () => {
     const res = resolvePreferredPaymentMethod("bitcoin", methods);
     expect(res.ok).toBe(false);
@@ -142,6 +177,14 @@ describe("resolvePreferredPaymentMethod", () => {
 });
 
 describe("textos", () => {
+  it("copy al estudiante sin WhatsApp (DR66 (b))", () => {
+    for (const isMinor of [false, true]) {
+      expect(contactCollectionNotice(isMinor)).not.toMatch(/whatsapp/i);
+      expect(methodsPreferenceNotice(isMinor)).not.toMatch(/whatsapp/i);
+    }
+    expect(COLLECTION_PREFERENCE_NOTICE).not.toMatch(/whatsapp/i);
+  });
+
   it("el contacto con un menor va al familiar vinculado y no promete contacto al menor", () => {
     expect(contactCollectionNotice(true)).toMatch(/familiar vinculado/);
     expect(contactCollectionNotice(true)).not.toMatch(/te va a escribir/);

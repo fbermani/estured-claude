@@ -54,7 +54,7 @@ export async function loadCollectionViews(
     const { data, error } = await admin
       .from("external_residence_payments")
       .select(
-        "application_request_id, status, chosen_method, expected_amount_usd, expected_amount_ars, student_reported_paid_at, student_proof_file_id, student_payment_issue_at, student_payment_issue_reason, student_payment_issue_resolved_at, amount_reported_usd, amount_reported_ars, payment_concept, payment_method_to_residence, dispute_reason",
+        "application_request_id, status, chosen_method, expected_amount_usd, expected_amount_ars, student_reported_paid_at, student_proof_file_id, student_payment_issue_at, student_payment_issue_reason, student_payment_issue_resolved_at, amount_reported_usd, amount_reported_ars, payment_concept, payment_method_to_residence, dispute_reason, reopen_count",
       )
       .in("application_request_id", pendingIds);
     if (error) console.error("[collection-views] payments read failed:", error.code, error.message);
@@ -71,6 +71,7 @@ export async function loadCollectionViews(
       payment_concept: string | null;
       payment_method_to_residence: string | null;
       dispute_reason: string | null;
+      reopen_count: number | null;
       chosen_method: string | null;
       expected_amount_usd: number | string | null;
       expected_amount_ars: number | string | null;

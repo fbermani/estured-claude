@@ -6,6 +6,8 @@ import { isFeeIssueOpen } from "@/lib/payments/feeCollection";
 import { loadOfferedFeeMethods } from "@/lib/payments/feeCollectionMethods";
 import { notifyFeePayer } from "@/lib/payments/feePayerNotices";
 import { openFeeReviewSupportCase } from "@/lib/payments/feeSupportCase";
+import { notifySuperadminsCounted } from "@/lib/notifications/notifySuperadminsCounted";
+import { ESCALATION_HOURS } from "@/lib/payments/reopenCap";
 
 /**
  * Recordatorios y alerta del fee de EstuRed (DR64 (f); `docs/07` §17.10). Corre dentro de `runExpirationJobs` (cron horario). IDEMPOTENTE:
@@ -16,6 +18,8 @@ import { openFeeReviewSupportCase } from "@/lib/payments/feeSupportCase";
  *  - 24 h de «Ya pagué» sin validar ni disputa, o de «No pude realizar el pago» sin responder → a los admin.
  *  - 72 h de lo mismo → alerta a los admin + caso de Soporte `estured_fee_payment` (único por reserva; en una renovación no hay reserva a la que
  *    atarlo y solo sale la alerta; supuesto reversible). Sin transición automática ni vencimiento: quien no responde es EstuRed.
+ *  - 7 días de lo mismo (DR66 (a)) → aviso in-app a TODOS los superadmin, una sola vez (`admin_escalated_at`). NO vence ni cambia de estado.
+ *    Pasada aparte: a los 7 días la alerta de 72 h ya salió y esas filas quedan fuera de la consulta de arriba.
  * Los avisos no llevan datos de cobro ni montos. El servidor limpia las tres marcas en cada evento nuevo (nuevo «Ya pagué» o aviso).
  */
 
@@ -26,9 +30,9 @@ const PAYER_REMINDER_HOURS_BEFORE = 12;
 /** Columna o tabla inexistente: la migración 0105 todavía no está aplicada en ese entorno. */
 const SCHEMA_MISSING_CODES = new Set(["42703", "42P01", "PGRST204", "PGRST205"]);
 
-export type RemindFeePaymentsResult = { payerReminders: number; adminReminders: number; adminAlerts: number };
+export type RemindFeePaymentsResult = { payerReminders: number; adminReminders: number; adminAlerts: number; superadminEscalations: number };
 
-type Mark = "payer_reminder_sent_at" | "admin_reminder_sent_at" | "admin_alert_sent_at";
+type Mark = "payer_reminder_sent_at" | "admin_reminder_sent_at" | "admin_alert_sent_at" | "admin_escalated_at";
 
 type FeeRow = {
   id: string;
@@ -44,9 +48,10 @@ type FeeRow = {
   payer_reminder_sent_at: string | null;
   admin_reminder_sent_at: string | null;
   admin_alert_sent_at: string | null;
+  admin_escalated_at: string | null;
 };
 const COLUMNS =
-  "id, status, reservation_id, renewal_offer_id, payer_user_id, expires_at, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, admin_disputed_at, payer_reminder_sent_at, admin_reminder_sent_at, admin_alert_sent_at";
+  "id, status, reservation_id, renewal_offer_id, payer_user_id, expires_at, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, admin_disputed_at, payer_reminder_sent_at, admin_reminder_sent_at, admin_alert_sent_at, admin_escalated_at";
 
 /** Marca el aviso como enviado solo si seguía sin enviar. `true` = este proceso lo reclamó. */
 async function claimMark(admin: SupabaseClient, feeId: string, column: Mark, nowIso: string): Promise<boolean> {
@@ -97,9 +102,10 @@ export function openFeeEventAt(f: Pick<FeeRow, "status" | "student_reported_paid
 }
 
 export async function remindFeePayments(admin: SupabaseClient, now: Date = new Date()): Promise<RemindFeePaymentsResult> {
-  const result: RemindFeePaymentsResult = { payerReminders: 0, adminReminders: 0, adminAlerts: 0 };
+  const result: RemindFeePaymentsResult = { payerReminders: 0, adminReminders: 0, adminAlerts: 0, superadminEscalations: 0 };
   try {
     await runAdminReminders(admin, now, result);
+    await runSuperadminEscalation(admin, now, result);
     await runPayerReminders(admin, now, result);
   } catch (error) {
     console.error("[jobs] remindFeePayments threw:", error);
@@ -145,6 +151,54 @@ async function runAdminReminders(admin: SupabaseClient, now: Date, result: Remin
       if (done) result.adminAlerts += 1;
       else await releaseMark(admin, f.id, "admin_alert_sent_at", nowIso);
     }
+  }
+}
+
+/**
+ * DR66 (a): a los 7 días de un «Ya pagué» sin validar (ni disputa) o de un «No pude realizar el pago» sin responder, aviso a todos los
+ * superadmin, una sola vez. NO filtra por `admin_alert_sent_at` (a los 7 días la alerta de 72 h ya salió); sí por `admin_escalated_at`.
+ * Reutiliza `openFeeEventAt` (excluye pagos en disputa). No vence el fee ni cambia estados: quien no responde es EstuRed.
+ */
+async function runSuperadminEscalation(admin: SupabaseClient, now: Date, result: RemindFeePaymentsResult): Promise<void> {
+  const reported = await admin.from("estured_fee_payments").select(COLUMNS).eq("status", "pending_manual_payment").is("admin_disputed_at", null).is("admin_escalated_at", null);
+  const issues = await admin.from("estured_fee_payments").select(COLUMNS).eq("status", "pending_payment_method").is("student_payment_issue_resolved_at", null).is("admin_escalated_at", null);
+  for (const read of [reported, issues]) {
+    if (read.error) {
+      if (!SCHEMA_MISSING_CODES.has(read.error.code ?? "")) console.error("[jobs] remindFeePayments (escalado) failed:", read.error.code, read.error.message);
+      return;
+    }
+  }
+  const nowIso = now.toISOString();
+  const rows = [...((reported.data ?? []) as FeeRow[]), ...((issues.data ?? []) as FeeRow[])].filter((f) => {
+    const at = openFeeEventAt(f);
+    return at !== null && (now.getTime() - new Date(at).getTime()) / HOUR_MS >= ESCALATION_HOURS;
+  });
+  for (const f of rows) {
+    if (!(await claimMark(admin, f.id, "admin_escalated_at", nowIso))) continue;
+    const isReported = f.status === "pending_manual_payment";
+    const sent = await notifySuperadminsCounted(admin, {
+      title: "Pago del fee sin resolver hace 7 días",
+      body: isReported
+        ? "Hace 7 días un pagador informó el pago del fee EstuRed y sigue sin validar. El pago no vence. Resolvelo desde Pagos y Soporte."
+        : "Hace 7 días un pagador avisó que no pudo pagar el fee EstuRed y sigue sin respuesta. El pago no vence. Resolvelo desde Pagos y Soporte.",
+      entityType: "estured_fee_payments",
+      entityId: f.id,
+    });
+    if (!sent) {
+      await releaseMark(admin, f.id, "admin_escalated_at", nowIso);
+      continue;
+    }
+    await createAuditLog(admin, {
+      actorUserId: null,
+      actorRole: "system",
+      action: "estured_fee_escalated_to_superadmin",
+      entityType: "estured_fee_payments",
+      entityId: f.id,
+      newValue: { fee_status: f.status },
+      source: "system",
+      isSystemAction: true,
+    });
+    result.superadminEscalations += 1;
   }
 }
 

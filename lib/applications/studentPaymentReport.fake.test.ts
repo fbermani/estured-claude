@@ -117,8 +117,8 @@ describe("«Ya pagué»", () => {
   it("estados que no admiten el aviso", async () => {
     const cases: [Row, Row, RegExp][] = [
       [{ status: "converted_to_reservation" }, {}, /ya no está esperando/],
-      [{ collection_mode: "whatsapp_direct" }, {}, /WhatsApp/],
-      [{ collection_mode: null }, {}, /WhatsApp/],
+      [{ collection_mode: "whatsapp_direct" }, {}, /lo coordina la residencia/],
+      [{ collection_mode: null }, {}, /lo coordina la residencia/],
       [{}, { status: "reported_received_by_residence" }, /ya no admite cambios/],
       [{}, { status: "expired" }, /ya no admite cambios/],
       [{}, { status: "disputed" }, /ya no admite cambios/],

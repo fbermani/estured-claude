@@ -7,6 +7,7 @@ import { formatArs } from "@/lib/mock/exchange";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
+import { reopenCapReached } from "@/lib/payments/reopenCap";
 import { PaymentDetail, type FeePayer, type FeeReview } from "@/app/admin/payments/PaymentDetail";
 import { splitFeeSnapshot } from "@/lib/payments/feeCollection";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
@@ -74,7 +75,7 @@ export default async function AdminPaymentsPage({
     const { data: feePayment, error: feePaymentError } = await admin
       .from("estured_fee_payments")
       .select(
-        "id, status, fee_amount_ars, fee_amount_usd, fee_rate_percent, fee_base_usd, fee_base_ars, expires_at, payer_user_id, payment_channel, payment_currency, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, chosen_method, instructions_snapshot, student_reported_paid_at, student_payment_issue_at, student_payment_issue_reason, student_payment_issue_resolved_at, admin_disputed_at, admin_dispute_reason, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial, user_id), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
+        "id, status, fee_amount_ars, fee_amount_usd, fee_rate_percent, fee_base_usd, fee_base_ars, expires_at, payer_user_id, payment_channel, payment_currency, payer_billing_name, payer_billing_cuit, payer_iva_condition, manual_payment_file_id, reservation_id, renewal_offer_id, chosen_method, instructions_snapshot, student_reported_paid_at, student_payment_issue_at, student_payment_issue_reason, student_payment_issue_resolved_at, admin_disputed_at, admin_dispute_reason, reopen_count, reservations!estured_fee_payments_reservation_id_fkey(residences(name), student_profiles(first_name, last_initial, user_id), start_date, initial_duration_months), renewal_offers!estured_fee_payments_renewal_offer_fk(residences(name), student_profiles(first_name, last_initial), period_start_date, period_end_date, duration_months)",
       )
       .eq("id", activeId)
       .maybeSingle();
@@ -138,6 +139,7 @@ export default async function AdminPaymentsPage({
               ? { reason: (feePayment.student_payment_issue_reason as string | null) ?? null, atLabel: formatWhen(issueAt) ?? "" }
               : null,
           dispute: disputedAt ? { reason: (feePayment.admin_dispute_reason as string | null) ?? null, atLabel: formatWhen(disputedAt) ?? "" } : null,
+          reopenLimitReached: reopenCapReached(feePayment.reopen_count),
         };
         detail = {
           review,

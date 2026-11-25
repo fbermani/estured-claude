@@ -12,6 +12,11 @@ vi.mock("@/lib/applications/paymentReportNotices", () => ({
   notifyResidencePaymentTeam: async (_a: unknown, p: { applicationId: string; kind: string; isMinor: boolean }) => (noticeControl.fail ? false : (residenceNotices.push(p), true)),
   notifyStudentAndFamily: async (_a: unknown, p: { applicationId: string; student: { title: string; body: string }; family: unknown }) => void studentNotices.push(p),
 }));
+const superNotices = vi.hoisted(() => [] as { title: string; entityType: string; entityId: string }[]);
+const superControl = vi.hoisted(() => ({ recipients: true }));
+vi.mock("@/lib/notifications/notifySuperadminsCounted", () => ({
+  notifySuperadminsCounted: async (_a: unknown, p: { title: string; entityType: string; entityId: string }) => (superControl.recipients ? (superNotices.push(p), true) : false),
+}));
 vi.mock("@/lib/family/notifyLinkedFamily", () => ({ loadStudentShortName: async () => "Valentina R." }));
 
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
@@ -38,6 +43,8 @@ function payment(appId: string, over: Row = {}): Row {
     residence_reminder_sent_at: null,
     student_reminder_sent_at: null,
     admin_alert_sent_at: null,
+    admin_escalated_at: null,
+    reopen_count: 0,
     ...over,
   };
 }
@@ -64,6 +71,8 @@ beforeEach(() => {
   residenceNotices.length = 0;
   studentNotices.length = 0;
   noticeControl.fail = false;
+  superNotices.length = 0;
+  superControl.recipients = true;
 });
 
 describe("aviso a la residencia a las 24 h", () => {
@@ -113,7 +122,7 @@ describe("aviso a la residencia a las 24 h", () => {
         payment("closed", reported(30)),
       ],
     );
-    expect(await remindResidencePayments(fake.client, NOW)).toEqual({ residenceReminders: 0, adminAlerts: 0, studentReminders: 0 });
+    expect(await remindResidencePayments(fake.client, NOW)).toEqual({ residenceReminders: 0, adminAlerts: 0, studentReminders: 0, superadminEscalations: 0 });
     expect(residenceNotices).toEqual([]);
   });
 });
@@ -214,6 +223,56 @@ describe("recordatorio al estudiante 12 h antes del plazo", () => {
 describe("degradación", () => {
   it("sin la migración 0102 no rompe ni avisa", async () => {
     boot([app("a")], [payment("a", reported(80))], { missingColumns: { external_residence_payments: ["admin_alert_sent_at"] } });
-    expect(await remindResidencePayments(fake.client, NOW)).toEqual({ residenceReminders: 0, adminAlerts: 0, studentReminders: 0 });
+    expect(await remindResidencePayments(fake.client, NOW)).toEqual({ residenceReminders: 0, adminAlerts: 0, studentReminders: 0, superadminEscalations: 0 });
+  });
+});
+
+describe("escalado a los 7 días a todos los superadmin (DR66 (a))", () => {
+  // A los 7 días la alerta de 72 h ya salió: el escalado se decide por `admin_escalated_at`, no por `admin_alert_sent_at`.
+  const stale = { admin_alert_sent_at: ago(90), residence_reminder_sent_at: ago(140) };
+
+  it("«Ya pagué» sin confirmar a los 7 días: avisa una sola vez, aunque la alerta de 72 h ya esté enviada, y no cambia el estado", async () => {
+    boot([app("a")], [payment("a", reported(24 * 7 + 1, stale))]);
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 1, adminAlerts: 0 });
+    expect(superNotices).toEqual([expect.objectContaining({ entityType: "application_requests", entityId: "a" })]);
+    expect(pay("a")).toMatchObject({ status: "student_reported_paid", admin_escalated_at: NOW.toISOString() });
+    expect(audits.some((a) => a.action === "residence_payment_escalated_to_superadmin" && a.actorRole === "system")).toBe(true);
+    expect(fake.tables.application_requests[0].status).toBe("residence_payment_pending");
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 0 });
+    expect(superNotices).toHaveLength(1);
+  });
+
+  it("«No pude realizar el pago» sin responder a los 7 días también escala; la solicitud no vence", async () => {
+    boot([app("a")], [payment("a", { student_payment_issue_at: ago(24 * 8), ...stale })]);
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 1 });
+    expect(fake.tables.application_requests[0].status).toBe("residence_payment_pending");
+  });
+
+  it("antes de 7 días, en disputa, ya confirmado, respondido o con la solicitud fuera de residence_payment_pending no escala", async () => {
+    boot(
+      [app("young"), app("disp"), app("done"), app("answered"), app("gone", { status: "expired" })],
+      [
+        payment("young", reported(24 * 6, stale)),
+        payment("disp", { status: "disputed", student_reported_paid_at: ago(24 * 9), ...stale }),
+        payment("done", { status: "reported_received_by_residence", student_reported_paid_at: ago(24 * 9), ...stale }),
+        payment("answered", { student_payment_issue_at: ago(24 * 9), student_payment_issue_resolved_at: ago(2), ...stale }),
+        payment("gone", reported(24 * 9, stale)),
+      ],
+    );
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 0 });
+    expect(superNotices).toHaveLength(0);
+  });
+
+  it("sin superadmin a quién avisar devuelve la marca para reintentar", async () => {
+    superControl.recipients = false;
+    boot([app("a")], [payment("a", reported(24 * 7 + 1, stale))]);
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 0 });
+    expect(pay("a").admin_escalated_at).toBeNull();
+  });
+
+  it("sin la migración 0110 no rompe ni escala", async () => {
+    boot([app("a")], [payment("a", reported(24 * 8, stale))], { missingColumns: { external_residence_payments: ["admin_escalated_at"] } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await remindResidencePayments(fake.client, NOW)).toMatchObject({ superadminEscalations: 0 });
   });
 });

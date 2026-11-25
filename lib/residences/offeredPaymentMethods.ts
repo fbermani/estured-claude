@@ -58,17 +58,26 @@ export function offeredReservationCollection(input: {
 }
 
 /**
+ * Clave reservada de la opción «Otro» del estudiante (DR66 (b)): ningún medio ofrecido le sirve y quiere que la residencia lo contacte
+ * para definir una forma de pago alternativa. NO es la clave `other` del catálogo (ese medio lo configura la residencia con nombre propio).
+ * Cumple el CHECK de `application_requests.preferred_payment_method` (`^[a-z][a-z0-9_]{1,39}$`): no necesita migración.
+ */
+export const ALTERNATIVE_PREFERENCE_KEY = "alternative";
+
+/**
  * Valida el campo `preferred_payment_method` del envío (opcional, no vinculante). Devuelve la clave a guardar o `null`.
- *  - Vacío o ausente («Lo coordino con la residencia»): `null`.
- *  - Algo que no es una clave del catálogo: error (formulario adulterado o roto).
+ *  - Vacío o ausente (sin preferencia): `null`.
+ *  - Algo que no es una clave del catálogo ni «Otro» (`alternative`): error (formulario adulterado o roto).
+ *  - «Otro» (`alternative`) con medios ofrecidos: se guarda tal cual. Con la oferta `contact` no hay selector: `null`, sin error.
  *  - Clave válida del catálogo que YA NO se ofrece (la residencia cambió la configuración entre que se abrió la ficha y se envió, o
  *    la oferta es `contact`): `null`, sin error. La preferencia no obliga a nadie y no tiene sentido frenar el envío por eso.
  */
-export function resolvePreferredPaymentMethod(raw: unknown, offer: ReservationCollectionOffer): Checked<PaymentMethodKey | null> {
+export function resolvePreferredPaymentMethod(raw: unknown, offer: ReservationCollectionOffer): Checked<PaymentMethodKey | typeof ALTERNATIVE_PREFERENCE_KEY | null> {
   if (raw === null || raw === undefined) return { ok: true, value: null };
   if (typeof raw !== "string") return { ok: false, error: "El medio de pago elegido no es válido. Recargá la página e intentá de nuevo." };
   const value = raw.trim();
   if (value === "") return { ok: true, value: null };
+  if (value === ALTERNATIVE_PREFERENCE_KEY) return { ok: true, value: offer.kind === "methods" ? ALTERNATIVE_PREFERENCE_KEY : null };
   if (!isPaymentMethodKey(value)) return { ok: false, error: "El medio de pago elegido no es válido. Recargá la página e intentá de nuevo." };
   if (offer.kind !== "methods") return { ok: true, value: null };
   return { ok: true, value: offer.methods.some((m) => m.key === value) ? value : null };
@@ -96,5 +105,17 @@ export const COLLECTION_LIABILITY_NOTICE =
   "EstuRed no custodia fondos ni se responsabiliza por el pago ni por el medio elegido. No transfieras dinero a datos que no llegaron por tu solicitud.";
 
 export const COLLECTION_PREFERENCE_NOTICE = "Tu elección no obliga a la residencia.";
-export const COLLECTION_COORDINATE_LABEL = "Lo coordino con la residencia";
+/** Opción «Otro» (DR66 (b)): absorbe el antiguo «Lo coordino con la residencia». */
+export const COLLECTION_ALTERNATIVE_LABEL = "Otro";
+
+/** Lo que ve el estudiante al elegir «Otro» (texto exacto del dueño, DR66 (b)). Sin WhatsApp. */
+export const COLLECTION_ALTERNATIVE_NOTICE = "La residencia se pondrá en contacto con vos para definir una forma de pago alternativa.";
+
+/** Con un menor, el contacto va siempre al familiar vinculado (DR63 (m)); supuesto reversible de DR66 (b). */
+export const COLLECTION_ALTERNATIVE_NOTICE_MINOR = "La residencia se pondrá en contacto con tu familiar vinculado para definir una forma de pago alternativa.";
+
+export const collectionAlternativeNotice = (isMinor: boolean): string => (isMinor ? COLLECTION_ALTERNATIVE_NOTICE_MINOR : COLLECTION_ALTERNATIVE_NOTICE);
+
+/** Lo que ve la residencia en la solicitud cuando el estudiante eligió «Otro» (DR66 (b)). */
+export const COLLECTION_ALTERNATIVE_RESIDENCE_LABEL = "Otro: coordinar forma de pago alternativa";
 export const COLLECTION_SECTION_TITLE = "Cómo te van a cobrar la reserva";

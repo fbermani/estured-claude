@@ -228,7 +228,7 @@ En capacitación a residencias, explicar tres puntos. EstuRed no es responsable 
 
 Si la residencia no recibió lo que el estudiante informó, usa «No recibí el pago». Se abre un caso de Soporte. A las 72 horas de «Ya pagué» sin confirmación, el admin recibe una alerta.
 
-> Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
+> Texto actualizado por decisión del dueño (2026-11-20). Sin asesor legal por decisión del dueño (2026-11-25); revisar antes de escalar.
 
 La residencia debe marcar "Pago recibido". Solo esa confirmación avanza la operación.
 

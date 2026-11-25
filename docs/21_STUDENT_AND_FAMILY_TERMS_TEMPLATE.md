@@ -286,7 +286,7 @@ EstuRed no es responsable de ningún pago a la residencia ni del medio de pago e
 
 El fee EstuRed lo cobra EstuRed por sus propios medios. EstuRed responde por registrar, validar y comprobar el pago de su fee. EstuRed no responde por fallas, demoras o costos de bancos, billeteras o medios de pago de terceros, ni por pagos hechos a datos que no vinieron de su pantalla de pago. El usuario elige el medio entre los que EstuRed habilita y paga solo a los datos que ve en esa pantalla. Estas cláusulas no modifican el derecho de revocación. *(DR64 (g), 2026-11-21, `LEGAL_REVIEW_PENDING`: pendiente de revisión legal.)*
 
-> Texto actualizado por decisión del dueño (2026-11-20). Pendiente de revisión legal.
+> Texto actualizado por decisión del dueño (2026-11-20). Sin asesor legal por decisión del dueño (2026-11-25); revisar antes de escalar.
 
 Si se utiliza pago manual del fee EstuRed, el usuario deberá cargar comprobante y esperar validación correspondiente.
 

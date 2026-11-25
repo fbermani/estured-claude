@@ -126,6 +126,7 @@ export async function registerRenewalManualFeePayment(
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
+      admin_escalated_at: null,
     })
     .eq("id", offer.estured_fee_payment_id)
     .eq("status", "pending_payment_method")

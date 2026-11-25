@@ -115,7 +115,7 @@ const APPLICATION_STATUS: Record<string, Entry> = {
     tone: "sage",
     student: {
       label: "Contacto establecido",
-      helper: "La residencia va a escribirte por WhatsApp para coordinar los próximos pasos.",
+      helper: "La residencia va a indicarte los próximos pasos.",
     },
     residence: { label: "Contacto establecido" },
     admin: { label: "Contacto establecido" },

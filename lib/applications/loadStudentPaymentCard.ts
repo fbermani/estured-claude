@@ -13,7 +13,7 @@ import { availableCollectionPaths } from "@/lib/applications/reservationCollecti
  * de la residencia, nunca otros estudiantes, y solo con la solicitud en `residence_payment_pending`. Sin acceso devuelve `null`.
  * Serializable al cliente: los datos de cobro viajan SOLO a quien tiene derecho a verlos.
  *
- * Contacto directo (`whatsapp_direct`): solo el mensaje «La residencia te va a escribir por WhatsApp». Nunca un número ni un botón.
+ * Contacto directo (`whatsapp_direct`): solo el mensaje «La residencia te va a indicar el monto final y cómo pagar». Nunca un número ni un botón.
  */
 
 export type StudentPaymentStage = "to_pay" | "reported" | "issue_open" | "disputed";

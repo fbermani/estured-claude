@@ -91,7 +91,7 @@ function ChosenCollectionSummary({ collection }: { collection: CollectionChoiceV
           ? "Los datos de cobro quedaron fijados para esta solicitud."
           : collection.isMinor
             ? "El estudiante es menor: escribile solo al familiar vinculado."
-            : "El estudiante ve que le vas a escribir por WhatsApp."}
+            : "El estudiante ve que le vas a indicar el monto y cómo pagar."}
       </p>
     </div>
   );

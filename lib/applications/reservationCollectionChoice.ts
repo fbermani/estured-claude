@@ -140,8 +140,8 @@ export function resolveExpectedAmounts(snapshot: {
 export function studentCollectionPreview(resolved: ResolvedCollection, isMinor: boolean): string {
   if (resolved.mode === "whatsapp_direct") {
     return isMinor
-      ? "El estudiante es menor: ve «La residencia le va a escribir a tu familiar vinculado por WhatsApp». Escribile solo al familiar."
-      : "Ve «La residencia te va a escribir por WhatsApp». Vos le escribís con el botón de WhatsApp; el estudiante no te contacta.";
+      ? "El estudiante es menor: ve «La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar». Escribile solo al familiar."
+      : "Ve «La residencia te va a indicar el monto final y cómo pagar». Vos le escribís con el botón de WhatsApp; el estudiante no te contacta.";
   }
   return isMinor
     ? `Su familiar vinculado ve el monto, el plazo y los datos de cobro de ${resolved.methodLabel}. El estudiante no te contacta.`
@@ -179,14 +179,14 @@ export function collectionEnabledNotice(params: {
   }
   if (audience === "family") {
     return {
-      title: `${residenceName} te va a escribir por WhatsApp`,
-      body: `La residencia habilitó el pago de la reserva de ${name} y te va a escribir por WhatsApp con el monto final y cómo pagar. ${tail}`,
+      title: `${residenceName} te va a indicar cómo pagar`,
+      body: `La residencia habilitó el pago de la reserva de ${name} y te va a indicar el monto final y cómo pagar. ${tail}`,
     };
   }
   return {
     title: `${residenceName} habilitó el pago de tu reserva`,
     body: isMinor
-      ? `La residencia le va a escribir a tu familiar vinculado por WhatsApp con el monto final y cómo pagar. ${tail}`
-      : `La residencia te va a escribir por WhatsApp con el monto final y cómo pagar. ${tail}`,
+      ? `La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar. ${tail}`
+      : `La residencia te va a indicar el monto final y cómo pagar. ${tail}`,
   };
 }

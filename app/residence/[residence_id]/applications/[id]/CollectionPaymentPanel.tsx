@@ -11,7 +11,7 @@ import {
   type CollectionPath,
   type ResolvedCollection,
 } from "@/lib/applications/reservationCollectionChoice";
-import { COLLECTION_LIABILITY_NOTICE } from "@/lib/residences/offeredPaymentMethods";
+import { COLLECTION_ALTERNATIVE_RESIDENCE_LABEL, COLLECTION_LIABILITY_NOTICE } from "@/lib/residences/offeredPaymentMethods";
 import {
   submitChooseResidencePaymentCollection,
   submitEnableResidencePayment,
@@ -79,6 +79,18 @@ export function CollectionPaymentPanel({
             {collection.amountArs !== null && <span className="tabular-nums text-ink-soft"> · {formatArs(collection.amountArs)}</span>}
             <span className="block text-xs text-ink-soft">
               Monto de la reserva según las condiciones acordadas. Para cambiarlo, enviá una propuesta de ajuste.
+            </span>
+          </p>
+        )}
+
+        {collection.preferredAlternative && (
+          <p className="flex items-start gap-2 text-sm text-ink">
+            <Icon name="info" className="mt-0.5 shrink-0 text-base" />
+            <span>
+              <span className="font-bold">{COLLECTION_ALTERNATIVE_RESIDENCE_LABEL}</span>
+              <span className="block text-xs text-ink-soft">
+                Ningún medio de los que ofrecés le sirve al estudiante. Contactalo {isMinor ? "a su familiar vinculado " : ""}para definir cómo paga.
+              </span>
             </span>
           </p>
         )}

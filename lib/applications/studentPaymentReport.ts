@@ -18,7 +18,7 @@ import { notifyPaymentCounterpart, notifyResidencePaymentTeam } from "@/lib/appl
  *    estados de la solicitud: sigue en `residence_payment_pending` hasta que la residencia confirma (docs/04 §5.8).
  *  - El cambio se reclama con un update condicional; los efectos (aviso, auditoría) salen SOLO si el reclamo devolvió la fila: un segundo
  *    toque no hace nada (idempotente).
- *  - Cada evento nuevo limpia las tres marcas del job (`residence_reminder_sent_at`, `student_reminder_sent_at`, `admin_alert_sent_at`)
+ *  - Cada evento nuevo limpia las marcas del job (`residence_reminder_sent_at`, `student_reminder_sent_at`, `admin_alert_sent_at`, `admin_escalated_at`)
  *    para no suprimir los avisos del segundo evento (docs/07 §16.8).
  *  - Ni la auditoría ni los avisos llevan datos de cobro, montos ni el texto libre del motivo.
  */
@@ -29,9 +29,9 @@ const NOT_FOUND = "No encontramos esa solicitud.";
 const READ_FAILED = "No pudimos verificar tu pago. Intentá de nuevo en unos minutos.";
 const SAVE_FAILED = "No pudimos guardar el aviso. Intentá de nuevo en unos minutos.";
 const NOT_PENDING = "Esta solicitud ya no está esperando tu pago a la residencia.";
-const NOT_ENABLED_METHODS = "El pago de esta solicitud lo coordina la residencia por WhatsApp. No hace falta que avises nada acá.";
+const NOT_ENABLED_METHODS = "El pago de esta solicitud lo coordina la residencia. No hace falta que avises nada acá.";
 
-const CLEAR_MARKS = { residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null } as const;
+const CLEAR_MARKS = { residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null, admin_escalated_at: null } as const;
 
 type PaymentRow = {
   id: string;

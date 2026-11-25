@@ -1,3 +1,5 @@
+import { reopenCapReached } from "@/lib/payments/reopenCap";
+
 /**
  * Lógica PURA del aviso del estudiante sobre el pago de la reserva (DR63 (e), (f), (l)). Sin acceso a datos de cobro: solo estados,
  * fechas, montos informados y si hay comprobante. La usan el job de vencimiento, los recordatorios y las pantallas.
@@ -37,6 +39,8 @@ export type PaymentReportInput = PaymentReportRow & {
   payment_method_to_residence?: string | null;
   student_payment_issue_reason?: string | null;
   dispute_reason?: string | null;
+  /** DR66 (a): veces que la residencia volvió a habilitar el pago. */
+  reopen_count?: number | string | null;
 };
 
 /** Lo que la pantalla de la residencia muestra del aviso del estudiante. Serializable al cliente; nunca lleva datos de cobro. */
@@ -53,6 +57,8 @@ export type PaymentReportView = {
   issueReason: string | null;
   disputed: boolean;
   disputeReason: string | null;
+  /** DR66 (a): ya se volvió a habilitar el pago el máximo de veces. «Volver a habilitar el pago» se deshabilita; solo resuelve Soporte. */
+  reopenLimitReached: boolean;
 };
 
 const num = (v: number | string | null | undefined): number | null => (v === null || v === undefined || v === "" ? null : Number(v));
@@ -78,6 +84,7 @@ export function buildPaymentReportView(row: PaymentReportInput | null | undefine
     issueReason: issueOpen ? (row.student_payment_issue_reason ?? null) : null,
     disputed,
     disputeReason: disputed ? (row.dispute_reason ?? null) : null,
+    reopenLimitReached: reopenCapReached(row.reopen_count),
   };
 }
 

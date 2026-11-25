@@ -8,6 +8,7 @@ import { notifyStudentAndFamily } from "@/lib/applications/paymentReportNotices"
 import { openResidencePaymentSupportCase } from "@/lib/applications/residencePaymentSupportCase";
 import { isPaymentIssueOpen, validateDisputeReason } from "@/lib/applications/paymentReportView";
 import { PROOF_BUCKET, PROOF_DOCUMENT_TYPE } from "@/lib/applications/studentPaymentProof";
+import { normalizeReopenCount, reopenCapReached, RESIDENCE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 
 /**
  * La residencia responde al aviso del estudiante sobre el pago de la reserva (DR63 (e), (j), (l); docs/07 §16.7, §16.9 y §16.10).
@@ -24,7 +25,7 @@ const NOT_PENDING = "Esa solicitud no está esperando el pago de la reserva.";
 const STALE = "El pago ya cambió de estado. Actualizá la página.";
 const SAVE_FAILED = "No pudimos guardar el cambio. Intentá de nuevo en unos minutos.";
 const PAYMENT_WINDOW_MS = 48 * 60 * 60 * 1000;
-const CLEAR_MARKS = { residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null } as const;
+const CLEAR_MARKS = { residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null, admin_escalated_at: null } as const;
 
 type AppRow = {
   id: string;
@@ -163,7 +164,7 @@ export async function resolveStudentPaymentIssueCore(
 
   const { data: payment, error: paymentError } = await admin
     .from("external_residence_payments")
-    .select("id, status, chosen_method, student_payment_issue_at, student_payment_issue_resolved_at")
+    .select("id, status, chosen_method, student_payment_issue_at, student_payment_issue_resolved_at, reopen_count")
     .eq("application_request_id", params.applicationId)
     .maybeSingle();
   if (paymentError) {
@@ -173,6 +174,9 @@ export async function resolveStudentPaymentIssueCore(
   if (!payment || payment.status !== "pending" || !isPaymentIssueOpen(payment)) {
     return { ok: false, error: "El estudiante no tiene un aviso de pago abierto." };
   }
+  // DR66 (a): máximo 2 reaperturas por pago. Solo «Volver a habilitar el pago» cuenta; «Contactar por WhatsApp» no reabre nada.
+  const reopenCount = normalizeReopenCount(payment.reopen_count);
+  if (resolution === "reenable_payment" && reopenCapReached(reopenCount)) return { ok: false, error: RESIDENCE_REOPEN_CAP_MESSAGE };
 
   const now = new Date().toISOString();
   const deadline = new Date(Date.now() + PAYMENT_WINDOW_MS).toISOString();
@@ -196,7 +200,7 @@ export async function resolveStudentPaymentIssueCore(
     }
     methodLabel = plan.resolved.methodLabel;
     maskedDetails = plan.maskedDetails;
-    paymentUpdate = { ...plan.payment, student_payment_issue_resolved_at: now, ...CLEAR_MARKS };
+    paymentUpdate = { ...plan.payment, student_payment_issue_resolved_at: now, reopen_count: reopenCount + 1, ...CLEAR_MARKS };
   } else {
     // Contacto por WhatsApp: el estudiante deja de ver datos de cobro, así que el texto congelado ya no se conserva.
     paymentUpdate = { instructions_snapshot: null, student_payment_issue_resolved_at: now, ...CLEAR_MARKS };
@@ -224,6 +228,7 @@ export async function resolveStudentPaymentIssueCore(
     .update(paymentUpdate)
     .eq("id", payment.id)
     .eq("status", "pending")
+    .eq("reopen_count", reopenCount)
     .is("student_payment_issue_resolved_at", null)
     .select("id");
   if (paymentUpdateError || !paymentClaimed || paymentClaimed.length === 0) {
@@ -245,7 +250,7 @@ export async function resolveStudentPaymentIssueCore(
     newValue: {
       resolution,
       collection_mode: resolution === "contact_whatsapp" ? "whatsapp_direct" : "enabled_methods",
-      ...(resolution === "reenable_payment" ? { instructions_masked: maskedDetails } : {}),
+      ...(resolution === "reenable_payment" ? { instructions_masked: maskedDetails, reopen_count: reopenCount + 1 } : {}),
     },
     source: "user",
   });

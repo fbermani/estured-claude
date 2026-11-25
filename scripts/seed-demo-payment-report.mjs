@@ -99,6 +99,8 @@ const paymentRow = {
   residence_reminder_sent_at: null,
   student_reminder_sent_at: null,
   admin_alert_sent_at: null,
+  admin_escalated_at: null,
+  reopen_count: 0,
   student_proof_file_id: null,
   dispute_reason: null,
 };

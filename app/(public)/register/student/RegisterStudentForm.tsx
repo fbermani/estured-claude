@@ -76,7 +76,7 @@ export function RegisterStudentForm({
           onChange={(e) => setBirthDate(e.target.value)}
           required
           {...fieldProps(state, "birth_date", "reg", undefined, false)}
-          hint={fieldHint(state, "birth_date", "reg", "Privada. Si sos menor de 18, te vamos a pedir un familiar vinculado para enviar solicitudes.")}
+          hint={fieldHint(state, "birth_date", "reg", "Privada. Si tenés entre 14 y 17, tu cuenta queda en espera hasta que tu familiar responsable se vincule y dé su consentimiento.")}
         />
         {showMinorNotice && (
           <p

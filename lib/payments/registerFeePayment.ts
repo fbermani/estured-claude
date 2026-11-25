@@ -146,6 +146,7 @@ export async function registerManualFeePaymentCore(
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
+      admin_escalated_at: null,
     })
     .eq("id", fee.id)
     .eq("status", "pending_payment_method")

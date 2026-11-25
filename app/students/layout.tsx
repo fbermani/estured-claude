@@ -5,6 +5,9 @@ import { getIsHoused } from "@/lib/students/isHoused";
 import { StudentSidebar } from "@/components/layout/StudentSidebar";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { InstallBanner } from "@/components/install/InstallBanner";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { MINOR_ON_HOLD_MESSAGE, loadMinorHold, loadPendingGuardianConsents } from "@/lib/students/minorHold";
+import { GuardianConsentCard } from "@/app/students/GuardianConsentCard";
 
 /**
  * Área estudiante/familiar (docs/11 §7.2). El middleware ya exige
@@ -45,12 +48,34 @@ export default async function StudentsLayout({
     }
   }
 
+  // DR65 (e): aviso de la cuenta en espera (estudiante menor) y pedido de consentimiento (familiar). El bloqueo real vive en cada acción.
+  const adminClient = getSupabaseAdmin();
+  let onHold = false;
+  let pendingConsents: { studentProfileId: string; studentName: string }[] = [];
+  if (adminClient && hasAnyRole(user, ["student"])) onHold = (await loadMinorHold(adminClient, user.id)).onHold;
+  if (adminClient && hasAnyRole(user, ["family_member"])) pendingConsents = await loadPendingGuardianConsents(adminClient, user.id);
+
   return (
     <div id="area-shell" className={`${hasAnyRole(user, ["student"]) ? "tone-student" : "tone-family"} flex min-h-screen flex-col bg-cream md:flex-row`}>
       <SkipLink />
       <StudentSidebar userEmail={user.email} isHoused={isHoused} searchingChange={searchingChange} />
       <main id="contenido" tabIndex={-1} className="min-w-0 focus:outline-none flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <InstallBanner />
+        {onHold && (
+          <div role="status" className="mx-4 mt-4 rounded-card border-[1.5px] border-amber-soft-300 bg-paper px-4 py-3 text-sm text-ink sm:mx-6">
+            {MINOR_ON_HOLD_MESSAGE}{" "}
+            <a href="/students/profile" className="font-semibold text-forest-700 underline">
+              Ir a «Mi perfil»
+            </a>
+          </div>
+        )}
+        {pendingConsents.length > 0 && (
+          <div className="mx-4 mt-4 space-y-3 sm:mx-6">
+            {pendingConsents.map((c) => (
+              <GuardianConsentCard key={c.studentProfileId} studentProfileId={c.studentProfileId} studentName={c.studentName} />
+            ))}
+          </div>
+        )}
         {children}
       </main>
     </div>

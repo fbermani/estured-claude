@@ -22,6 +22,7 @@ vi.mock("@/lib/applications/notifyCollectionEnabled", () => ({
 
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
 import { OWNER_ONLY_MESSAGE, permissionsFromChecked } from "@/lib/residences/permissions";
+import { RESIDENCE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import {
   disputeReportedResidencePaymentCore,
   openStudentPaymentProofCore,
@@ -72,6 +73,8 @@ function world(over: { app?: Row; payment?: Row } = {}): Record<string, Row[]> {
         residence_reminder_sent_at: "x",
         student_reminder_sent_at: "x",
         admin_alert_sent_at: "x",
+        admin_escalated_at: "x",
+        reopen_count: 0,
         ...over.payment,
       },
     ],
@@ -174,12 +177,34 @@ describe("responder «No pude realizar el pago»", () => {
     boot(world({ payment: open }));
     const before = Date.now();
     expect(await resolve("ricardo", "reenable_payment", "mercadopago")).toEqual({ ok: true });
-    expect(pay()).toMatchObject({ chosen_method: "mercadopago", expected_amount_usd: 300, instructions_snapshot: "MercadoPago\nnorte.mp", residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null });
+    expect(pay()).toMatchObject({ chosen_method: "mercadopago", expected_amount_usd: 300, instructions_snapshot: "MercadoPago\nnorte.mp", residence_reminder_sent_at: null, student_reminder_sent_at: null, admin_alert_sent_at: null, admin_escalated_at: null, reopen_count: 1 });
     expect(pay().student_payment_issue_resolved_at).toBeTruthy();
     expect(Date.parse(String(app().payment_deadline_at))).toBeGreaterThanOrEqual(before + 47.9 * 3_600_000);
     expect(app()).toMatchObject({ status: "residence_payment_pending", collection_mode: "enabled_methods" });
     expect(collectionNotices).toEqual([expect.objectContaining({ mode: "enabled_methods", methodLabel: "MercadoPago" })]);
     expect(JSON.stringify(audits)).not.toContain("norte.mp");
+  });
+
+  it("tope de reaperturas (DR66): la 3.ª vez no vuelve a habilitar y no escribe nada; «Contactar por WhatsApp» sigue disponible", async () => {
+    boot(world({ payment: { ...open, reopen_count: 2 } }));
+    expect(await resolve("ricardo", "reenable_payment", "mercadopago")).toEqual({ ok: false, error: RESIDENCE_REOPEN_CAP_MESSAGE });
+    expect(writes()).toEqual([]);
+    expect(pay()).toMatchObject({ reopen_count: 2, student_payment_issue_resolved_at: null });
+    expect(await resolve("ricardo", "contact_whatsapp")).toEqual({ ok: true });
+    expect(pay().reopen_count).toBe(2);
+  });
+
+  it("cada «Volver a habilitar» suma 1 y la 2.ª todavía pasa (de 1 a 2)", async () => {
+    boot(world({ payment: { ...open, reopen_count: 1 } }));
+    expect(await resolve("ricardo", "reenable_payment")).toEqual({ ok: true });
+    expect(pay().reopen_count).toBe(2);
+    expect(JSON.stringify(audits)).toContain('"reopen_count":2');
+  });
+
+  it("«Contactar por WhatsApp» no cuenta como reapertura", async () => {
+    boot(world({ payment: open }));
+    await resolve("staff-pagos", "contact_whatsapp");
+    expect(pay().reopen_count).toBe(0);
   });
 
   it("sin medio elegido conserva el anterior", async () => {

@@ -39,7 +39,7 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
    - **Nuevo, 2026-11-20:** botón del estudiante «No pude realizar el pago» (camino A, supuestos reversibles, `docs/00` DR63 (l)). Detiene el vencimiento, avisa a la residencia y le permite «Contactar por WhatsApp» o «Cambiar medio / volver a habilitar el pago».
 6. Fee: resuelto como supuesto del agente en `docs/00` DR64 (2026-11-21), pendiente de ratificación. Un fee en `pending_manual_payment` no vence. DR8 (4) rige para `pending_payment_method`.
 
-**Textos legales:** `docs/10` §14.5, `docs/19` §9.4, `docs/20` y `docs/21` se actualizaron por decisión del dueño del 2026-11-20. Conviene revisión legal antes de publicarlos.
+**Textos legales:** `docs/10` §14.5, `docs/19` §9.4, `docs/20` y `docs/21` se actualizaron por decisión del dueño del 2026-11-20. Sin asesor legal por decisión del dueño (2026-11-25); revisar antes de escalar.
 
 **Plan de fases (residencia):**
 1. **BD:** migración 0102 (enum `student_reported_paid`, columnas de `residences`, `application_requests` y `external_residence_payments`, tabla `residence_collection_accounts` con campos de aprobación y RLS sin policies, `grant select (col)` y revoke de `instructions_snapshot` por 0081) y catálogo `lib/payments/paymentMethods.ts`.
@@ -69,7 +69,7 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
    - **Supuestos reversibles:** (1) «familiar pagador» de un menor = familiar vinculado activo con `can_pay_estured_fee` no apagado; el pagador real del fee nace después de «Pago recibido». (2) «Ya pagué» solo con medios habilitados; con contacto directo la tarjeta solo informa. (3) «Ya pagué» con un aviso de problema abierto se rechaza. (4) La tarjeta de comprobante vieja (`student_reference_uploaded`) se retiró: un solo botón principal. (5) «Volver a habilitar el pago» solo el dueño; el monto no cambia. (6) El caso de las 72 h lo abre el sistema a nombre del estudiante (`opened_by_role = system`). (7) El recordatorio de 12 h solo con medios habilitados.
    - **Pendiente:** verificación visual en staging (tarjeta del estudiante, panel de la residencia, 320 px). Aplicar 0103 en producción (entra con el bootstrap). El familiar de un menor ve «Soporte» en `/students/support`: confirmar que esa ruta lo admite.
    - **Endurecimiento tras revisión de seguridad (2026-11-21, migración 0104, aplicada en dev, sin commit):** `dispute_reason` (texto libre de la residencia) sin grant a `authenticated`/`anon` (solo service role; el panel ya lo leía así); índice único parcial de casos `residence_payment` abiertos por solicitud (el código trata 23505 como éxito); «Ya pagué» descarta el comprobante anterior y su rollback es seguro con FK; el rollback de «No pude pagar» exige `status = pending`; el recordatorio de 24 h devuelve la marca si el aviso no sale. **Aplicar 0104 en producción** (entra con el bootstrap).
-   - **Pendiente de decisión del dueño (no implementado):** tope de reaperturas y vencimiento de un «Ya pagué» sin respuesta. Hoy la residencia puede dejar un aviso abierto indefinidamente (frena el vencimiento de 48 h) y el ciclo disputa/«Pago recibido» se puede repetir. **Propuesta:** máximo 2 reaperturas por pago (después solo Soporte) y vencimiento del aviso a los 7 días sin respuesta (la solicitud pasa a la rama de vencimiento por falta de pago y avisa a las dos partes y a Soporte). Requiere doc primero (`docs/00`, `docs/04` §5.8, `docs/07` §16.8).
+   - **Resuelto por el dueño el 2026-11-25 (`docs/00` DR66 (a)), implementado en dev (migración 0110, sin commit):** máximo 2 reaperturas por pago (después solo Soporte, botón deshabilitado con mensaje). **Sin vencimiento a los 7 días:** un aviso sin respuesta escala a todos los superadmin (aviso in-app, una vez, `admin_escalated_at`). Reemplaza la propuesta de vencerlo. Pendiente: verificación visual en staging.
    - Seed de prueba: `node --env-file=.env.local scripts/seed-demo-payment-report.mjs --stage=to_pay|reported|issue` (solicitud de Camila a Residencia Norte).
    - (Texto original de la fase:) «Ya pagué» y «No pude realizar el pago», tarjeta con datos y botón «Copiar», texto «La residencia te va a escribir por WhatsApp» en el camino B (sin número ni botón), ajuste del job de vencimiento para ambos avisos.
 6. **Aviso y cierre:** aviso a la residencia (in-app y push DR61), recordatorios de 24 h y 12 h, alerta a las 72 h, aviso de «No pude realizar el pago» con las acciones de la residencia («Contactar por WhatsApp» o rehabilitar), «No recibí el pago», tests, seeds de demo y prueba en staging.
@@ -93,7 +93,7 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
   - Email de alerta de cambios de medios con HTML escapado. Recordatorios del job solo a admin con rol activo.
   - Validación del admin: la moneda del monto debe ser la del medio elegido (la pantalla la preselecciona); el update exige el mismo `admin_disputed_at` que se leyó (validar tras disputa sigue permitido, DR8 intacto).
   - 0108: revoca a `authenticated` las 4 columnas de DR64 que 0105 concedió; índice único parcial de casos de Soporte `estured_fee_payment` abiertos por reserva (23505 tratado como éxito o como «ya hay un caso abierto»).
-  - Pendiente del dueño: tope de reaperturas (DR64 (g)); no implementado.
+  - Tope de reaperturas: resuelto en DR66 (a) (2026-11-25).
 - **Supuestos de B1 (reversibles).**
   - El acceso del pagador es `payer_user_id` más vínculo activo con `can_pay_estured_fee`. Un familiar puede pagar por un adulto (DR4).
   - Con un solo medio, la pantalla lo muestra preseleccionado. El pagador confirma con «Usar este medio». La página no escribe al renderizar.
@@ -109,9 +109,18 @@ Estado: Fase 0 hecha (solo docs). Fase 1 hecha (0102 aplicada en dev). **Fase 5 
   - Etiquetas de auditoría: 4 del fee más las 6 de DR63 Fase 5.
   - Seed: `seed-demo-fee-collection.mjs` (medios con alias `estured.demo.fee`, reserva de Camila con fee pendiente).
   - **Supuestos B2 (reversibles):** (1) el caso de Soporte va a nombre del pagador, `opened_by_role = system`, único por reserva por búsqueda previa (no hay índice único para este tema). (2) En una renovación solo se puede «Reabrir el pago» y la alerta de 72 h sale sin caso. (3) Si el aviso al pagador falla no hay forma de saberlo (`createNotification` no devuelve resultado): la marca solo se devuelve si no hay a quién avisar. (4) Tras «No recibí el pago» el pagador no puede avisar «No pude pagar» (el fee sigue en `pending_manual_payment`).
-  - **Pendiente:** verificación visual en staging (320 px); índice único parcial de casos `estured_fee_payment` abiertos por reserva (migración aparte); tope de reaperturas (decisión del dueño).
-- **Pendiente de decisión del dueño (no implementado):** tope de reaperturas del fee (máximo 2) y los 7 días sin respuesta (`docs/00` DR64 (i)). Recomendación del agente: no vencer un «Ya pagué» por demora de EstuRed; escalar a los superadmin.
+  - **Pendiente:** verificación visual en staging (320 px); índice único parcial de casos `estured_fee_payment` abiertos por reserva (migración aparte); el tope de reaperturas quedó resuelto en DR66 (a).
+- **Resuelto por el dueño el 2026-11-25 (`docs/00` DR66 (a)):** máximo 2 reaperturas por fee. Un «Ya pagué» o «No pude realizar el pago» sin respuesta no vence a los 7 días: escala a todos los superadmin. Reemplaza DR64 (i).
 - **Opciones abiertas del fee (DR64 (h), no se implementan):** varias cuentas por medio; recargo o descuento según el medio; fee en cuotas; cobro automático con MercadoPago o PayU; segundo admin que apruebe cambios de datos de cobro; conciliación automática por webhook.
+
+### DR66 — tope de reaperturas, copy sin WhatsApp, «Otro» y sin asesor legal (2026-11-25)
+
+Estado: doc y código hechos en dev, sin commit ni verificación visual. Migración 0110 aplicada en **estured-dev**; en producción entra con el bootstrap (ver `docs/PLAN_SALIDA_PRODUCCION.md`). Detalle en `docs/00` DR66.
+1. **Tope y escalado:** `reopen_count` y `admin_escalated_at` en `external_residence_payments` y `estured_fee_payments`; `lib/payments/reopenCap.ts`; escalado a 7 días en `remindResidencePayments` y `remindFeePayments`.
+2. **Copy sin WhatsApp** en lo que ve el estudiante y la familia; **«Otro»** (`alternative`) reemplaza «Lo coordino con la residencia» en la preferencia de la solicitud.
+3. **Requisito 10 de verificación:** no exige aprobación (ya no existe); sigue exigiendo opción elegida y datos cargados. Decisión del dueño pendiente si quiere quitarlo entero (`docs/00` DR66 (c)).
+4. **Sin asesor legal:** marcas de DR63/DR64 reemplazadas.
+5. **Pendiente:** verificación visual en staging (panel de la residencia con el botón deshabilitado, chips «Otro», pantalla de Pagos del admin) y decidir si el fee vencido con el tope alcanzado necesita un override explícito de superadmin.
 
 ### Opciones para conversar con residencias pioneras (DR63 (h), no se implementan)
 

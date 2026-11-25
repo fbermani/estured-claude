@@ -1,5 +1,6 @@
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import type { PaymentReportView } from "@/lib/applications/paymentReportView";
+import { ALTERNATIVE_PREFERENCE_KEY } from "@/lib/residences/offeredPaymentMethods";
 import { availableCollectionPaths, resolveExpectedAmounts, type CollectionChoiceContext, type CollectionPath } from "@/lib/applications/reservationCollectionChoice";
 
 /**
@@ -18,6 +19,8 @@ export type CollectionChoiceView = {
   degraded: boolean;
   methods: { key: string; label: string }[];
   preferredKey: string | null;
+  /** DR66 (b): el estudiante eligió «Otro» (ningún medio ofrecido le sirve): la residencia lo contacta para definir otra forma de pago. */
+  preferredAlternative: boolean;
   /** Monto de la reserva según las condiciones acordadas (snapshot). Solo lectura. */
   amountUsd: number | null;
   amountArs: number | null;
@@ -57,6 +60,7 @@ export function buildCollectionView(input: {
     degraded,
     methods: ctx.methods.map((m) => ({ key: m.key, label: m.label })),
     preferredKey: ctx.preferredMethod,
+    preferredAlternative: input.preferred === ALTERNATIVE_PREFERENCE_KEY,
     amountUsd: amounts?.ok ? amounts.value.usd : null,
     amountArs: amounts?.ok ? amounts.value.ars : null,
     report: input.status === "residence_payment_pending" ? (input.report ?? null) : null,

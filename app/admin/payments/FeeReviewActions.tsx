@@ -6,6 +6,7 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { cmd } from "@/components/admin/ui/tokens";
 import { DISPUTE_REASON_MAX, DISPUTE_REASON_MIN, RESOLVE_REASON_MAX, RESOLVE_REASON_MIN } from "@/lib/payments/feeAdminLimits";
+import { FEE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import { disputeFeePaymentAction, reopenFeePaymentAction, resolveFeeIssueAction, type MarkFeePaidState } from "@/app/admin/payments/actions";
 
 /**
@@ -101,7 +102,18 @@ export function DisputeFeeForm({ feePaymentId, receiptFileId }: { feePaymentId: 
 }
 
 /** Respuesta al aviso «No pude realizar el pago»: «Reabrir el pago» (principal) o «Contactar al pagador». Ambas dan 48 h más. */
-export function IssueResponseForm({ feePaymentId, canContact, issueReason }: { feePaymentId: string; canContact: boolean; issueReason: string | null }) {
+export function IssueResponseForm({
+  feePaymentId,
+  canContact,
+  issueReason,
+  reopenLimitReached,
+}: {
+  feePaymentId: string;
+  canContact: boolean;
+  issueReason: string | null;
+  /** DR66 (a): el pago ya se reabrió 2 veces; «Reabrir el pago» queda deshabilitado. */
+  reopenLimitReached: boolean;
+}) {
   const [reason, setReason] = useState("");
   const [state, formAction] = useActionState((prev: MarkFeePaidState, fd: FormData) => resolveFeeIssueAction(feePaymentId, prev, fd), initial);
 
@@ -136,8 +148,13 @@ export function IssueResponseForm({ feePaymentId, canContact, issueReason }: { f
           placeholder="Ej: el medio elegido no le funcionó; puede probar con otro"
         />
         <Feedback state={state} />
+        {reopenLimitReached && (
+          <p role="status" className="mt-3 text-sm font-medium" style={{ color: cmd.amber }}>
+            {FEE_REOPEN_CAP_MESSAGE}
+          </p>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Submit variant="primary" name="resolution" value="reopen_payment" pendingLabel="Reabriendo…" disabled={tooShort}>
+          <Submit variant="primary" name="resolution" value="reopen_payment" pendingLabel="Reabriendo…" disabled={tooShort || reopenLimitReached}>
             Reabrir el pago
           </Submit>
           {canContact && (
@@ -152,7 +169,16 @@ export function IssueResponseForm({ feePaymentId, canContact, issueReason }: { f
 }
 
 /** Tras «No recibí el pago»: reabrir el pago (el pagador elige el medio y sube otro comprobante). */
-export function ReopenAfterDisputeForm({ feePaymentId, disputeReason }: { feePaymentId: string; disputeReason: string | null }) {
+export function ReopenAfterDisputeForm({
+  feePaymentId,
+  disputeReason,
+  reopenLimitReached,
+}: {
+  feePaymentId: string;
+  disputeReason: string | null;
+  /** DR66 (a): el pago ya se reabrió 2 veces; «Reabrir el pago» queda deshabilitado. */
+  reopenLimitReached: boolean;
+}) {
   const [reason, setReason] = useState("");
   const [state, formAction] = useActionState((prev: MarkFeePaidState, fd: FormData) => reopenFeePaymentAction(feePaymentId, prev, fd), initial);
 
@@ -186,8 +212,13 @@ export function ReopenAfterDisputeForm({ feePaymentId, disputeReason }: { feePay
           style={{ borderColor: cmd.outline }}
         />
         <Feedback state={state} />
+        {reopenLimitReached && (
+          <p role="status" className="mt-3 text-sm font-medium" style={{ color: cmd.amber }}>
+            {FEE_REOPEN_CAP_MESSAGE}
+          </p>
+        )}
         <div className="mt-4">
-          <Submit variant="secondary" pendingLabel="Reabriendo…" disabled={tooShort}>
+          <Submit variant="secondary" pendingLabel="Reabriendo…" disabled={tooShort || reopenLimitReached}>
             Reabrir el pago
           </Submit>
         </div>

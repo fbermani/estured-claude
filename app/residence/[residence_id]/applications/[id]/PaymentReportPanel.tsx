@@ -8,6 +8,7 @@ import { formatDateTime } from "@/lib/dates/format";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import type { PaymentReportView } from "@/lib/applications/paymentReportView";
 import { DISPUTE_REASON_MAX } from "@/lib/applications/paymentReportView";
+import { RESIDENCE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import {
   disputeReportedPayment,
   openStudentPaymentProof,
@@ -74,7 +75,8 @@ export function PaymentReportPanel({
   }
 
   if (report.issueOpen) {
-    const showMethodChoice = isOwner && methods.length > 1;
+    const capReached = report.reopenLimitReached;
+    const showMethodChoice = isOwner && methods.length > 1 && !capReached;
     return (
       <form action={resolveFormAction} className="space-y-3 rounded-field border border-line-2 bg-warning-bg px-4 py-3 text-sm text-warning-fg">
         <div>
@@ -87,7 +89,12 @@ export function PaymentReportPanel({
             {report.issueReason ? ` Motivo: ${report.issueReason}` : ""}
           </p>
           <p className="mt-1 text-xs leading-relaxed">
-            {isMinor ? "Es menor: contactá solo a su familiar vinculado." : "Podés contactarlo por WhatsApp o volver a habilitar el pago."} Al responder, el plazo de 48 h se reinicia.
+            {isMinor
+              ? "Es menor: contactá solo a su familiar vinculado."
+              : capReached
+                ? "Podés contactarlo por WhatsApp."
+                : "Podés contactarlo por WhatsApp o volver a habilitar el pago."}{" "}
+            Al responder, el plazo de 48 h se reinicia.
           </p>
         </div>
 
@@ -124,13 +131,18 @@ export function PaymentReportPanel({
             value="reenable_payment"
             variant="outline"
             size="sm"
-            disabled={!canAct || !isOwner || isResolvePending}
-            title={isOwner ? undefined : "Solo el dueño puede volver a habilitar el pago con medios de cobro."}
+            disabled={!canAct || !isOwner || isResolvePending || capReached}
+            title={capReached ? RESIDENCE_REOPEN_CAP_MESSAGE : isOwner ? undefined : "Solo el dueño puede volver a habilitar el pago con medios de cobro."}
           >
             Volver a habilitar el pago
           </Button>
         </div>
-        {!isOwner && <p className="text-xs">Volver a habilitar el pago lo hace solo el dueño de la residencia.</p>}
+        {capReached && (
+          <p role="status" className="text-xs">
+            {RESIDENCE_REOPEN_CAP_MESSAGE}
+          </p>
+        )}
+        {!isOwner && !capReached && <p className="text-xs">Volver a habilitar el pago lo hace solo el dueño de la residencia.</p>}
       </form>
     );
   }

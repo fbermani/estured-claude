@@ -21,6 +21,7 @@ vi.mock("@/lib/applications/studentPaymentProof", () => ({
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
 import { disputeFeePaymentCore, resolveFeePaymentIssueCore } from "@/lib/payments/feeAdminActions";
 import { reopenEsturedFeeWindow } from "@/lib/reservations/reopenEsturedFeeWindow";
+import { FEE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 
 /** DR64 (d) y (e): «No recibí el pago», respuesta a «No pude realizar el pago» y reapertura tras la disputa. Cliente en memoria. */
 const NOW = new Date("2026-11-21T12:00:00.000Z");
@@ -51,6 +52,8 @@ function world(feeOver: Row = {}, extra: Partial<Record<string, Row[]>> = {}): R
         payer_reminder_sent_at: "2026-11-20T01:00:00Z",
         admin_reminder_sent_at: "2026-11-20T02:00:00Z",
         admin_alert_sent_at: null,
+        admin_escalated_at: "2026-11-21T03:00:00Z",
+        reopen_count: 0,
         ...feeOver,
       },
     ],
@@ -190,6 +193,8 @@ describe("resolveFeePaymentIssueCore (responde «No pude realizar el pago»)", (
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
+      admin_escalated_at: null,
+      reopen_count: 1,
       chosen_method: "transfer_ars",
     });
     expect(fake.tables.support_cases).toHaveLength(0);
@@ -204,6 +209,23 @@ describe("resolveFeePaymentIssueCore (responde «No pude realizar el pago»)", (
     expect(fake.tables.support_cases).toHaveLength(1);
     expect(fake.tables.support_cases[0]).toMatchObject({ topic: "estured_fee_payment", opened_by_user_id: "u-payer", related_entity_id: "resv-1" });
     expect(fee().student_payment_issue_resolved_at).toBe(NOW.toISOString());
+  });
+
+  it("tope de reaperturas (DR66): 2 «Reabrir el pago» pasan y la 3.ª se rechaza sin escribir; «Contactar al pagador» no cuenta ni se bloquea", async () => {
+    expect(await resolve("reopen_payment")).toEqual({ ok: true });
+    expect(fee().reopen_count).toBe(1);
+    fake.tables.estured_fee_payments[0].student_payment_issue_at = "2026-11-22T10:00:00Z";
+    fake.tables.estured_fee_payments[0].student_payment_issue_resolved_at = null;
+    expect(await resolve("reopen_payment")).toEqual({ ok: true });
+    expect(fee().reopen_count).toBe(2);
+    fake.tables.estured_fee_payments[0].student_payment_issue_at = "2026-11-23T10:00:00Z";
+    fake.tables.estured_fee_payments[0].student_payment_issue_resolved_at = null;
+    const writesBefore = fake.log.filter((l) => l.op !== "select").length;
+    expect(await resolve("reopen_payment")).toEqual({ ok: false, error: FEE_REOPEN_CAP_MESSAGE });
+    expect(fake.log.filter((l) => l.op !== "select")).toHaveLength(writesBefore);
+    expect(fee().reopen_count).toBe(2);
+    expect(await resolve("contact_payer")).toEqual({ ok: true });
+    expect(fee().reopen_count).toBe(2);
   });
 
   it("valida opción y motivo; sin aviso abierto o ya respondido, rechaza", async () => {
@@ -253,6 +275,7 @@ describe("reopenEsturedFeeWindow tras «No recibí el pago»", () => {
       chosen_method: null,
       instructions_snapshot: null,
       payment_currency: "ARS",
+      reopen_count: 1,
     });
     expect(new Date(fee().expires_at as string).getTime()).toBeGreaterThanOrEqual(before + 48 * 3_600_000 - 1000);
     expect(fake.tables.reservations[0].status).toBe("pending_estured_fee");
@@ -264,6 +287,16 @@ describe("reopenEsturedFeeWindow tras «No recibí el pago»", () => {
     expect(audits[0].oldValue).toMatchObject({ disputed_proof_file_id: "file-1" });
     expect(notices.some((n) => n.userId === "u-payer")).toBe(true);
     expect(JSON.stringify(notices)).not.toContain("Soporte pidió otro comprobante");
+  });
+
+  it("tope de reaperturas (DR66): con 2 hechas rechaza y no toca nada; con 1 todavía pasa", async () => {
+    boot(world({ ...disputed, reopen_count: 2 }));
+    expect(await reopen()).toEqual({ status: "error", message: FEE_REOPEN_CAP_MESSAGE });
+    expect(fee()).toMatchObject({ status: "pending_manual_payment", reopen_count: 2, manual_payment_file_id: "file-1" });
+    expect(audits).toHaveLength(0);
+    boot(world({ ...disputed, reopen_count: 1 }));
+    expect(await reopen()).toEqual({ status: "ok" });
+    expect(fee().reopen_count).toBe(2);
   });
 
   it("no toca un archivo que no es de ese fee", async () => {
@@ -280,5 +313,50 @@ describe("reopenEsturedFeeWindow tras «No recibí el pago»", () => {
     boot(world(disputed, { reservations: [{ id: "resv-1", status: "confirmed", estured_fee_payment_id: "fee-1" }] }));
     expect(await reopen()).toMatchObject({ status: "error" });
     expect(fee().status).toBe("pending_manual_payment");
+  });
+});
+
+describe("reopenEsturedFeeWindow de un fee vencido (DR66)", () => {
+  const expiredWorld = (feeOver: Row = {}) =>
+    world(
+      { status: "expired", manual_payment_file_id: null, student_reported_paid_at: null, ...feeOver },
+      { reservations: [{ id: "resv-1", status: "expired_fee_unpaid", estured_fee_payment_id: "fee-1", residences: { name: "Norte" } }] },
+    );
+  const reopen = () => reopenEsturedFeeWindow(fake.client, { feePaymentId: "fee-1", actorUserId: "u-admin", actorRole: "admin", reason: "Soporte autorizó otra ventana" });
+
+  it("suma 1, limpia el escalado y reabre la reserva", async () => {
+    boot(expiredWorld());
+    expect(await reopen()).toEqual({ status: "ok" });
+    expect(fee()).toMatchObject({ status: "pending_payment_method", reopen_count: 1, admin_escalated_at: null });
+    expect(fake.tables.reservations[0].status).toBe("pending_estured_fee");
+    expect(audits[0].newValue).toMatchObject({ reopen_count: 1 });
+  });
+
+  it("con 2 reaperturas hechas rechaza y no toca el fee ni la reserva", async () => {
+    boot(expiredWorld({ reopen_count: 2 }));
+    expect(await reopen()).toEqual({ status: "error", message: FEE_REOPEN_CAP_MESSAGE });
+    expect(fee()).toMatchObject({ status: "expired", reopen_count: 2 });
+    expect(fake.tables.reservations[0].status).toBe("expired_fee_unpaid");
+  });
+
+  it("si otra reapertura ganó la carrera (contador distinto), no flipa la reserva", async () => {
+    boot(expiredWorld());
+    // La fila cambia entre la lectura y el update condicional: el compare-and-set sobre reopen_count no encuentra nada.
+    const realFrom = fake.client.from.bind(fake.client);
+    (fake.client as unknown as { from: (t: string) => unknown }).from = (table: string) => {
+      const builder = realFrom(table) as { update: (...a: unknown[]) => unknown };
+      if (table === "estured_fee_payments") {
+        const originalUpdate = builder.update.bind(builder);
+        builder.update = (...a: unknown[]) => {
+          fake.tables.estured_fee_payments[0].reopen_count = 1;
+          return originalUpdate(...a);
+        };
+      }
+      return builder;
+    };
+    const res = await reopen();
+    expect(res.status).toBe("error");
+    expect(fake.tables.reservations[0].status).toBe("expired_fee_unpaid");
+    expect(fee().status).toBe("expired");
   });
 });

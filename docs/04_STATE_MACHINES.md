@@ -6,7 +6,7 @@
 **Producto:** EstuRed
 **Mercado inicial:** CABA
 **Formato MVP:** webapp responsive
-**Última actualización:** 2026-10-24 (DR3/DR3b: §5.6bis, §12bis "Quiero cambiar"; DR8: §8.10 validación manual del fee)
+**Última actualización:** 2026-11-25 (DR66: tope de reaperturas y escalado a 7 días en §5.8, §8.8 y §8.10; antes, 2026-10-24: DR3/DR3b y DR8)
 
 ---
 
@@ -388,6 +388,8 @@ Ver la tabla canónica de plazos en `00_DECISION_LOG.md` §9.1. Resumen:
 
 > **DR63 (l): «No pude realizar el pago» (camino A, supuestos reversibles).** El estudiante avisa que no pudo pagar, con motivo opcional. `external_residence_payments.student_payment_issue_at` queda con fecha y el estado sigue en `pending`. El aviso **detiene** el vencimiento de 48 horas, igual que «Ya pagué». El job excluye las solicitudes con aviso abierto (`student_payment_issue_at` no nulo y `student_payment_issue_resolved_at` nulo). La residencia responde con «Contactar por WhatsApp» (la solicitud pasa a `collection_mode = whatsapp_direct`) o con «Cambiar medio / volver a habilitar el pago». Al responder, el aviso se cierra y `payment_deadline_at` se reinicia a 48 horas. Sin respuesta: aviso a la residencia a las 24 horas y alerta al admin con caso de Soporte a las 72 horas. No cambia las reglas del fee. El estudiante nunca contacta a la residencia.
 
+> **DR66 (a) (2026-11-25, `docs/00`): tope de reaperturas y escalado en la reserva.** Máximo **2 reaperturas** por pago: cada «Volver a habilitar el pago» suma 1 a `external_residence_payments.reopen_count`. Con 2 hechas, el botón se deshabilita y solo resuelve Soporte. «Contactar por WhatsApp» no cuenta. **Sin vencimiento a los 7 días:** un «Ya pagué» sin confirmar o un «No pude realizar el pago» sin responder escala a los 7 días a todos los superadmin (aviso in-app, una vez, marca `admin_escalated_at`). No vence ni cambia de estado. Un pago en `disputed` no escala.
+
 ---
 
 # 6. Máquina de estados: Pago a residencia
@@ -618,7 +620,7 @@ El fee se calcula sobre la tarifa actual guardada en el `snapshot_final`. No rec
 > - **«No pude realizar el pago»:** el estado sigue en `pending_payment_method`. `student_payment_issue_at` con `student_payment_issue_resolved_at` nulo **detiene** el vencimiento. El admin responde («Contactar al pagador» o «Reabrir el pago») y `expires_at` se reinicia a 48 horas.
 > - **«No recibí el pago» (admin):** no hay estado nuevo. `admin_disputed_at` queda con fecha, el fee sigue en `pending_manual_payment` y la reserva en `pending_estured_fee`. Soporte valida (§8.10) o reabre: fee a `pending_payment_method`, `expires_at` a 48 horas, se limpian `student_reported_paid_at`, `manual_payment_file_id` y la disputa.
 > - **Recordatorios (job `remindFeePayments`):** 12 horas antes de `expires_at` al pagador, si no informó ni avisó; 24 horas de «Ya pagué» o aviso sin respuesta al admin; 72 horas, alerta al admin y caso de Soporte `estured_fee_payment`. Sin transición automática.
-> - **Propuesta sin implementar:** máximo 2 reaperturas por fee y 7 días sin respuesta (`docs/00` DR64 (i)).
+> - **Tope de reaperturas y escalado (DR66 (a), 2026-11-25):** máximo 2 reaperturas por fee (`estured_fee_payments.reopen_count`). Cuentan la reapertura de un fee vencido, la reapertura tras «No recibí el pago» y «Reabrir el pago» como respuesta a «No pude realizar el pago»; no cuenta «Contactar al pagador». Con 2 hechas, se rechaza y solo resuelve Soporte. **Sin vencimiento a los 7 días:** un «Ya pagué» sin validar o un «No pude realizar el pago» sin responder escala a los 7 días a todos los superadmin (aviso in-app, una vez, marca `admin_escalated_at`). No vence ni cambia de estado.
 
 ## 8.9. Revocación del fee — DECISIÓN CONFIRMADA (actualizada por DR6)
 
@@ -671,6 +673,8 @@ Efectos de `paid` (sin cambios): se confirma la reserva (`pending_estured_fee` �
 > **Resuelto en DR64 (d) (2026-11-21, supuesto del agente pendiente de ratificación del dueño):** «Ya pagué» detiene el vencimiento de 48 horas hasta que el admin valide o registre «No recibí el pago». El job `expireEsturedFeeWindows` excluye `pending_manual_payment` y la validación no revisa `expires_at` en ese estado (fila «Plazo»). DR8 no cambia para `pending_payment_method`.
 >
 > **«No recibí el pago» (DR64 (d)):** el admin registra un motivo de 10 a 500 caracteres. No hay estado nuevo: `admin_disputed_at` marca el caso, el fee sigue en `pending_manual_payment` y la reserva en `pending_estured_fee`. Abre un caso de Soporte `estured_fee_payment`. Con disputa abierta el fee no vence. El caso se cierra de dos formas: el admin marca pagado (DR8, limpia la disputa) o reabre el plazo (§8.8).
+>
+> **Tope de reaperturas (DR66 (a)):** la reapertura tras «No recibí el pago» suma 1 a `reopen_count`. Con 2 hechas ya no se puede reabrir: el admin valida el pago (DR8) o lo resuelve Soporte. Si el aviso queda 7 días sin respuesta, escala a todos los superadmin (§8.8).
 
 ---
 

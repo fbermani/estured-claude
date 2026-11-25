@@ -1,6 +1,8 @@
 import { Icon } from "@/components/ui/Icon";
 import {
-  COLLECTION_COORDINATE_LABEL,
+  ALTERNATIVE_PREFERENCE_KEY,
+  COLLECTION_ALTERNATIVE_LABEL,
+  collectionAlternativeNotice,
   COLLECTION_LIABILITY_NOTICE,
   COLLECTION_PREFERENCE_NOTICE,
   COLLECTION_SECTION_TITLE,
@@ -11,11 +13,12 @@ import {
 
 /**
  * Sección «Cómo te van a cobrar la reserva» del formulario de solicitud (DR63 (c), `docs/00`). Va DENTRO del `<form>` de `ApplyForm`:
- * la preferencia viaja en el campo `preferred_payment_method` (vacío = «Lo coordino con la residencia»).
+ * la preferencia viaja en el campo `preferred_payment_method` (sin elegir = sin preferencia; «Otro» = `alternative`, DR66 (b)).
  *
  * Solo muestra el NOMBRE de los medios aceptados con datos aprobados. Nunca datos de cobro ni datos de contacto de la residencia: el
  * estudiante no contacta a la residencia (DR63 (j) 2); los datos de pago le llegan por su solicitud, si la residencia la acepta.
- * Sin estado ni JS: son radios nativos (teclado, foco y envío del navegador), por eso sirve igual con el paso oculto.
+ * Sin estado ni JS: son radios nativos (teclado, foco y envío del navegador), por eso sirve igual con el paso oculto. El aviso de «Otro» se
+ * muestra con CSS (`has-[...:checked]`), así el componente sigue siendo de servidor.
  */
 export function ReservationCollectionPreference({
   offer,
@@ -35,14 +38,17 @@ export function ReservationCollectionPreference({
       </h3>
 
       {offer.kind === "methods" ? (
-        <fieldset className="mt-2 min-w-0">
+        <fieldset className="group/pref mt-2 min-w-0">
           <legend className="text-sm font-semibold text-ink">Esta residencia cobra la reserva con estos medios. ¿Cuál preferís?</legend>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {offer.methods.map((method) => (
               <ChipRadio key={method.key} value={method.key} label={method.label} />
             ))}
-            <ChipRadio value="" label={COLLECTION_COORDINATE_LABEL} defaultChecked />
+            <ChipRadio value={ALTERNATIVE_PREFERENCE_KEY} label={COLLECTION_ALTERNATIVE_LABEL} />
           </div>
+          <p role="status" className="mt-2.5 hidden text-sm font-medium leading-relaxed text-ink group-has-[input[value=alternative]:checked]/pref:block">
+            {collectionAlternativeNotice(isMinor)}
+          </p>
           <p className="mt-2.5 text-xs leading-relaxed text-ink-soft">
             {COLLECTION_PREFERENCE_NOTICE} {methodsPreferenceNotice(isMinor)}
           </p>
@@ -62,10 +68,10 @@ export function ReservationCollectionPreference({
   );
 }
 
-function ChipRadio({ value, label, defaultChecked }: { value: string; label: string; defaultChecked?: boolean }) {
+function ChipRadio({ value, label }: { value: string; label: string }) {
   return (
     <label className="relative cursor-pointer">
-      <input type="radio" name="preferred_payment_method" value={value} defaultChecked={defaultChecked} className="peer sr-only focus-visible:outline-none" />
+      <input type="radio" name="preferred_payment_method" value={value} className="peer sr-only focus-visible:outline-none" />
       <span className="block rounded-full border border-line-2 bg-paper px-3.5 py-1.5 text-sm font-semibold text-ink-soft transition-colors hover:border-forest peer-checked:border-forest peer-checked:bg-forest-tint peer-checked:text-forest-700 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest">
         {label}
       </span>

@@ -5,6 +5,7 @@ import { notifyFamilyReservationMilestone } from "@/lib/family/familyMilestones"
 import { createNotification } from "@/lib/notifications/createNotification";
 import { notifyFeePayer } from "@/lib/payments/feePayerNotices";
 import { PROOF_BUCKET } from "@/lib/applications/studentPaymentProof";
+import { FEE_REOPEN_CAP_MESSAGE, normalizeReopenCount, reopenCapReached } from "@/lib/payments/reopenCap";
 
 export type ReopenEsturedFeeWindowResult = { status: "ok" } | { status: "error"; message: string };
 
@@ -17,8 +18,10 @@ const CLEAR_CHOSEN_METHOD = { chosen_method: null, instructions_snapshot: null, 
  * `pending_payment_method` con 48 h nuevas y se limpian «Ya pagué», la referencia al comprobante y la disputa. El comprobante en disputa NO se
  * borra: queda en `files` (estado `archived`) como evidencia del caso de Soporte, y su id se guarda en la auditoría. En ambas reaperturas el
  * pagador vuelve a elegir el medio (se limpian `chosen_method`, `instructions_snapshot` y `payment_currency` vuelve a `'ARS'`, su valor por
- * defecto): el medio pudo deshabilitarse o cambiar de datos mientras tanto. La reserva sigue en `pending_estured_fee`. El tope de reaperturas
- * está propuesto y NO implementado (`docs/00` DR64 (g)).
+ * defecto): el medio pudo deshabilitarse o cambiar de datos mientras tanto. La reserva sigue en `pending_estured_fee`.
+ *
+ * Tope de reaperturas (DR66 (a)): cada reapertura (vencido o tras «No recibí el pago») suma 1 a `estured_fee_payments.reopen_count`, con
+ * compare-and-set. Con 2 reaperturas hechas se rechaza: después solo resuelve Soporte.
  *
  * Reabrir la ventana de pago del fee EstuRed de una reserva vencida sin
  * pagar (`expired_fee_unpaid` / `estured_fee_payments.status = 'expired'`)
@@ -37,16 +40,17 @@ export async function reopenEsturedFeeWindow(
 
   const { data: feePayment } = await admin
     .from("estured_fee_payments")
-    .select("id, status, reservation_id, payer_user_id, manual_payment_file_id, admin_disputed_at")
+    .select("id, status, reservation_id, payer_user_id, manual_payment_file_id, admin_disputed_at, reopen_count")
     .eq("id", params.feePaymentId)
     .maybeSingle();
   if (!feePayment) return { status: "error", message: "Pago del fee no encontrado." };
-  if (feePayment.status === "pending_manual_payment" && feePayment.admin_disputed_at) {
-    return reopenAfterDispute(admin, { ...params, reason }, feePayment as DisputedFee);
-  }
-  if (feePayment.status !== "expired") {
+  const isDisputed = feePayment.status === "pending_manual_payment" && Boolean(feePayment.admin_disputed_at);
+  if (!isDisputed && feePayment.status !== "expired") {
     return { status: "error", message: "Solo se pueden reabrir pagos del fee vencidos o con «No recibí el pago» registrado." };
   }
+  const reopenCount = normalizeReopenCount(feePayment.reopen_count);
+  if (reopenCapReached(reopenCount)) return { status: "error", message: FEE_REOPEN_CAP_MESSAGE };
+  if (isDisputed) return reopenAfterDispute(admin, { ...params, reason }, feePayment as DisputedFee, reopenCount);
 
   const { data: reservation } = await admin
     .from("reservations")
@@ -58,14 +62,20 @@ export async function reopenEsturedFeeWindow(
   }
 
   const newExpiresAt = new Date(Date.now() + FORTY_EIGHT_HOURS_MS).toISOString();
-  const { error: feeUpdateError } = await admin
+  const { data: reopenedFee, error: feeUpdateError } = await admin
     .from("estured_fee_payments")
-    .update({ status: "pending_payment_method", expires_at: newExpiresAt, ...CLEAR_CHOSEN_METHOD })
+    .update({ status: "pending_payment_method", expires_at: newExpiresAt, reopen_count: reopenCount + 1, admin_escalated_at: null, ...CLEAR_CHOSEN_METHOD })
     .eq("id", feePayment.id)
-    .eq("status", "expired");
+    .eq("status", "expired")
+    .eq("reopen_count", reopenCount)
+    .select("id");
   if (feeUpdateError) {
     console.error("[reservations] reopenEsturedFeeWindow fee update failed:", feeUpdateError);
     return { status: "error", message: "No pudimos reabrir el pago. Probá de nuevo." };
+  }
+  // Sin fila actualizada (otra reapertura o el cron ganaron): no se toca la reserva, para que fee y reserva no queden desalineados.
+  if (!reopenedFee || reopenedFee.length === 0) {
+    return { status: "error", message: "El pago cambió mientras lo revisabas. Recargá la pantalla para ver su estado actual." };
   }
 
   const { error: reservationUpdateError } = await admin
@@ -85,7 +95,7 @@ export async function reopenEsturedFeeWindow(
     entityType: "estured_fee_payments",
     entityId: feePayment.id,
     oldValue: { status: "expired" },
-    newValue: { status: "pending_payment_method", expires_at: newExpiresAt },
+    newValue: { status: "pending_payment_method", expires_at: newExpiresAt, reopen_count: reopenCount + 1 },
     reasonText: reason,
     source: "admin",
   });
@@ -124,6 +134,7 @@ async function reopenAfterDispute(
   admin: SupabaseClient,
   params: { feePaymentId: string; actorUserId: string; actorRole: string; reason: string },
   fee: DisputedFee,
+  reopenCount: number,
 ): Promise<ReopenEsturedFeeWindowResult> {
   if (!fee.reservation_id) return { status: "error", message: "Solo se puede reabrir el pago de una reserva inicial." };
   const { data: reservation } = await admin.from("reservations").select("id, status").eq("id", fee.reservation_id).maybeSingle();
@@ -140,16 +151,19 @@ async function reopenAfterDispute(
       expires_at: newExpiresAt,
       student_reported_paid_at: null,
       manual_payment_file_id: null,
+      reopen_count: reopenCount + 1,
       admin_disputed_at: null,
       admin_dispute_reason: null,
       admin_disputed_by_user_id: null,
       payer_reminder_sent_at: null,
       admin_reminder_sent_at: null,
       admin_alert_sent_at: null,
+      admin_escalated_at: null,
       ...CLEAR_CHOSEN_METHOD,
     })
     .eq("id", fee.id)
     .eq("status", "pending_manual_payment")
+    .eq("reopen_count", reopenCount)
     .not("admin_disputed_at", "is", null);
   query = fee.manual_payment_file_id ? query.eq("manual_payment_file_id", fee.manual_payment_file_id) : query.is("manual_payment_file_id", null);
   const { data: updated, error } = await query.select("id");
@@ -170,7 +184,7 @@ async function reopenAfterDispute(
     entityType: "estured_fee_payments",
     entityId: fee.id,
     oldValue: { status: "pending_manual_payment", disputed: true, disputed_proof_file_id: keptProofFileId },
-    newValue: { status: "pending_payment_method", expires_at: newExpiresAt, reservation_id: fee.reservation_id },
+    newValue: { status: "pending_payment_method", expires_at: newExpiresAt, reservation_id: fee.reservation_id, reopen_count: reopenCount + 1 },
     reasonText: params.reason,
     source: "admin",
   });

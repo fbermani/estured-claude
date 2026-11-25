@@ -84,10 +84,9 @@ export interface ReservationCollectionConfig {
   /** `residences.accepted_payment_methods` tal como está guardado. */
   acceptedMethods: readonly string[] | null;
   /**
-   * Claves de medios con datos de cobro cargados: APROBADOS o PENDIENTES. Supuesto reversible: para ENVIAR a revisión alcanza con que el
-   * dueño haya cargado los datos, porque la primera carga la aprueba el admin al verificar la residencia (DR63 (j) 5). Que el medio se
-   * OFREZCA al estudiante exige `details` aprobados: eso es de las fases siguientes, no de este chequeo. En «Otro» cuenta además que
-   * haya un nombre (aprobado o pendiente); eso lo resuelve quien arma esta lista.
+   * Claves de medios con datos de cobro cargados. Para ENVIAR a revisión alcanza con que el dueño haya cargado los datos: desde DR65 (c)
+   * EstuRed no aprueba los datos de cobro y quedan vigentes al guardar (DR66 (c)). En «Otro» cuenta además que haya un nombre; eso lo
+   * resuelve quien arma esta lista.
    */
   methodsWithData: readonly string[];
 }

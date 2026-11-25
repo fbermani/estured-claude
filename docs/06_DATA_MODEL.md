@@ -979,7 +979,7 @@ Reglas:
 | `rejection_reason_internal` | text null | Motivo interno si `other` |
 | `cancelled_reason` | text null | Motivo cancelación |
 | `stay_change_intent_id` | uuid null | FK `stay_change_intents` si se envió bajo la excepción "Quiero cambiar" (DR3, §14bis) |
-| `preferred_payment_method` | text null | *(DR63, propuesta 0102)* Clave del catálogo que el estudiante prefiere. Opcional y no vinculante. Null = «Lo coordino con la residencia» |
+| `preferred_payment_method` | text null | *(DR63, propuesta 0102)* Clave del catálogo que el estudiante prefiere, o la clave reservada `alternative` («Otro»: la residencia lo contacta para definir una forma de pago alternativa, DR66 (b)). Opcional y no vinculante. Null = sin preferencia |
 | `collection_mode` | text null | *(DR63, propuesta 0102)* Camino elegido por la residencia al aceptar: `enabled_methods` o `whatsapp_direct`. Null en solicitudes anteriores = `whatsapp_direct` |
 | `expires_at` | timestamptz null | 48h desde envío de solicitud *(actualizado)* |
 | `created_by_user_id` | uuid | Estudiante/familiar autorizado |
@@ -1164,6 +1164,8 @@ Reglas:
 | `residence_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 24 h a la residencia, para no repetirlo. Sirve para «Ya pagué» y para «No pude realizar el pago» |
 | `student_reminder_sent_at` | timestamptz null | *(DR63, supuesto)* Marca del aviso de 12 h al estudiante |
 | `admin_alert_sent_at` | timestamptz null | *(DR63 (j) 1, 0102)* Marca de la alerta al admin a las 72 h. Evita que el job la repita. Interna: sin `grant select` a `authenticated` |
+| `reopen_count` | integer not null default 0 | *(DR66 (a), 0110)* Veces que la residencia volvió a habilitar el pago. Tope 2 (en código, `lib/payments/reopenCap.ts`); después solo Soporte. Solo service role |
+| `admin_escalated_at` | timestamptz null | *(DR66 (a), 0110)* Marca del escalado a los 7 días sin respuesta a todos los superadmin (una vez). Se limpia en cada evento nuevo. Solo service role |
 | `created_at` | timestamptz | Alta |
 | `updated_at` | timestamptz | Actualización |
 
@@ -1263,6 +1265,8 @@ Reglas:
 | `payer_reminder_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca del aviso de 12 h al pagador. Interna, sin grant |
 | `admin_reminder_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca del aviso de 24 h al admin. Interna, sin grant |
 | `admin_alert_sent_at` | timestamptz null | *(DR64 (f), 0105)* Marca de la alerta de 72 h al admin. Interna, sin grant. El servidor limpia las tres marcas en cada evento nuevo |
+| `reopen_count` | integer not null default 0 | *(DR66 (a), 0110)* Veces que se reabrió el pago del fee (vencido, tras «No recibí el pago» o «Reabrir el pago»). Tope 2 (en código). Solo service role |
+| `admin_escalated_at` | timestamptz null | *(DR66 (a), 0110)* Marca del escalado a los 7 días sin respuesta a todos los superadmin (una vez). Se limpia en cada evento nuevo. Solo service role |
 | `received_amount` | numeric(14,2) null | Monto realmente recibido que cargó el admin al validar un pago manual, en `payment_currency` (DR8). Solo servidor *(migración 0050)* |
 | `confirmed_without_receipt` | boolean | `true` si el admin validó con el override "Confirmar sin comprobante" (DR8). Default `false`. Solo servidor *(0050)* |
 | `validated_by_user_id` | uuid null | Admin que validó el pago manual (`users.id`) (DR8). Solo servidor *(0050)* |

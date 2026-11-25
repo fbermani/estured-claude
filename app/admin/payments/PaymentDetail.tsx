@@ -59,6 +59,8 @@ export type FeeReview = {
   reportedPaidLabel: string | null;
   issue: { reason: string | null; atLabel: string } | null;
   dispute: { reason: string | null; atLabel: string } | null;
+  /** DR66 (a): el pago ya se reabrió 2 veces; «Reabrir el pago» se deshabilita (solo Soporte). */
+  reopenLimitReached: boolean;
 };
 
 export type FeePayer = { name: string | null; role: "student" | "family" | "unknown" };
@@ -209,9 +211,14 @@ export function PaymentDetail({
       </AdminCard>
 
       {issueOpen && review.issue && (
-        <IssueResponseForm feePaymentId={feePayment.id} canContact={Boolean(feePayment.reservation_id)} issueReason={review.issue.reason} />
+        <IssueResponseForm
+          feePaymentId={feePayment.id}
+          canContact={Boolean(feePayment.reservation_id)}
+          issueReason={review.issue.reason}
+          reopenLimitReached={review.reopenLimitReached}
+        />
       )}
-      {disputed && review.dispute && <ReopenAfterDisputeForm feePaymentId={feePayment.id} disputeReason={review.dispute.reason} />}
+      {disputed && review.dispute && <ReopenAfterDisputeForm feePaymentId={feePayment.id} disputeReason={review.dispute.reason} reopenLimitReached={review.reopenLimitReached} />}
 
       <ValidationCard
         feePaymentId={feePayment.id}

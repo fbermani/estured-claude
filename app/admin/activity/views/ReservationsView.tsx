@@ -6,6 +6,7 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminBadge } from "@/components/admin/ui/AdminBadge";
 import { ScrollTable } from "@/components/ui/ScrollTable";
 import { cmd } from "@/components/admin/ui/tokens";
+import { reopenCapReached } from "@/lib/payments/reopenCap";
 import { ReopenFeeWindowControl } from "@/app/admin/reservations/ReopenFeeWindowControl";
 
 
@@ -52,6 +53,14 @@ export async function ReservationsView() {
     : { data: [], error: null };
   if (error) console.error("[admin/reservations] query failed:", error);
   const reservations = (data as unknown as ReservationRow[]) ?? [];
+  // DR66 (a): máximo 2 reaperturas por pago; con el tope alcanzado, «Reabrir» se deshabilita (solo Soporte).
+  const expiredFeeIds = reservations.filter((r) => r.status === "expired_fee_unpaid" && r.estured_fee_payment_id).map((r) => r.estured_fee_payment_id as string);
+  const cappedFeeIds = new Set<string>();
+  if (admin && expiredFeeIds.length > 0) {
+    const { data: fees, error: feesError } = await admin.from("estured_fee_payments").select("id, reopen_count").in("id", expiredFeeIds);
+    if (feesError) console.error("[admin/reservations] reopen_count query failed:", feesError);
+    for (const f of (fees ?? []) as { id: string; reopen_count: number | null }[]) if (reopenCapReached(f.reopen_count)) cappedFeeIds.add(f.id);
+  }
   const activeCount = reservations.filter((r) => ACTIVE_STATUSES.includes(r.status)).length;
 
   return (
@@ -113,7 +122,7 @@ export async function ReservationsView() {
                   </td>
                   <td className="px-4 py-2.5">
                     {r.status === "expired_fee_unpaid" && r.estured_fee_payment_id && (
-                      <ReopenFeeWindowControl feePaymentId={r.estured_fee_payment_id} />
+                      <ReopenFeeWindowControl feePaymentId={r.estured_fee_payment_id} limitReached={cappedFeeIds.has(r.estured_fee_payment_id)} />
                     )}
                   </td>
                 </tr>

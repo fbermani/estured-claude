@@ -108,8 +108,18 @@ describe("collectionEnabledNotice", () => {
       }
     }
   });
+  it("ningún aviso al estudiante o a la familia nombra WhatsApp (DR66 (b))", () => {
+    for (const mode of ["enabled_methods", "whatsapp_direct"] as const) {
+      for (const audience of ["student", "family"] as const) {
+        for (const isMinor of [false, true]) {
+          const n = collectionEnabledNotice({ ...base, mode, audience, isMinor });
+          expect(`${n.title} ${n.body}`).not.toMatch(/whatsapp/i);
+        }
+      }
+    }
+  });
   it("en contacto directo el menor ve al familiar", () => {
     expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: true }).body).toContain("familiar vinculado");
-    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: false }).body).toContain("te va a escribir por WhatsApp");
+    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: false }).body).toContain("te va a indicar el monto final y cómo pagar");
   });
 });

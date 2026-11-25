@@ -2,6 +2,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
+import { notifySuperadminsCounted } from "@/lib/notifications/notifySuperadminsCounted";
+import { ESCALATION_HOURS } from "@/lib/payments/reopenCap";
 import { loadStudentShortName } from "@/lib/family/notifyLinkedFamily";
 import { isPaymentIssueOpen } from "@/lib/applications/paymentReportView";
 import { notifyResidencePaymentTeam, notifyStudentAndFamily } from "@/lib/applications/paymentReportNotices";
@@ -17,6 +19,8 @@ import { openResidencePaymentSupportCase } from "@/lib/applications/residencePay
  *    transición automática a `disputed`.
  *  - 12 h antes de `payment_deadline_at`, solo con «Cobro con medios habilitados» y si el estudiante no avisó nada → aviso al
  *    estudiante (y a su familiar si es menor).
+ *  - 7 días de lo mismo (DR66 (a)) → aviso in-app a TODOS los superadmin, una sola vez (`admin_escalated_at`). NO vence ni cambia de estado:
+ *    es una pasada aparte, porque a los 7 días la alerta de 72 h ya salió y esas filas quedan fuera de la consulta de arriba.
  * Los avisos no llevan datos de cobro ni montos. Se limpian las marcas al registrar cada evento nuevo (acciones del estudiante y de la
  * residencia), así el segundo evento vuelve a tener sus avisos.
  */
@@ -27,7 +31,9 @@ const ADMIN_ALERT_HOURS = 72;
 const STUDENT_REMINDER_HOURS_BEFORE = 12;
 const SCHEMA_MISSING_CODES = new Set(["42703", "42P01", "PGRST204", "PGRST205"]);
 
-export type RemindResiduePaymentsResult = { residenceReminders: number; adminAlerts: number; studentReminders: number };
+export type RemindResiduePaymentsResult = { residenceReminders: number; adminAlerts: number; studentReminders: number; superadminEscalations: number };
+
+type Mark = "residence_reminder_sent_at" | "student_reminder_sent_at" | "admin_alert_sent_at" | "admin_escalated_at";
 
 type PaymentRow = {
   id: string;
@@ -41,14 +47,15 @@ type PaymentRow = {
   residence_reminder_sent_at: string | null;
   student_reminder_sent_at: string | null;
   admin_alert_sent_at: string | null;
+  admin_escalated_at: string | null;
 };
 type AppRow = { id: string; status: string; residence_id: string; student_profile_id: string; contact_target: string | null; collection_mode: string | null; payment_deadline_at: string | null };
 
 const PAYMENT_COLUMNS =
-  "id, application_request_id, residence_id, student_profile_id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, residence_reminder_sent_at, student_reminder_sent_at, admin_alert_sent_at";
+  "id, application_request_id, residence_id, student_profile_id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, residence_reminder_sent_at, student_reminder_sent_at, admin_alert_sent_at, admin_escalated_at";
 
 /** Marca el aviso como enviado solo si seguía sin enviar. `true` = este proceso lo reclamó. */
-async function claimMark(admin: SupabaseClient, paymentId: string, column: "residence_reminder_sent_at" | "student_reminder_sent_at" | "admin_alert_sent_at", nowIso: string): Promise<boolean> {
+async function claimMark(admin: SupabaseClient, paymentId: string, column: Mark, nowIso: string): Promise<boolean> {
   const { data, error } = await admin.from("external_residence_payments").update({ [column]: nowIso }).eq("id", paymentId).is(column, null).select("id");
   if (error) {
     console.error(`[jobs] remindResidencePayments (${column}) failed:`, error.code, error.message);
@@ -57,8 +64,10 @@ async function claimMark(admin: SupabaseClient, paymentId: string, column: "resi
   return Boolean(data && data.length > 0);
 }
 
-async function releaseMark(admin: SupabaseClient, paymentId: string, column: "residence_reminder_sent_at" | "student_reminder_sent_at" | "admin_alert_sent_at"): Promise<void> {
-  await admin.from("external_residence_payments").update({ [column]: null }).eq("id", paymentId);
+async function releaseMark(admin: SupabaseClient, paymentId: string, column: Mark, onlyIfEquals?: string): Promise<void> {
+  const query = admin.from("external_residence_payments").update({ [column]: null }).eq("id", paymentId);
+  // Con `onlyIfEquals` la marca se devuelve solo si sigue siendo la de este proceso (un evento nuevo que la limpió no se pisa).
+  await (onlyIfEquals ? query.eq(column, onlyIfEquals) : query);
 }
 
 /** Momento del evento abierto (el más reciente de los que importan) o `null` si no hay nada pendiente de respuesta. */
@@ -69,9 +78,10 @@ function openEventAt(p: PaymentRow): string | null {
 }
 
 export async function remindResidencePayments(admin: SupabaseClient, now: Date = new Date()): Promise<RemindResiduePaymentsResult> {
-  const result: RemindResiduePaymentsResult = { residenceReminders: 0, adminAlerts: 0, studentReminders: 0 };
+  const result: RemindResiduePaymentsResult = { residenceReminders: 0, adminAlerts: 0, studentReminders: 0, superadminEscalations: 0 };
   try {
     await runResidenceAndAdmin(admin, now, result);
+    await runSuperadminEscalation(admin, now, result);
     await runStudentReminder(admin, now, result);
   } catch (error) {
     console.error("[jobs] remindResidencePayments threw:", error);
@@ -140,6 +150,64 @@ async function runResidenceAndAdmin(admin: SupabaseClient, now: Date, result: Re
       if (sent) result.adminAlerts += 1;
       else await releaseMark(admin, p.id, "admin_alert_sent_at");
     }
+  }
+}
+
+/**
+ * DR66 (a): a los 7 días de un aviso sin respuesta («Ya pagué» sin confirmar o «No pude realizar el pago» sin responder) se avisa a todos los
+ * superadmin, una sola vez. NO filtra por `admin_alert_sent_at` (a los 7 días la alerta de 72 h ya salió); sí por `admin_escalated_at`.
+ * Un pago en `disputed` queda fuera (ya lo atiende Soporte). No cambia ningún estado ni plazo.
+ */
+async function runSuperadminEscalation(admin: SupabaseClient, now: Date, result: RemindResiduePaymentsResult): Promise<void> {
+  const reported = await admin.from("external_residence_payments").select(PAYMENT_COLUMNS).eq("status", "student_reported_paid").is("admin_escalated_at", null);
+  const issues = await admin
+    .from("external_residence_payments")
+    .select(PAYMENT_COLUMNS)
+    .eq("status", "pending")
+    .is("student_payment_issue_resolved_at", null)
+    .is("admin_escalated_at", null);
+  for (const read of [reported, issues]) {
+    if (read.error) {
+      if (!SCHEMA_MISSING_CODES.has(read.error.code ?? "")) console.error("[jobs] remindResidencePayments (escalado) failed:", read.error.code, read.error.message);
+      return;
+    }
+  }
+  const rows = [...((reported.data ?? []) as PaymentRow[]), ...((issues.data ?? []) as PaymentRow[])].filter((p) => {
+    const at = openEventAt(p);
+    return at !== null && (now.getTime() - new Date(at).getTime()) / HOUR_MS >= ESCALATION_HOURS;
+  });
+  if (rows.length === 0) return;
+  const apps = await loadApps(admin, rows.map((p) => p.application_request_id));
+  const nowIso = now.toISOString();
+
+  for (const p of rows) {
+    const app = apps.get(p.application_request_id);
+    if (!app || app.status !== "residence_payment_pending") continue;
+    if (!(await claimMark(admin, p.id, "admin_escalated_at", nowIso))) continue;
+    const isReported = p.status === "student_reported_paid";
+    const sent = await notifySuperadminsCounted(admin, {
+      title: "Pago a la residencia sin respuesta hace 7 días",
+      body: isReported
+        ? "Hace 7 días un estudiante avisó que pagó la reserva y la residencia no respondió. El pago no vence. Resolvelo desde Soporte."
+        : "Hace 7 días un estudiante avisó que no pudo pagar la reserva y la residencia no respondió. El pago no vence. Resolvelo desde Soporte.",
+      entityType: "application_requests",
+      entityId: app.id,
+    });
+    if (!sent) {
+      await releaseMark(admin, p.id, "admin_escalated_at", nowIso);
+      continue;
+    }
+    await createAuditLog(admin, {
+      actorUserId: null,
+      actorRole: "system",
+      action: "residence_payment_escalated_to_superadmin",
+      entityType: "application_requests",
+      entityId: app.id,
+      newValue: { payment_status: p.status },
+      source: "system",
+      isSystemAction: true,
+    });
+    result.superadminEscalations += 1;
   }
 }
 
