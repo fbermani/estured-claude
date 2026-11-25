@@ -22,7 +22,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - `SUPABASE_SERVICE_ROLE_KEY` de Production actualizada por el dueño (2026-11-25).
 - **Base creada** (D1, control del 2026-11-25). Región confirmada: São Paulo (`sa-east-1`).
 - **Hecho el 2026-11-25:** buckets (D2); URLs y registro público apagado (D3).
-- **Faltan:** ⚠ rotar la secret key expuesta (C2), secreto del cron en Vault (D1), SMTP y plantilla de mail (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
+- **Faltan:** secreto del cron en Vault (D1), SMTP y plantilla de mail (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
 - ⚠ **`estured.com` hoy sirve el deploy viejo de `main`** (Ciclo 30bis, abierto y sin base). Se reemplaza en F2. No hay datos reales en riesgo (la base vieja ya no existe).
 
 ### Etapas
@@ -165,7 +165,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 ### C2. Supabase (proyecto nuevo)
 - [ ] Dashboard → Organization (ver A3) → *New project*: nombre `estured-prod`, región cercana a Argentina (`South America (São Paulo)`), contraseña de base fuerte (guardarla en el gestor de contraseñas).
 - [ ] En las opciones de creación, dejar activada la **Data API** y la **exposición automática de tablas nuevas** (privilegios por defecto) si el panel las ofrece; sin eso, `service_role` y `authenticated` quedan sin grants sobre las tablas del bootstrap. Control: `select pg_get_userbyid(d.defaclrole), d.defaclobjtype, d.defaclacl::text from pg_default_acl d join pg_namespace n on n.oid = d.defaclnamespace where n.nspname = 'public';`. **Antes de D1** un proyecto nuevo muestra `arwdDxtm` para `anon`, `authenticated` y `service_role` (visto el 2026-11-25: correcto). **Después de D1** (0090, 0092 y 0098 lo recortan) la fila `postgres` / `r` tiene que quedar como `estured-dev`: `anon=m`, `authenticated=rm`, `service_role=arwdDxtm`.
-- [ ] ⚠ **[Vos] Rotar la secret key de Supabase prod. Urgente.** Revisado el 2026-11-25 en el panel: hay una sola secret key (`default`) y su comienzo coincide con la que se pegó en el chat. La rotación no ocurrió. Pasos: Supabase → Project Settings → API Keys → *New secret key* (nombre `vercel`) → copiar → Vercel → `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor) → *Save* → volver a Supabase y borrar `default`. No pegarla en ningún chat.
+- **Secret key de prod: no se rota (decisión del dueño, 2026-11-25). Riesgo aceptado.** La única secret key activa (`default`) coincide al comienzo con una que se pegó en un chat. Con ella se accede a toda la base y al Storage salteando RLS. Se recomendó rotarla antes de recibir datos reales: *New secret key* → `SUPABASE_SERVICE_ROLE_KEY` en Vercel → redeploy → borrar `default`.
 - Las claves nuevas se llaman distinto: *publishable* (`sb_publishable_…`) va en `NEXT_PUBLIC_SUPABASE_ANON_KEY`; *secret* (`sb_secret_…`) va en `SUPABASE_SERVICE_ROLE_KEY`. `SUPABASE_JWKS_URL` no se usa.
 - Las 3 variables de Supabase de Production son *Sensitive* y Vercel no deja cambiarles el tipo. La pantalla rechaza guardar las `NEXT_PUBLIC_*` así; por API se actualizó solo el valor (2026-11-25). Si el build de F2 no las toma, borrarlas y recrearlas como *Config*.
 - [x] Región del proyecto confirmada: `sa-east-1` (2026-11-25; la IPv6 de `db.<ref>.supabase.co` cae en el rango de AWS de esa región).
