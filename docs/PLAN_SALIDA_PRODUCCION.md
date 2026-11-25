@@ -192,7 +192,11 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && S=$(openssl rand -hex 32) && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql > ~/Desktop/prod_bootstrap_LISTO.sql && printf %s "$S" | pbcopy && echo "Listo: ~/Desktop/prod_bootstrap_LISTO.sql (secreto en el portapapeles)"
   ```
 - [ ] **Guardar el secreto ya** (gestor de contraseñas): es el valor de `CRON_SECRET` de Vercel (sección E) y el portapapeles se pisa fácil.
-- [ ] **Antes de copiar el SQL:** crear `CRON_SECRET` en Vercel (Production, *Sensitive*) con ese valor [Vos].
+- [x] **Antes de copiar el SQL:** crear `CRON_SECRET` en Vercel (Production, *Sensitive*) con ese valor [Vos] (creada el 2026-11-25).
+- Para regenerar el SQL **con el mismo secreto** ya guardado (va directo al portapapeles, sin archivo en el Escritorio):
+  ```bash
+  cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && read -rs 'S?Pegá el CRON_SECRET guardado y tocá Enter: ' && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql | pbcopy; unset S
+  ```
 - [ ] Copiar el SQL (`pbcopy < ~/Desktop/prod_bootstrap_LISTO.sql`) → SQL Editor del proyecto `hioscbefryufsbypsmtx` → Run. Si pide confirmar una operación destructiva, confirmar (la base está vacía).
 - [ ] **Si falla:** no reintentar ni recrear el proyecto. Los `begin;`/`commit;` internos dejan aplicado lo anterior. Pasar el texto del error y el archivo (`-- ===== 0xxx =====`) donde cortó; se sigue desde ahí.
 - [ ] Borrar el *snippet* guardado en el SQL Editor y el archivo `~/Desktop/prod_bootstrap_LISTO.sql`: los dos tienen el secreto.
