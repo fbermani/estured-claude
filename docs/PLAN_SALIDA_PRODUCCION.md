@@ -19,7 +19,8 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - **Hecho:** Supabase prod viejo dado de baja (A0.1). `hola@estured.com` confirmada (A4). **C3:** Resend con `estured.com` *Verified* (`sa-east-1`) y registros DNS en Hostinger. **F1 (DNS):** `estured.com` ya apunta a Vercel (A `216.198.79.1` y `64.29.17.1`; `www` CNAME). **C1:** widget `EstuRed prod` creado en Cloudflare (`estured.com` y `www`, *Managed*). **LEG-001:** datos del titular en `lib/legal/operator.ts`.
 - **Variables de Production ya cargadas en Vercel:** `EMAIL_FROM`, `EMAIL_DOMAIN_VERIFIED=true`, `RESEND_API_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, VAPID (par propio de Production), `VAPID_SUBJECT`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SITE_URL`, `PREAPERTURA=on`, `GEOCODER_USER_AGENT`.
 - **Proyecto nuevo:** `estured-prod`, ref `hioscbefryufsbypsmtx` (creado 2026-11-25). `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de Production ya apuntan ahí.
-- **Faltan:** confirmar la región del proyecto (C2), `SUPABASE_SERVICE_ROLE_KEY` [Vos] (hoy apunta al proyecto borrado), `CRON_SECRET` (se genera en D1), bootstrap y buckets (D1, D2), Auth (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
+- `SUPABASE_SERVICE_ROLE_KEY` de Production actualizada por el dueño (2026-11-25).
+- **Faltan:** confirmar la región del proyecto (C2), `CRON_SECRET` (se genera en D1), bootstrap y buckets (D1, D2), Auth (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
 - ⚠ **`estured.com` hoy sirve el deploy viejo de `main`** (Ciclo 30bis, abierto y sin base). Se reemplaza en F2. No hay datos reales en riesgo (la base vieja ya no existe).
 
 ### Etapas
@@ -161,7 +162,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 ### C2. Supabase (proyecto nuevo)
 - [ ] Dashboard → Organization (ver A3) → *New project*: nombre `estured-prod`, región cercana a Argentina (`South America (São Paulo)`), contraseña de base fuerte (guardarla en el gestor de contraseñas).
 - [ ] En las opciones de creación, dejar activada la **Data API** y la **exposición automática de tablas nuevas** (privilegios por defecto) si el panel las ofrece; sin eso, `service_role` y `authenticated` quedan sin grants sobre las tablas del bootstrap. Control: `select pg_get_userbyid(d.defaclrole), d.defaclobjtype, d.defaclacl::text from pg_default_acl d join pg_namespace n on n.oid = d.defaclnamespace where n.nspname = 'public';`. **Antes de D1** un proyecto nuevo muestra `arwdDxtm` para `anon`, `authenticated` y `service_role` (visto el 2026-11-25: correcto). **Después de D1** (0090, 0092 y 0098 lo recortan) la fila `postgres` / `r` tiene que quedar como `estured-dev`: `anon=m`, `authenticated=rm`, `service_role=arwdDxtm`.
-- [ ] **[Vos] Rotar la secret key de Supabase prod y cargar la nueva** (la primera se pegó en el chat el 2026-11-25): Supabase → Project Settings → API Keys → crear una *secret key* nueva; pegarla en Vercel en `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor); borrar la vieja en Supabase. No pegarla en ningún chat.
+- [ ] **[Vos] Rotar la secret key de Supabase prod y cargar la nueva** (nueva cargada en Vercel el 2026-11-25; falta confirmar que la anterior quedó borrada) (la primera se pegó en el chat el 2026-11-25): Supabase → Project Settings → API Keys → crear una *secret key* nueva; pegarla en Vercel en `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor); borrar la vieja en Supabase. No pegarla en ningún chat.
 - Las claves nuevas se llaman distinto: *publishable* (`sb_publishable_…`) va en `NEXT_PUBLIC_SUPABASE_ANON_KEY`; *secret* (`sb_secret_…`) va en `SUPABASE_SERVICE_ROLE_KEY`. `SUPABASE_JWKS_URL` no se usa.
 - Las 3 variables de Supabase de Production son *Sensitive* y Vercel no deja cambiarles el tipo. La pantalla rechaza guardar las `NEXT_PUBLIC_*` así; por API se actualizó solo el valor (2026-11-25). Si el build de F2 no las toma, borrarlas y recrearlas como *Config*.
 - [ ] Región de funciones de Vercel: configurar São Paulo (`gru1`) antes de F2 para que quede junto a la base [Yo]. Afecta también al staging (base en `us-east-1`): algo más lento, aceptado.
@@ -181,8 +182,8 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 
 ## D. Base de datos y Storage (Supabase nuevo)
 
-### D1. Bootstrap con las migraciones 0001–0099 [Vos con mi ayuda]
-Genera el SQL completo (0001–0099 + 0043b; las migraciones posteriores a la 0087 —0093–0099— están detalladas al final de este documento y entran solas, sin pasos extra), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
+### D1. Bootstrap con las migraciones 0001–0110 [Vos con mi ayuda]
+Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisado el 2026-11-25), con el cron de la 0013 ya apuntando a `https://estured.com`. El secreto del cron se guarda en **Supabase Vault** (no queda en texto plano en `cron.job`).
 
 - [ ] **Migraciones 0088, 0089 y 0090 entran en el bootstrap** (el script toma todos los `db/migrations/*.sql`; verificar que aparezcan al final). La **0089** (SEG15-01) crea el índice único `reservations_one_per_application_uidx`: en una base ya poblada correr antes `select application_request_id, count(*) from reservations where application_request_id is not null group by 1 having count(*) > 1;` (debe dar 0 filas). En un bootstrap desde cero no hay datos y no hace falta. La **0090** (SEG15-04) revoca los permisos de escritura de `anon` y `authenticated`: no toca datos; después correr `select grantee, privilege_type, count(distinct table_name) from information_schema.role_table_grants where table_schema='public' and grantee in ('anon','authenticated') group by 1,2;` (solo debe quedar SELECT).
 - [ ] **Migraciones 0091 y 0092 entran en el bootstrap** (auditoría 2026-11-16, aplicadas en dev). La **0091** agrega CHECK de largo (≤2000/1000) a los textos libres de solicitudes, negociación y propuestas del familiar; en base poblada verificar antes que ningún texto lo supere. La **0092** quita SELECT a `anon` en todo lo que no sea catálogo público (10 tablas); después correr `select c.relname from pg_class c where c.relnamespace='public'::regnamespace and c.relkind in ('r','p') and has_any_column_privilege('anon', c.oid, 'SELECT') order by 1;` (deben salir solo: exchange_rates, profile_availability, profile_availability_genders, residence_custom_amenities, residence_faq_items, residence_faq_predefined_questions, residence_profile_sections, residence_regulation_versions, residences, room_types). Una tabla nueva que anon deba leer necesita `grant select` explícito.
@@ -191,14 +192,30 @@ Genera el SQL completo (0001–0099 + 0043b; las migraciones posteriores a la 00
   cd "/Users/fabriciobermani/Desktop/EstuRed Claude" && node scripts/build-bootstrap.mjs prod --host=estured.com && S=$(openssl rand -hex 32) && sed "s/REEMPLAZAR-CON-TU-CRON-SECRET/$S/g" db/_generated/prod_bootstrap.sql > ~/Desktop/prod_bootstrap_LISTO.sql && printf %s "$S" | pbcopy && echo "Listo: ~/Desktop/prod_bootstrap_LISTO.sql (secreto en el portapapeles)"
   ```
 - [ ] **Guardar el secreto ya** (gestor de contraseñas): es el valor de `CRON_SECRET` de Vercel (sección E) y el portapapeles se pisa fácil.
-- [ ] SQL Editor del proyecto **nuevo** (confirmar el ref en la URL) → pegar el contenido de `~/Desktop/prod_bootstrap_LISTO.sql` (`cat` + `pbcopy`) → Run. Si falla a mitad, **no** reintentar encima: avisarme el error.
-- [ ] Verificación: `select to_regclass('public.residence_private_details'), to_regclass('public.rate_limit_hits'), to_regclass('public.preapertura_estudiantes');` (todas no nulas) y `select jobname, active from cron.job;` → `expire-stale-records-hourly | true`.
-- [ ] **Borrar `~/Desktop/prod_bootstrap_LISTO.sql`** (tiene el secreto).
+- [ ] **Antes de copiar el SQL:** crear `CRON_SECRET` en Vercel (Production, *Sensitive*) con ese valor [Vos].
+- [ ] Copiar el SQL (`pbcopy < ~/Desktop/prod_bootstrap_LISTO.sql`) → SQL Editor del proyecto `hioscbefryufsbypsmtx` → Run. Si pide confirmar una operación destructiva, confirmar (la base está vacía).
+- [ ] **Si falla:** no reintentar ni recrear el proyecto. Los `begin;`/`commit;` internos dejan aplicado lo anterior. Pasar el texto del error y el archivo (`-- ===== 0xxx =====`) donde cortó; se sigue desde ahí.
+- [ ] Borrar el *snippet* guardado en el SQL Editor y el archivo `~/Desktop/prod_bootstrap_LISTO.sql`: los dos tienen el secreto.
+- [ ] **Verificación (huella contra `estured-dev`)**, en una consulta nueva:
+  ```sql
+  select
+    (select count(*) from pg_class where relnamespace='public'::regnamespace and relkind in ('r','p')) as tablas,
+    (select count(*) from pg_class where relnamespace='public'::regnamespace and relkind in ('r','p') and not relrowsecurity) as tablas_sin_rls,
+    (select count(*) from information_schema.role_table_grants where table_schema='public' and grantee in ('anon','authenticated') and privilege_type<>'SELECT') as escritura_publica,
+    (select count(*) from pg_policies where schemaname='public') as policies,
+    (select count(*) from cron.job where jobname='expire-stale-records-hourly' and active) as cron,
+    (select d.defaclacl::text from pg_default_acl d where d.defaclnamespace='public'::regnamespace and d.defaclobjtype='r' and pg_get_userbyid(d.defaclrole)='postgres') as permisos,
+    (select md5(string_agg(relname::text, ',' order by relname::text collate "C")) from pg_class where relnamespace='public'::regnamespace and relkind in ('r','p')) as huella_tablas,
+    (select md5(string_agg(table_name||'.'||column_name||':'||data_type, ',' order by (table_name||'.'||column_name) collate "C")) from information_schema.columns where table_schema='public') as huella_columnas,
+    (select md5(string_agg(proname||'('||pg_get_function_identity_arguments(oid)||')', ',' order by (proname||'('||pg_get_function_identity_arguments(oid)||')') collate "C")) from pg_proc where pronamespace='public'::regnamespace) as huella_funciones;
+  ```
+  Esperado (dev al 2026-11-25): `tablas` 77 · `tablas_sin_rls` 0 · `escritura_publica` 0 · `policies` 124 · `cron` 1 · `permisos` `{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=rm/postgres,service_role=arwdDxtm/postgres}` · `huella_tablas` `2faa89b6ffa30e7981702807c9887063` · `huella_columnas` `a1d005b7969299937d3d2916c9d0d93f` · `huella_funciones` `a605f5e281866781c8a5e20dcfea231c`. Si una huella difiere, comparar solo las listas de nombres (sin datos).
+- El cron llama a `estured.com` cada hora desde D1. Falla hasta F2 (deploy viejo): es esperado.
 
 ### D2. Buckets de Storage [Vos con mi ayuda]
 - [ ] Con las credenciales del proyecto **nuevo** solo en esa invocación (sin tocar `.env.local`):
   ```bash
-  NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<service role> node scripts/setup-storage.mjs
+  read -rs 'SR?Pegá la secret key de prod: ' && SUPABASE_SERVICE_ROLE_KEY=$SR NEXT_PUBLIC_SUPABASE_URL=https://hioscbefryufsbypsmtx.supabase.co node scripts/setup-storage.mjs; unset SR
   ```
 - [ ] Éxito: 5 buckets (`public-residence-media`, `private-residence-documents`, `payment-proofs`, `support-evidence`, `student-documents`); solo el primero es *Public*. **No agregar policies de Storage** (el acceso privado es por service role).
 
@@ -274,7 +291,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 - [ ] **Crear el admin real y el superadmin** (contraseñas de 12+ caracteres; credenciales del proyecto nuevo solo en esa invocación):
   ```bash
-  NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<service role> node scripts/create-admin.mjs <tu-email> <contraseña> --superadmin
+  read -rs 'SR?Secret key de prod: ' && read -rs 'PW?Contraseña del admin: ' && SUPABASE_SERVICE_ROLE_KEY=$SR NEXT_PUBLIC_SUPABASE_URL=https://hioscbefryufsbypsmtx.supabase.co node scripts/create-admin.mjs TU-EMAIL "$PW" --superadmin; unset SR PW
   ```
   Éxito: login en `/login` y acceso a `/admin/dashboard`. Un `--superadmin` también puede hacer todo lo del admin; crear un `admin` común aparte solo si lo necesitás.
 - [ ] **Datos de cobro:** `/admin/payment-settings` (titular, CBU/alias, CUIT, banco).
