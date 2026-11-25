@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { toggleFavorite } from "@/lib/students/favorites";
-import { minorHoldError } from "@/lib/students/minorHold";
+import { guardianConsentMissing, minorHoldError } from "@/lib/students/minorHold";
 
 export type ToggleFavoriteState = { status: "idle" | "error"; favorited?: boolean; message?: string };
 
@@ -69,6 +69,10 @@ export async function toggleFamilyFavorite(
     .eq("status", "active")
     .maybeSingle();
   if (!link) return { status: "error", message: "No tenés un vínculo activo con ese estudiante." };
+  // DR65 (e): por un menor, el familiar primero da su consentimiento como responsable.
+  if (await guardianConsentMissing(admin, studentProfileId, sessionUser.id)) {
+    return { status: "error", message: "Primero dá tu consentimiento como familiar responsable desde tu panel." };
+  }
 
   const result = await toggleFavorite(admin, {
     studentProfileId,

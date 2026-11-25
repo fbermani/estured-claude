@@ -30,7 +30,7 @@ Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commit
 **Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. Mitigación aplicada: cada cambio manda un email al dueño (sin los datos) además del aviso in-app. Si el atacante también cambia el email de la cuenta, el aviso se pierde: evaluar avisar al email anterior al cambiar el email. Revisión de seguridad de los bloques 3, 4, 5–6, 7 y 10 (2026-11-25): sin hallazgos de alta confianza.
 **Tests con datos de dev:** `recordFamilyProposalResponse.test.ts` y `recordResidencePaymentReceived.test.ts` fallan si el estudiante demo tiene 2 solicitudes activas por residuos de tests. No es del código. El 2026-11-25 se borraron dos residencias de test viejas y ambos pasan. Antes de usar `scripts/cleanup-test-residences.mjs --apply`, verificá que ninguna otra sesión esté corriendo tests.
 
-**Pendientes del bloque 8 (decidir):** (1) las acciones sobre solicitudes o reservas previas (propuesta de ajuste, avisos de pago, fee, renovaciones, cambios) no revisan la espera: solo aplica si se revoca el vínculo; (2) el familiar sin consentimiento todavía puede sugerir favoritos para el menor.
+**Pendiente del bloque 8 (decidir):** las acciones sobre solicitudes o reservas previas (propuesta de ajuste, avisos de pago, fee, renovaciones, cambios) no revisan la espera: solo aplica si se revoca el vínculo. El familiar sin consentimiento ya no sugiere favoritos (DR65 (e), 2026-11-25).
 
 ## DR63: cobro de la reserva a la residencia y medios del fee — 2026-11-20
 
