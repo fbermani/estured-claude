@@ -70,6 +70,7 @@ Fuente: `docs/PLAN_SALIDA_PRODUCCION.md` (runbook). **Paso 0 (decidido 2026-11-2
 6. **Costos y abuso:** activar tope de gasto, alertas y WAF antes de abrir, y cachear páginas públicas (runbook, «Costos y abuso»).
 7. Resto del checklist de producción (proyecto Supabase nuevo, Resend, `CRON_SECRET`, WAF, dominio, admin con `scripts/create-admin.mjs`, datos de cobro): runbook §C–§G. Texto anterior de este punto: archivo histórico §D.
 8. Seguimiento técnico histórico: `docs/NEXT_STEPS.md`.
+9. **0107 (2026-11-25):** aplicada en dev, falta prod y Playwright. Fallan 2 tests ajenos a la 0107: `expireContactEstablished` (fixture contra el tope de 2) y `support` (aviso de cierre).
 
 ## 5. Pendientes vigentes (no derivables del git)
 
