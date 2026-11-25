@@ -20,7 +20,7 @@ Fuente: `docs/audits/AUDITORIA_LEGAL_2026-11-21.md` («Ola 0 ajustada»). Commit
 | 10 | Sin aprobación admin de datos de cobro | Hecho (DR65 (c), 0109). Ver riesgo de seguridad abajo. |
 | 11 | Claims de `/nosotros`, `CostsBoard` y sello | Hecho. |
 | 12 | «Datos de ejemplo» y SEO | Hecho. |
-| 13 | MFA admin y confirmación de email | **Pendiente.** Requiere dos decisiones del dueño: excepción de MFA para admins demo en staging; confirmación de email con Resend en sandbox (staging no entrega). |
+| 13 | MFA admin y confirmación de email | **Pendiente de código.** Decisiones del dueño tomadas (DR65 (d), 2026-11-25): admins demo exentos en staging; confirmación de email solo con `EMAIL_FROM` configurado. |
 | 14 | Número de Factura C | Hecho (registro manual en «Cobrados»). |
 
 **Riesgo nuevo (DR65 (c)):** sin aprobación del admin, una cuenta de dueño robada puede cambiar el CBU. Mitigación aplicada: cada cambio manda un email al dueño (sin los datos) además del aviso in-app. Si el atacante también cambia el email de la cuenta, el aviso se pierde: evaluar avisar al email anterior al cambiar el email. Revisión de seguridad de los bloques 3, 4, 5–6, 7 y 10 (2026-11-25): sin hallazgos de alta confianza.
