@@ -21,7 +21,8 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - **Proyecto nuevo:** `estured-prod`, ref `hioscbefryufsbypsmtx` (creado 2026-11-25). `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de Production ya apuntan ahí.
 - `SUPABASE_SERVICE_ROLE_KEY` de Production actualizada por el dueño (2026-11-25).
 - **Base creada** (D1, control del 2026-11-25). Región confirmada: São Paulo (`sa-east-1`).
-- **Faltan:** cargar el secreto del cron en Vault (D1), buckets (D2), Auth (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
+- **Hecho el 2026-11-25:** buckets (D2); URLs y registro público apagado (D3).
+- **Faltan:** ⚠ rotar la secret key expuesta (C2), secreto del cron en Vault (D1), SMTP y plantilla de mail (D3), merge a `main` y deploy (F2), `NEXT_PUBLIC_META_PIXEL_ID`.
 - ⚠ **`estured.com` hoy sirve el deploy viejo de `main`** (Ciclo 30bis, abierto y sin base). Se reemplaza en F2. No hay datos reales en riesgo (la base vieja ya no existe).
 
 ### Etapas
@@ -51,6 +52,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 ### Etapa 2 — Instagram
 
 - [ ] Cuenta profesional, bio, destacadas y la tanda base de 10 posts publicada (`marketing/instagram/ESTRATEGIA_INSTAGRAM.md` §2–§4). Meta Ads arranca **después** de los 10 posts.
+  - Propuesta 2026-11-25, sin validar: la tanda pasa a 12 piezas (3 fijadas) y se publica cuando el link de la bio abra el popup en producción (`marketing/instagram/GUIONES_Y_POSTS.md` §8).
 - [ ] Regla vigente: ningún post nombra residencias ni muestra precios.
 - [ ] Enlace de la bio al dominio con UTM propio.
 - [ ] Rutina de interacción diaria (§5.2). Es la actividad que no se negocia: primero Instagram, después la app.
@@ -163,7 +165,7 @@ Objetivo: probar el deploy real (build, variables, Turnstile, headers) sin tocar
 ### C2. Supabase (proyecto nuevo)
 - [ ] Dashboard → Organization (ver A3) → *New project*: nombre `estured-prod`, región cercana a Argentina (`South America (São Paulo)`), contraseña de base fuerte (guardarla en el gestor de contraseñas).
 - [ ] En las opciones de creación, dejar activada la **Data API** y la **exposición automática de tablas nuevas** (privilegios por defecto) si el panel las ofrece; sin eso, `service_role` y `authenticated` quedan sin grants sobre las tablas del bootstrap. Control: `select pg_get_userbyid(d.defaclrole), d.defaclobjtype, d.defaclacl::text from pg_default_acl d join pg_namespace n on n.oid = d.defaclnamespace where n.nspname = 'public';`. **Antes de D1** un proyecto nuevo muestra `arwdDxtm` para `anon`, `authenticated` y `service_role` (visto el 2026-11-25: correcto). **Después de D1** (0090, 0092 y 0098 lo recortan) la fila `postgres` / `r` tiene que quedar como `estured-dev`: `anon=m`, `authenticated=rm`, `service_role=arwdDxtm`.
-- [ ] **[Vos] Rotar la secret key de Supabase prod y cargar la nueva** (nueva cargada en Vercel el 2026-11-25; falta confirmar que la anterior quedó borrada) (la primera se pegó en el chat el 2026-11-25): Supabase → Project Settings → API Keys → crear una *secret key* nueva; pegarla en Vercel en `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor); borrar la vieja en Supabase. No pegarla en ningún chat.
+- [ ] ⚠ **[Vos] Rotar la secret key de Supabase prod. Urgente.** Revisado el 2026-11-25 en el panel: hay una sola secret key (`default`) y su comienzo coincide con la que se pegó en el chat. La rotación no ocurrió. Pasos: Supabase → Project Settings → API Keys → *New secret key* (nombre `vercel`) → copiar → Vercel → `SUPABASE_SERVICE_ROLE_KEY` (Production, editar solo el valor) → *Save* → volver a Supabase y borrar `default`. No pegarla en ningún chat.
 - Las claves nuevas se llaman distinto: *publishable* (`sb_publishable_…`) va en `NEXT_PUBLIC_SUPABASE_ANON_KEY`; *secret* (`sb_secret_…`) va en `SUPABASE_SERVICE_ROLE_KEY`. `SUPABASE_JWKS_URL` no se usa.
 - Las 3 variables de Supabase de Production son *Sensitive* y Vercel no deja cambiarles el tipo. La pantalla rechaza guardar las `NEXT_PUBLIC_*` así; por API se actualizó solo el valor (2026-11-25). Si el build de F2 no las toma, borrarlas y recrearlas como *Config*.
 - [x] Región del proyecto confirmada: `sa-east-1` (2026-11-25; la IPv6 de `db.<ref>.supabase.co` cae en el rango de AWS de esa región).
@@ -202,7 +204,8 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   ```
 - Estado 2026-11-25: bootstrap ejecutado en `hioscbefryufsbypsmtx` (un segundo Run dio `type "user_role" already exists`, esperado: **no volver a correrlo**).
 - **Control del 2026-11-25:** OK `tablas` 77, sin RLS 0, escritura pública 0, `policies` 124, permisos por defecto, huella de tablas, huella de columnas y cron. `huella_funciones` dio `699ed288b7c87ab2870004134904a7b1`: la única diferencia es `public.rls_auto_enable()` (solo en prod, devuelve `event_trigger`). Las 27 funciones propias coinciden por nombre y firma. Por nombre y tipo parece el activador automático de RLS que Supabase agrega a proyectos nuevos; no se borra. `anon` figura con *execute*, pero por la API REST responde error 400.
-- [ ] Confirmar (SQL) que está enganchada: `select evtname from pg_event_trigger where evtfoid = 'public.rls_auto_enable'::regproc;` y mirar *Advisors*.
+- [x] Confirmada (2026-11-25): activador `ensure_rls` (`ddl_command_end`, habilitado), dueño `postgres`, `SECURITY DEFINER`. Su cuerpo activa RLS en cada tabla nueva de `public`. Se deja.
+- [x] *Security Advisor* (2026-11-25): 0 errores; 12 avisos = `pg_net` en `public`, 9 helpers propios de RLS y 2 de `rls_auto_enable()`; 28 sugerencias informativas. 0 usuarios en `auth.users`.
 - [ ] **[Vos] Cargar el secreto del cron en Vault** (el control dice «falta cargarlo»).
 - [ ] Copiar el SQL (`pbcopy < ~/Desktop/prod_bootstrap_LISTO.sql`) → SQL Editor del proyecto `hioscbefryufsbypsmtx` → Run. Si pide confirmar una operación destructiva, confirmar (la base está vacía).
 - [ ] **Si falla:** no reintentar ni recrear el proyecto. Los `begin;`/`commit;` internos dejan aplicado lo anterior. Pasar el texto del error y el archivo (`-- ===== 0xxx =====`) donde cortó; se sigue desde ahí.
@@ -224,7 +227,8 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
 - El cron llama a `estured.com` cada hora desde D1. Falla hasta F2 (deploy viejo): es esperado.
 
 ### D2. Buckets de Storage [Yo, con acceso al SQL Editor]
-- [ ] SQL Editor del proyecto `hioscbefryufsbypsmtx` (copia de los 5 buckets de `estured-dev`; se puede repetir):
+- [x] **Hecho el 2026-11-25:** 5 buckets, huella igual a dev, un solo público, 0 policies de Storage.
+- SQL Editor del proyecto `hioscbefryufsbypsmtx` (copia de los 5 buckets de `estured-dev`; se puede repetir):
   ```sql
   insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
     ('public-residence-media', 'public-residence-media', true, 5242880, array['image/jpeg','image/png','image/webp']),
@@ -235,20 +239,20 @@ Genera el SQL completo (111 archivos, 0001–0110 con la 0043b; ~560 KB; revisad
   on conflict (id) do nothing;
   select count(*) as buckets, md5(string_agg(id||':'||public::text||':'||file_size_limit::text||':'||array_to_string(allowed_mime_types, ','), ';' order by id collate "C")) as huella from storage.buckets;
   ```
-- [ ] Éxito: `buckets` 5 y `huella` `6a609523f5d56026a3841434f68acb0a` (dev al 2026-11-25). Solo `public-residence-media` es público. **No agregar policies de Storage** (el acceso privado es por service role).
+- Éxito: `buckets` 5 y `huella` `6a609523f5d56026a3841434f68acb0a` (dev al 2026-11-25). Solo `public-residence-media` es público. **No agregar policies de Storage** (el acceso privado es por service role).
 - Alternativa por Terminal (credenciales solo en esa invocación):
   ```bash
   read -rs 'SR?Pegá la secret key de prod: ' && SUPABASE_SERVICE_ROLE_KEY=$SR NEXT_PUBLIC_SUPABASE_URL=https://hioscbefryufsbypsmtx.supabase.co node scripts/setup-storage.mjs; unset SR
   ```
 
 ### D3. Supabase Auth [Vos]
-- ⚠ 2026-11-25: `disable_signup` sigue en `false`. Cualquiera con la publishable key puede registrarse contra prod. Apagarlo cuanto antes.
-- [ ] Authentication → URL Configuration: **Site URL** `https://estured.com`; **Redirect URLs**: `https://estured.com/reset-password` y `https://www.estured.com/reset-password`.
-- [ ] Authentication → Sign In / Providers → **"Allow new users to sign up": apagado** → *Save* (confirmar el ref). Todas las altas usan `auth.admin.createUser` desde el servidor. Verificación: `curl -s https://<ref>.supabase.co/auth/v1/settings -H "apikey: <anon key>"` → `"disable_signup": true`.
+- Estado 2026-11-25: URLs cargadas y registro apagado (`disable_signup: true` verificado). CAPTCHA nativo apagado (correcto). Falta SMTP propio y revisar la plantilla de *Reset Password*.
+- [x] Authentication → URL Configuration: **Site URL** `https://estured.com`; **Redirect URLs**: `https://estured.com/reset-password` y `https://www.estured.com/reset-password`.
+- [x] Authentication → Sign In / Providers → **"Allow new users to sign up": apagado** → *Save* (confirmar el ref). Todas las altas usan `auth.admin.createUser` desde el servidor. Verificación: `curl -s https://<ref>.supabase.co/auth/v1/settings -H "apikey: <anon key>"` → `"disable_signup": true`.
 - [ ] Authentication → SMTP Settings: SMTP propio con Resend (`smtp.resend.com`, puerto `465`, usuario `resend`, contraseña = API key de C3, remitente `no-reply@estured.com`). El SMTP por defecto de Supabase tiene un límite muy bajo.
 - [ ] Authentication → Email Templates: revisar que el de *Reset Password* esté en español.
 - [ ] **"Leaked password protection"**: activar (solo plan Pro; ver A2).
-- [ ] **CAPTCHA nativo de Supabase: apagado** (el CAPTCHA va en nuestras server actions; activarlo rompe los logins automáticos tras el registro).
+- [x] **CAPTCHA nativo de Supabase: apagado** (el CAPTCHA va en nuestras server actions; activarlo rompe los logins automáticos tras el registro).
 - [ ] JWT: dejar el default (1 h).
 
 ---
