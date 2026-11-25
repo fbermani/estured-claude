@@ -6,7 +6,7 @@ Estado de cada ítem: `[ ]` pendiente, `[x]` hecho. Quién: **[Vos]** panel o cu
 
 ## A. Antes de abrir al público — bloqueantes
 - [ ] **[Vos] Tope de gasto, firewall y alertas.** Pasos en `docs/PLAN_SALIDA_PRODUCCION.md`, «Costos y abuso», ítem C2. Evita facturas por abuso.
-- [ ] **[Vos] Migraciones en producción.** Entran solas con `node scripts/build-bootstrap.mjs prod`. Si prod ya existe, pegá cada archivo en su SQL Editor. Incluye 0098 (funciones) y la 0107 de la sección B cuando exista.
+- [ ] **[Vos] Migraciones en producción.** Entran solas con `node scripts/build-bootstrap.mjs prod`. Si prod ya existe, pegá cada archivo en su SQL Editor. Incluye 0098 (funciones) y la 0107 de la sección B.
 - [ ] **[Vos] «Leaked password protection»** en Supabase Auth, en prod y en dev. Solo en plan Pro. Rechaza contraseñas filtradas en internet.
 - [ ] **[Vos] Versión de Next.js.** Mirar `package-lock.json` y el log del build de Vercel que se promueva a producción. Fijar una versión exacta: hoy `package.json` pide `^15.5.29`.
 - [ ] **[Vos] Alertas de errores.** Elegir Sentry o las alertas de Vercel (P19-06). Sin esto un problema se nota tarde.
@@ -19,7 +19,11 @@ Estado de cada ítem: `[ ]` pendiente, `[x]` hecho. Quién: **[Vos]** panel o cu
 - [x] **`residences.created_by`:** descartado. Obliga a regrantar 43 columnas; es un uuid sin PII.
 - [x] **`pg_net`:** no se toca. Rompería el cron de vencimientos (0013).
 - [ ] **Aplicar 0107 en prod** (entra con el bootstrap; si prod ya existe, pegarla en su SQL Editor).
-- [ ] **Correr `npx playwright test` contra staging** y la suite de integración completa.
+- [x] **Playwright contra staging (2026-11-25):** 133 pasan. Los 7 de roles estudiante pasan al repetir. Falla el envío de Camila: ya tiene 2 solicitudes activas.
+- [x] **Suite completa (2026-11-25):** 3000 pasan, 4 fallan. Los 3 de `renewals` pasan al repetir.
+- [ ] **[Yo] Arreglar `lib/support/support.test.ts`** («abre un caso…»). Solo usa service role; causa sin diagnosticar.
+- [ ] **[Yo] Liberar una solicitud de Camila en dev** y repetir `e2e/flujo-solicitud.spec.ts`.
+- [x] **Privilegios por defecto:** tablas nuevas sin `select` para `anon`; `authenticated` sí lo recibe. Sin cambios.
 
 ## C. Performance
 - [ ] **[Yo] R19-04: páginas públicas estáticas.** Hoy `/search`, `/for-students` y la ficha se calculan en cada visita porque leen la sesión. Beneficio: respuesta mucho más rápida y menos costo de servidor. Cómo: mover lo personal (filtro por edad, botones, vista del estudiante o familiar) a componentes cliente o en streaming. **Riesgo:** un error puede mostrar datos de un usuario a otro. Hacerlo con tests de «dos usuarios distintos» y probarlo en staging antes de producción.
