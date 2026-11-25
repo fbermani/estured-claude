@@ -18,6 +18,7 @@ import { otpRequiredFor, resolveInviteByToken } from "@/lib/residents/inviteVeri
 import { submitLinkRequest, submitMissingResidence } from "@/lib/residents/linkRequestsStudent";
 import { INVITE_TOO_MANY_ATTEMPTS, inviteAttemptAllowed } from "@/lib/residents/inviteThrottle";
 import { consentVersion } from "@/lib/legal/consentVersion";
+import { isSignupEmailConfirmationRequired, sendSignupConfirmationEmail } from "@/lib/auth/emailConfirmation";
 
 export type RegisterState = RegisterFormState;
 
@@ -129,12 +130,14 @@ export async function registerStudent(
   if (!admin)
     return formError(formData, "El registro no está disponible en este momento. Probá más tarde.");
 
-  // 1. Usuario de auth, pre-confirmado.
+  // 1. Usuario de auth. DR65 (d): en el alta abierta y con dominio verificado, queda sin confirmar hasta el enlace del email; con
+  // invitación personal (token) el email ya está probado.
+  const needsEmailConfirmation = !inviteToken && isSignupEmailConfirmationRequired();
   const { data: created, error: createError } =
     await admin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
+      email_confirm: !needsEmailConfirmation,
       user_metadata: { first_name: firstName },
     });
 
@@ -248,6 +251,20 @@ export async function registerStudent(
     entityId: userId,
     category: "admin_signups",
   });
+
+  // DR65 (d): sin email confirmado no hay sesión. Los avisos de «Ya vivo en una residencia» salen igual (no dependen de la sesión).
+  if (needsEmailConfirmation) {
+    if (linkResidenceId || missingName) {
+      try {
+        if (linkResidenceId) await submitLinkRequest(admin, { actorUserId: userId, residenceId: linkResidenceId });
+        else await submitMissingResidence(admin, { actorUserId: userId, residenceName: missingName });
+      } catch (error) {
+        console.error("[register] aviso de residencia falló:", error);
+      }
+    }
+    const sent = await sendSignupConfirmationEmail(admin, email);
+    redirect(sent ? "/login?confirmar=enviado" : "/login?confirmar=error");
+  }
 
   // 3. Iniciar sesión y entrar al área de estudiante.
   const supabase = await getSupabaseServer();

@@ -1,6 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome, type SessionUser } from "@/lib/auth/session";
+import { ADMIN_MFA_PATH, isAdminMfaSatisfied } from "@/lib/auth/adminMfa";
 
 /**
  * Guards de rol del panel `/admin/*` (revisión de seguridad, Ciclo 50).
@@ -15,16 +16,21 @@ import { getSessionUser, hasAnyRole, roleHome, type SessionUser } from "@/lib/au
  *   hay sesión, la cuenta está bloqueada/inactiva (lo resuelve `getSessionUser`)
  *   o el rol no alcanza.
  * - `requireAdmin` / `requireSuperadmin`: para páginas; redirigen.
+ *
+ * DR65 (d): además exigen MFA (`aal2`, `lib/auth/adminMfa.ts`). Sin MFA, las acciones devuelven `null` y las páginas mandan a
+ * `/admin-mfa` (fuera del layout de `/admin`).
  */
 
 export async function getAdminSession(): Promise<SessionUser | null> {
   const user = await getSessionUser();
-  return user && hasAnyRole(user, ["admin", "superadmin"]) ? user : null;
+  if (!user || !hasAnyRole(user, ["admin", "superadmin"])) return null;
+  return (await isAdminMfaSatisfied()) ? user : null;
 }
 
 export async function getSuperadminSession(): Promise<SessionUser | null> {
   const user = await getSessionUser();
-  return user && user.roles.includes("superadmin") ? user : null;
+  if (!user || !user.roles.includes("superadmin")) return null;
+  return (await isAdminMfaSatisfied()) ? user : null;
 }
 
 /** Rol con el que se audita lo que hace este usuario en el panel. */
@@ -36,6 +42,7 @@ export async function requireAdmin(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login?next=/admin/dashboard");
   if (!hasAnyRole(user, ["admin", "superadmin"])) redirect(roleHome(user));
+  if (!(await isAdminMfaSatisfied())) redirect(ADMIN_MFA_PATH);
   return user;
 }
 

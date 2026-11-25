@@ -5,7 +5,9 @@ const redirect = vi.fn((url: string) => {
   throw new Error(`REDIRECT:${url}`);
 });
 
+const mfaOk = vi.fn(async () => true);
 vi.mock("next/navigation", () => ({ redirect: (url: string) => redirect(url) }));
+vi.mock("@/lib/auth/adminMfa", () => ({ ADMIN_MFA_PATH: "/admin-mfa", isAdminMfaSatisfied: () => mfaOk() }));
 vi.mock("@/lib/auth/session", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/auth/session")>()),
   getSessionUser: () => getSessionUser(),
@@ -21,7 +23,10 @@ import {
 
 const user = (roles: string[]) => ({ id: "u1", email: "u@example.com", primaryRole: roles[0], roles });
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mfaOk.mockResolvedValue(true);
+});
 
 describe("getAdminSession / getSuperadminSession (server actions)", () => {
   it("devuelven null sin sesión o con un rol que no alcanza", async () => {
@@ -67,5 +72,21 @@ describe("requireAdmin / requireSuperadmin (páginas)", () => {
   it("superadmin entra a ambos", async () => {
     getSessionUser.mockResolvedValue(user(["superadmin"]));
     await expect(requireSuperadmin()).resolves.toMatchObject({ id: "u1" });
+  });
+});
+
+describe("DR65 (d): MFA obligatorio para el panel admin", () => {
+  it("sin aal2 las acciones no tienen sesión admin y las páginas mandan a /admin-mfa", async () => {
+    mfaOk.mockResolvedValue(false);
+    getSessionUser.mockResolvedValue(user(["superadmin"]));
+    expect(await getAdminSession()).toBeNull();
+    expect(await getSuperadminSession()).toBeNull();
+    await expect(requireAdmin()).rejects.toThrow("REDIRECT:/admin-mfa");
+  });
+
+  it("un estudiante sin MFA sigue rebotando a su home (no a /admin-mfa)", async () => {
+    mfaOk.mockResolvedValue(false);
+    getSessionUser.mockResolvedValue(user(["student"]));
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/students/);
   });
 });

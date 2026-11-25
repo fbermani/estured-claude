@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; reset?: string }>;
+  searchParams: Promise<{ next?: string; reset?: string; confirmar?: string }>;
 }) {
   const sessionUser = await getSessionUser();
   if (sessionUser) redirect(roleHome(sessionUser));
-  const { next, reset } = await searchParams;
+  const { next, reset, confirmar } = await searchParams;
 
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:py-20">
@@ -39,6 +39,16 @@ export default async function LoginPage({
           className="mt-6 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg"
         >
           Listo, actualizaste tu contraseña. Ingresá con la nueva.
+        </p>
+      )}
+      {confirmar === "enviado" && (
+        <p role="status" className="mt-6 rounded-field bg-success-bg px-4 py-3 text-sm font-medium text-success-fg">
+          Creamos tu cuenta. Te mandamos un email para confirmarla: abrí el enlace y entrás directo.
+        </p>
+      )}
+      {confirmar === "error" && (
+        <p role="alert" className="mt-6 rounded-field bg-warning-bg px-4 py-3 text-sm font-medium text-warning-fg">
+          No pudimos confirmar tu email con ese enlace. Ingresá con tu email y contraseña y te mandamos uno nuevo.
         </p>
       )}
       <div className="mt-8">

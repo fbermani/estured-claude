@@ -12,6 +12,7 @@ import { revokePushForSignOut } from "@/lib/push/revokeForSignOut";
 import { clientIpFromHeaders, clientKeyFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { consumeRateLimit, emailRateLimitKey, isRateLimited } from "@/lib/security/rateLimit";
+import { sendSignupConfirmationEmail } from "@/lib/auth/emailConfirmation";
 
 export type AuthState = { status: "idle" | "error"; message?: string };
 
@@ -82,6 +83,12 @@ export async function signIn(
     password,
   });
 
+  if (error?.code === "email_not_confirmed") {
+    // DR65 (d): cuenta del alta abierta sin confirmar. Se reenvía el enlace (no revela nada nuevo: la contraseña ya era correcta).
+    const adminForResend = getSupabaseAdmin();
+    if (adminForResend) await sendSignupConfirmationEmail(adminForResend, email);
+    return { status: "error", message: "Confirmá tu email para entrar. Te reenviamos el enlace; revisá también el correo no deseado." };
+  }
   if (error || !data.user) {
     await registerFailedLogin(email, ip);
     return { status: "error", message: "Email o contraseña incorrectos." };

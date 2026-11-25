@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, hasAnyRole, roleHome } from "@/lib/auth/session";
+import { ADMIN_MFA_PATH, isAdminMfaSatisfied } from "@/lib/auth/adminMfa";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { cmd } from "@/components/admin/ui/tokens";
 import { SkipLink } from "@/components/ui/SkipLink";
@@ -19,6 +20,8 @@ export default async function AdminLayout({
   const user = await getSessionUser();
   if (!user) redirect("/login?next=/admin/dashboard");
   if (!hasAnyRole(user, ["admin", "superadmin"])) redirect(roleHome(user));
+  // DR65 (d): sin MFA (aal2) no se entra al panel.
+  if (!(await isAdminMfaSatisfied())) redirect(ADMIN_MFA_PATH);
 
   const roleLabel = user.roles.includes("superadmin") ? "Superadmin" : "Admin";
 

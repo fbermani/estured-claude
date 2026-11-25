@@ -13,6 +13,7 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/audit";
 import { formError, type RegisterFormState } from "@/app/(public)/register/formState";
 import { consentVersion } from "@/lib/legal/consentVersion";
+import { isSignupEmailConfirmationRequired, sendSignupConfirmationEmail } from "@/lib/auth/emailConfirmation";
 
 export type RegisterFamilyState = RegisterFormState;
 
@@ -107,10 +108,12 @@ export async function registerFamily(
     .maybeSingle();
   if (activeLink) return studentNotLinkable();
 
+  // DR65 (d): con dominio verificado, la cuenta del familiar queda sin confirmar hasta el enlace del email.
+  const needsEmailConfirmation = isSignupEmailConfirmationRequired();
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
     password,
-    email_confirm: true,
+    email_confirm: !needsEmailConfirmation,
     user_metadata: { first_name: firstName },
   });
 
@@ -194,6 +197,10 @@ export async function registerFamily(
   // DR32 addendum: el estudiante no puede aprobar el vínculo hasta que el familiar verifique su mail con este código.
   await sendFamilyEmailCode(admin, userId);
 
+  if (needsEmailConfirmation) {
+    const sent = await sendSignupConfirmationEmail(admin, email);
+    redirect(sent ? "/login?confirmar=enviado" : "/login?confirmar=error");
+  }
   const supabase = await getSupabaseServer();
   if (supabase) {
     await supabase.auth.signInWithPassword({ email, password });
