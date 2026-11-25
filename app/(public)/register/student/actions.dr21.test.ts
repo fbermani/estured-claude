@@ -92,4 +92,18 @@ describe("registerStudent · bloque «Ya vivo en una residencia» (DR21)", () =>
     expect(state.missing).not.toHaveBeenCalled();
     expect(state.redirected).toBe("/students/residency");
   });
+
+  it("DR65 (e): un menor crea la cuenta, no activa la invitación ni pide vínculos, y va al panel", async () => {
+    const birth = new Date();
+    birth.setFullYear(birth.getFullYear() - 16);
+    const birth_date = birth.toISOString().slice(0, 10);
+    await run({ birth_date, invite: "tok" });
+    expect(state.redirected).toBe("/students/dashboard");
+    await run({ birth_date, link_residence_id: "res-1" });
+    expect(state.redirected).toBe("/students/dashboard");
+    expect(inserted.creates).toBe(2);
+    expect(state.activate).not.toHaveBeenCalled();
+    expect(state.link).not.toHaveBeenCalled();
+    expect(state.missing).not.toHaveBeenCalled();
+  });
 });

@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { joinWaitlist } from "@/lib/waitlist-entries/joinWaitlist";
 import { parseDesiredMonthInput } from "@/lib/waitlist-entries/desiredMonth";
+import { minorHoldError } from "@/lib/students/minorHold";
 
 export type JoinWaitlistState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -17,6 +18,9 @@ export async function joinWaitlistAction(
   if (!sessionUser) return { status: "error", message: "Iniciá sesión para sumarte a la lista de espera." };
   const admin = getSupabaseAdmin();
   if (!admin) return { status: "error", message: "No disponible en este momento." };
+  // DR65 (e): la cuenta de un menor sin consentimiento del familiar está en espera.
+  const onHold = await minorHoldError(admin, sessionUser.id);
+  if (onHold) return { status: "error", message: onHold };
 
   const roomTypeId = String(formData.get("room_type_id") ?? "").trim() || null;
   // DR40: hay que elegir un mes de ingreso o «Cuando haya lugar» (valor "any" → sin mes). El servidor valida formato y que no sea pasado.
