@@ -12,7 +12,8 @@
       "om_access_granted_at"
     ],
     "profile_availability": [
-      "notes_internal"
+      "notes_internal",
+      "last_confirmed_by"
     ],
     "residence_regulation_versions": [
       "created_by_user_id",

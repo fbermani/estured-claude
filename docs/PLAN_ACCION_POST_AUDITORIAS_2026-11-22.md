@@ -12,26 +12,14 @@ Estado de cada ítem: `[ ]` pendiente, `[x]` hecho. Quién: **[Vos]** panel o cu
 - [ ] **[Vos] Alertas de errores.** Elegir Sentry o las alertas de Vercel (P19-06). Sin esto un problema se nota tarde.
 - [ ] **[Yo] Páginas de error en español:** `app/global-error.tsx` y `app/(preapertura)/error.tsx` (P19-05). Hoy un error grave muestra una pantalla en inglés.
 
-## B. Seguridad — migración 0107 (propuesta, sin aplicar)
-Beneficio: cierra datos que cualquiera con la clave pública puede leer. Hoy no hay filtración de contenido sensible; es reducir superficie.
-Verificado en `estured-dev` el 2026-11-22 (solo lectura).
-
-- [ ] **Ocultar quién creó cada residencia.** Con la clave pública se puede leer `residences.created_by` y `profile_availability.last_confirmed_by` (ids internos de usuario). El código no las lee con sesión de usuario: solo las escribe con la clave de servicio. Se revoca el permiso de lectura de esas dos columnas a `anon` y `authenticated`.
-- [ ] **Quitar permisos de lectura que no sirven.** Estas tablas tienen RLS sin ninguna policy, así que nadie lee filas, pero `authenticated` conserva el permiso: `application_status_events`, `arrival_reminder_sends`, `audit_logs`, `beds`, `document_access_log`, `family_email_verifications`, `files`, `payment_settings`, `residence_faq_questions`, `residence_profile_edits`, `resident_notes`, `rooms`, `tariff_change_logs`, `waitlist_signups`. Se revoca `select` a `authenticated`. Si una pantalla las lee con sesión de usuario, hay que dejarla fuera de la lista: revisar cada una antes con `grep`.
-- [ ] **Privilegios por defecto.** Ya hecho en 0098 para funciones. Confirmar que las tablas nuevas no quedan abiertas a `anon`.
-- [ ] **`pg_net` en el schema `public`:** **no tocar.** Moverla exige borrarla y recrearla, y rompe el cron de vencimientos (0013). El riesgo es mayor que el beneficio.
-
-Esqueleto de la migración (borrador; escribirla idempotente y con comentarios):
-
-```sql
-revoke select (created_by) on public.residences from anon, authenticated;
-revoke select (last_confirmed_by) on public.profile_availability from anon, authenticated;
--- Una línea por tabla de la lista anterior, tras confirmar que ninguna pantalla la lee con sesión de usuario:
--- revoke select on public.<tabla> from authenticated;
-```
-
-Cómo verificar: aplicar en dev, correr `npx playwright test` contra staging y la suite de integración. Chequear que ninguna pantalla se rompa y que `has_column_privilege('anon','public.residences','created_by','select')` dé `false`. Agregar un test en `lib/security/anonExposure.integration.test.ts`.
-Regla del repo: una columna con `grant select` por columna (0081) no puede quedar sin permiso si una pantalla la lee.
+## B. Seguridad — migración 0107 (aplicada en dev 2026-11-25; falta prod)
+- [x] **`profile_availability.last_confirmed_by`:** ya no se lee con la clave pública ni con sesión.
+- [x] **14 tablas sin policies:** `authenticated` ya no tiene `select`. Ninguna policy ni vista las referencia.
+- [x] **Guard:** columna agregada a `scripts/sensitive-columns.json`; test de exposición 51/51.
+- [x] **`residences.created_by`:** descartado. Obliga a regrantar 43 columnas; es un uuid sin PII.
+- [x] **`pg_net`:** no se toca. Rompería el cron de vencimientos (0013).
+- [ ] **Aplicar 0107 en prod** (entra con el bootstrap; si prod ya existe, pegarla en su SQL Editor).
+- [ ] **Correr `npx playwright test` contra staging** y la suite de integración completa.
 
 ## C. Performance
 - [ ] **[Yo] R19-04: páginas públicas estáticas.** Hoy `/search`, `/for-students` y la ficha se calculan en cada visita porque leen la sesión. Beneficio: respuesta mucho más rápida y menos costo de servidor. Cómo: mover lo personal (filtro por edad, botones, vista del estudiante o familiar) a componentes cliente o en streaming. **Riesgo:** un error puede mostrar datos de un usuario a otro. Hacerlo con tests de «dos usuarios distintos» y probarlo en staging antes de producción.
