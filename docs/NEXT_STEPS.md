@@ -4,9 +4,9 @@
 
 ## Vista previa del link (WhatsApp, 2026-11-25)
 
-- [x] Imagen de marca 1200×630 para todo el sitio (`app/opengraph-image.tsx`). La ficha de residencia mantiene la suya. En `staging`.
-- [ ] **Dueño:** aprobar la imagen y publicar en `main` (`docs/PLAN_SALIDA_PRODUCCION.md`, «Publicar cambios»).
-- [ ] Después de publicar: probar en WhatsApp con `https://estured.com/?v=2`.
+- [x] Imagen de marca 1200×630 para todo el sitio (`app/opengraph-image.tsx`). La ficha de residencia mantiene la suya.
+- [x] Publicada en `estured.com` el 2026-11-26 (`463f165`) y etiquetas verificadas.
+- [ ] **Dueño:** probar en WhatsApp con `https://estured.com/?v=2`.
 
 ## Rediseño del popup (DR67, 2026-11-25)
 
@@ -14,7 +14,7 @@ Mockup **aprobado** el 2026-11-26. Plan del bloque A: `docs/superpowers/plans/20
 
 - [x] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
 - [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
-- [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (en `staging`; falta publicar).
+- [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (publicado el 2026-11-26).
 - [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), carrusel DR67 (h): 5 perfiles más en `EXAMPLE_PROFILES`; `CommunityCard` sin cinta ni punteado y más grande; título según `hasExamples` en `EntryContent`; ajustar `UrgencyPanel`, `MiLugarContent` y `aria-label`; tests del carrusel, «Gratis. Sin tarjeta.», perfil obligatorio.
 - [ ] **Dueño:** cargar las 4 residencias fundadoras en `estured.com/fundadoras/datos` (avisadas antes: reciben un mail). Las propias no.
 - [ ] **Bloque A, familiares:** «Completar mi perfil» es solo de estudiantes (`saveProfile` rechaza familiares). La pantalla del familiar muestra el estado de la invitación.
