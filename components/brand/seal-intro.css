@@ -29,10 +29,13 @@
     --si-ms: 0.6358;
   }
 }
-/* Pantalla completa: la usa la preapertura (solo dev) al cerrar el popup; no depende del scroll ni del hero. */
+/* Pantalla completa: la usa la preapertura al cargar (antes del popup) y, solo en dev, al cerrarlo. */
 .seal-intro-fixed {
   position: fixed;
   z-index: 70;
+}
+.seal-intro-blocking {
+  pointer-events: auto;
 }
 .seal-intro > * {
   grid-area: 1 / 1;

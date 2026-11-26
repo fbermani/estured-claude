@@ -15,6 +15,12 @@ const IS_DEV = isDevUi();
  */
 const REVEAL_EVENT = "estured:pre-dev-revealed-change";
 let revealedInMemory = false;
+/**
+ * Apertura de entrada: el sello se ve ANTES que el popup, solo en la carga de la página (viene en el HTML del servidor, así cubre
+ * desde el primer cuadro). Al pasar de una pantalla de la preapertura a otra sin recargar no se repite. Vive en memoria: recargar
+ * la página la vuelve a mostrar.
+ */
+let entryIntroShown = false;
 
 function subscribeReveal(cb: () => void) {
   window.addEventListener(REVEAL_EVENT, cb);
@@ -66,6 +72,11 @@ export function PreaperturaStage({
   const pathname = usePathname();
   /** Cada cierre (solo dev) dispara la apertura con el sello sobre toda la pantalla. */
   const [introRun, setIntroRun] = useState(0);
+  /** En la hidratación vale true (igual que el HTML del servidor); en una navegación sin recarga, false. */
+  const [entryIntro] = useState(() => !entryIntroShown);
+  useEffect(() => {
+    entryIntroShown = true;
+  }, []);
   const devRevealed = useSyncExternalStore(subscribeReveal, readRevealed, () => false);
 
   // Volver al home (navegación sin recarga) reinicia el popup, antes de pintar.
@@ -84,6 +95,7 @@ export function PreaperturaStage({
 
   return (
     <div className="bg-cream">
+      {entryIntro && introRun === 0 && <SealIntro fixed blocking />}
       {introRun > 0 && <SealIntro key={introRun} fixed />}
       <BlurredPreview revealed={revealed} label={previewLabel}>{preview}</BlurredPreview>
       {revealed ? (

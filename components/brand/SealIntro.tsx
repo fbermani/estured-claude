@@ -24,16 +24,18 @@ function Part({ d, className }: { d: string; className?: string }) {
 
 /**
  * Apertura con el sello de EstuRed (~3,9 s): la R, la palabra «EstuRed», el logo que se arma y el sello que cae sobre él.
- * Capa decorativa (`aria-hidden`, sin eventos de puntero) sobre contenido que ya está en el DOM. Solo CSS: no necesita JS
- * de cliente. Tiempos y medidas en `seal-intro.css`. Con prefers-reduced-motion se ve el sello quieto y la capa se va con un fundido.
+ * Capa decorativa (`aria-hidden`; sin eventos de puntero salvo `blocking`) sobre contenido que ya está en el DOM. Solo CSS: no
+ * necesita JS de cliente. Tiempos y medidas en `seal-intro.css`. Con prefers-reduced-motion se ve la versión suave (solo fundidos).
  *
- * `fixed`: a pantalla completa (preapertura, solo dev). Sin `fixed` cubre su contenedor posicionado (hero de la home).
+ * `fixed`: a pantalla completa (preapertura). Sin `fixed` cubre su contenedor posicionado (hero de la home).
+ * `blocking`: mientras se ve, la capa frena los clics, para que nadie toque sin querer el popup que está debajo. Al terminar queda
+ * `visibility: hidden` y deja de frenarlos.
  */
-export function SealIntro({ fixed = false }: { fixed?: boolean }) {
+export function SealIntro({ fixed = false, blocking = false }: { fixed?: boolean; blocking?: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className={`seal-intro ${fixed ? "seal-intro-fixed" : ""} bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600 text-paper`}
+      className={`seal-intro ${fixed ? "seal-intro-fixed" : ""} ${blocking ? "seal-intro-blocking" : ""} bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600 text-paper`}
     >
       <div className="si-seal">
         <i className="si-impact border-2 border-paper/60" />
