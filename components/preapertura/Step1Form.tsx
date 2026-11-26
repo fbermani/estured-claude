@@ -2,6 +2,7 @@
 
 import { DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { BackNav } from "@/components/preapertura/BackNav";
+import { RoleTabs } from "@/components/preapertura/RoleTabs";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { trackMetaEvent } from "@/lib/analytics/metaPixel";
 import Link from "next/link";
@@ -18,7 +19,6 @@ import {
   CopyLinkButton,
   FormAlert,
   PasswordField,
-  StepDots,
   SubmitButton,
   errorHint,
   errorProps,
@@ -28,7 +28,7 @@ import {
 const INITIAL: Step1State = { status: "idle" };
 
 /**
- * Paso 1 (SPEC pantalla 2, mockup v4): email, contraseña, fecha de nacimiento y UN casillero obligatorio sin tildar (Términos,
+ * Registro del estudiante (DR67): selector estudiante o familiar (sin él con invitación), email, contraseña, fecha de nacimiento y UN casillero obligatorio sin tildar (Términos,
  * Privacidad y opción C, DR45.1). La validación real es la del servidor; acá solo se pintan los estados: enviando, error de campos,
  * email ya registrado, sin conexión y menor de 18 (no se crea cuenta). Sin Google: no existe OAuth (DR26). Con `invitation`, el mail
  * viene de la invitación familiar (no se edita) y un menor entra salteando el bloqueo de edad.
@@ -74,13 +74,14 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
   return (
     <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
       <BackNav href="/">Volver al inicio</BackNav>
-      <p className="flex items-center gap-2 text-sm font-bold text-ink-soft">
-        <StepDots step={1} />
-        Paso 1 de 2, tu cuenta
-      </p>
-      <h1 id="pre-signup-title" className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink">
-        Creá tu cuenta
+      <h1 id="pre-signup-title" className="mt-1 font-display text-3xl leading-tight tracking-tight text-ink">
+        Sumate en un minuto
       </h1>
+      {!invitation && (
+        <div className="mt-4">
+          <RoleTabs current="student" />
+        </div>
+      )}
 
       {invitation && (
         <FormAlert tone="info" icon="family_restroom" title="Te invitó un familiar" className="mt-4">
@@ -206,18 +207,12 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
               {errors?.accept_terms && <p>{errorHint(errors, "accept_terms", "pre")}</p>}
             </div>
             {!invitation && <TurnstileWidget resetKey={state} />}
-            <SubmitButton isPending={isPending} idle="Crear mi cuenta gratis" pending="Creando tu cuenta…" />
+            <SubmitButton isPending={isPending} idle="Sumarme" pending="Creando tu cuenta…" />
             <DevEmptyHint />
           </>
         )}
       </form>
 
-      <p className="mt-4 text-center text-sm text-ink-soft">
-        ¿Sos familiar?{" "}
-        <Link href="/preregistro/familiar" className="inline-flex min-h-11 items-center font-bold text-forest-700 underline underline-offset-2">
-          Registrate como familiar
-        </Link>
-      </p>
     </div>
   );
 }

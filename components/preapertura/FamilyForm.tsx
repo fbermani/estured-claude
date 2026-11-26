@@ -2,6 +2,7 @@
 
 import { DevAccountNotice, DevEmptyHint } from "@/components/preapertura/DevAccountNotice";
 import { BackNav } from "@/components/preapertura/BackNav";
+import { RoleTabs } from "@/components/preapertura/RoleTabs";
 import { TurnstileWidget } from "@/components/ui/TurnstileWidget";
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { trackMetaEvent } from "@/lib/analytics/metaPixel";
@@ -105,6 +106,9 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
       <h1 id="pre-family-title" className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink">
         Registrate primero e invitalo/a
       </h1>
+      <div className="mt-4">
+        <RoleTabs current="family" />
+      </div>
 
       {failed && state.code === "email_exists" ? (
         <FormAlert title="Ya hay una cuenta con ese email." alertRef={alertRef} className="mt-4">
@@ -216,12 +220,6 @@ export function FamilyForm({ loggedIn }: { loggedIn: boolean }) {
         <DevEmptyHint />
       </form>
 
-      <p className="mt-4 text-center text-sm text-ink-soft">
-        ¿Sos estudiante?{" "}
-        <Link href="/preregistro" className="inline-flex min-h-11 items-center font-bold text-forest-700 underline underline-offset-2">
-          Registrate acá
-        </Link>
-      </p>
     </div>
   );
 }

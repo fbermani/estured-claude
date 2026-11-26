@@ -241,16 +241,6 @@ export function CopyLinkButton({
   );
 }
 
-/** Los dos puntos de «Paso N de 2». */
-export function StepDots({ step }: { step: 1 | 2 }) {
-  return (
-    <span aria-hidden="true" className="flex gap-1.5">
-      <i className={`h-1.5 w-[22px] rounded-full ${step === 1 ? "bg-orange" : "bg-forest"}`} />
-      <i className={`h-1.5 w-[22px] rounded-full ${step === 2 ? "bg-orange" : "bg-cream-2"}`} />
-    </span>
-  );
-}
-
 /** Aviso para quien ya tiene sesión y llega a un formulario de registro. */
 export function AlreadyIn({ titleId = "pre-signup-title" }: { titleId?: string }) {
   return (
