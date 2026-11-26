@@ -3,8 +3,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createStudentAccount } from "@/lib/preapertura/accounts";
 import { loadCommunityCards } from "@/lib/preapertura/communityRailData";
-import { RAIL_CARD_KEYS, RAIL_COLUMNS, buildRail, firstNameOnly, toRailCard } from "@/lib/preapertura/communityRail";
-import { EXAMPLE_PROFILES, EXAMPLES_OFF_AT } from "@/lib/preapertura/rules";
+import { RAIL_CARD_KEYS, RAIL_COLUMNS, buildRail, firstNameOnly, railTitle, toRailCard } from "@/lib/preapertura/communityRail";
+import { EXAMPLE_PROFILES, EXAMPLES_OFF_AT, examplesToShow } from "@/lib/preapertura/rules";
+import { CAREER_OPTIONS, HABIT_OPTIONS, INTEREST_OPTIONS } from "@/lib/preapertura/options";
 import { maskEmail, profilePercentOf } from "@/lib/preapertura/miLugar";
 
 /** Columnas que JAMÁS pueden salir en el carrusel público (DR44.1): apellido, residencia actual, contacto, ids y lo que identifica. */
@@ -64,14 +65,31 @@ describe("carrusel público: privacidad (DR44)", () => {
     expect(JSON.stringify(card)).not.toMatch(/Aeroespacial|Narnia|texto libre|<b>/);
     expect(toRailCard({ ...adultRow, country: "Otro país" }, 0, NOW)!.country).toBeNull();
   });
-  it("hasta 3 pastillas, mezclando hábitos e intereses", () => {
-    expect(toRailCard(adultRow, 0, NOW)!.tags).toEqual(["Madrugo", "Lectura", "No fumo"]);
+  it("hasta 2 pastillas, un hábito y un interés (DR67)", () => {
+    expect(toRailCard(adultRow, 0, NOW)!.tags).toEqual(["Madrugo", "Lectura"]);
   });
 });
 
 describe("carrusel público: retiro de ejemplos", () => {
   const real = (n: number) => Array.from({ length: n }, (_, i) => toRailCard({ ...adultRow, first_name: `Real${i}` }, i, NOW)!);
-  it("sin reales, solo ejemplos rotulados; cada real retira uno", () => {
+  it("10 perfiles ficticios con valores de las listas cerradas; se apagan con 10 reales (DR67)", () => {
+    expect(EXAMPLE_PROFILES).toHaveLength(10);
+    expect(EXAMPLES_OFF_AT).toBe(10);
+    expect(examplesToShow(4)).toBe(6);
+    expect(examplesToShow(10)).toBe(0);
+    expect(new Set(EXAMPLE_PROFILES.map((e) => e.name)).size).toBe(10);
+    const tags: readonly string[] = [...HABIT_OPTIONS, ...INTEREST_OPTIONS];
+    for (const example of EXAMPLE_PROFILES) {
+      expect(CAREER_OPTIONS as readonly string[], example.name).toContain(example.career);
+      for (const tag of example.tags) expect(tags, example.name).toContain(tag);
+      expect(example.age).toBeGreaterThanOrEqual(18);
+    }
+  });
+  it("con algún ficticio el título es de vista previa; «Se están sumando» solo con todo real", () => {
+    expect(railTitle(true)).toBe("Así vas a ver a tus posibles compañeros");
+    expect(railTitle(false)).toBe("Se están sumando");
+  });
+  it("sin reales, solo ejemplos; cada real retira uno", () => {
     const none = buildRail([]);
     expect(none.cards.every((c) => c.kind === "example")).toBe(true);
     expect(none.cards).toHaveLength(EXAMPLE_PROFILES.length);
@@ -80,7 +98,7 @@ describe("carrusel público: retiro de ejemplos", () => {
     expect(two.cards.filter((c) => c.kind === "real")).toHaveLength(2);
     expect(two.cards.filter((c) => c.kind === "example")).toHaveLength(EXAMPLE_PROFILES.length - 2);
   });
-  it("al llegar a 12 reales no queda ningún ejemplo", () => {
+  it("al llegar a 10 reales no queda ningún ejemplo", () => {
     const full = buildRail(real(EXAMPLES_OFF_AT));
     expect(full.hasExamples).toBe(false);
     expect(full.cards.every((c) => c.kind === "real")).toBe(true);

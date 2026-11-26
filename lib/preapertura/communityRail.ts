@@ -31,7 +31,7 @@ export type RailCard = {
 };
 
 const TONES: RailTone[] = ["mint", "sky", "peach", "lilac", "butter"];
-const MAX_TAGS = 3;
+const MAX_TAGS = 2;
 
 type RawRow = Record<string, unknown>;
 
@@ -66,7 +66,7 @@ export function toRailCard(row: RawRow, index: number, now: Date = new Date()): 
   // «Otro país» no se muestra (no dice nada y no tiene bandera).
   const country = countryRaw !== "Otro país" && COUNTRY_OPTIONS.some((c) => c.name === countryRaw) ? countryRaw : null;
   const career = publicCareer(row.career);
-  // Primero un hábito y un interés (variedad), después el resto, hasta 3 pastillas.
+  // Primero un hábito y un interés (variedad), después el resto, hasta `MAX_TAGS` pastillas.
   const habits = onlyFrom(row.habits, HABIT_OPTIONS);
   const interests = onlyFrom(row.interests, INTEREST_OPTIONS);
   const mixed = [habits[0], interests[0], habits[1], interests[1]].filter((t): t is string => Boolean(t));
@@ -95,9 +95,14 @@ export function exampleToCard(example: ExampleProfile): RailCard {
   };
 }
 
+/** Título de la sección (DR67 h): con algún perfil ficticio es una vista previa; «Se están sumando» solo con todo real. */
+export function railTitle(hasExamples: boolean): string {
+  return hasExamples ? "Así vas a ver a tus posibles compañeros" : "Se están sumando";
+}
+
 /**
- * Arma la tira: primero los reales (más nuevos primero) y, mientras falten, los ejemplos rotulados (DR44.3): cada real retira un
- * ejemplo y con `EXAMPLES_OFF_AT` reales no queda ninguno.
+ * Arma la tira: primero los reales (más nuevos primero) y, mientras falten, los ficticios (DR44.3): cada real retira uno y con
+ * `EXAMPLES_OFF_AT` reales no queda ninguno.
  */
 export function buildRail(realCards: RailCard[]): { cards: RailCard[]; hasExamples: boolean; realCount: number } {
   const examples = EXAMPLE_PROFILES.slice(0, examplesToShow(realCards.length)).map(exampleToCard);

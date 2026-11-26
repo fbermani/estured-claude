@@ -1,7 +1,7 @@
 /* Preapertura (DR42): movimiento propio de las piezas de components/preapertura. Solo transform y opacity; usa tokens de app/globals.css.
    Sin tocar globals.css (archivo sensible). */
 
-/* Carrusel de «Se están sumando»: deriva horizontal continua; se pausa con hover y foco. */
+/* Carrusel de comunidad: deriva horizontal continua; se pausa con hover y foco. */
 @keyframes pre-drift {
   to { transform: translateX(-50%); }
 }
@@ -9,7 +9,7 @@
   display: flex;
   width: max-content;
   gap: 0.75rem;
-  animation: pre-drift 50s linear infinite;
+  animation: pre-drift 80s linear infinite;
 }
 .pre-track[data-static] {
   animation: none;

@@ -53,7 +53,10 @@ export function founderState(input: FounderInputs | null): FounderState {
   return { kind: "none" };
 }
 
-/** Perfiles de EJEMPLO del carrusel público (DR44.3): ficticios y siempre rotulados «Ejemplo». Se retiran con los reales. */
+/**
+ * Perfiles ficticios del carrusel público (DR44.3, DR67 h): sin rótulo en las fichas; mientras haya alguno, el título de la sección
+ * es el de vista previa (`railTitle`). Se retiran con los reales.
+ */
 export type ExampleProfile = {
   name: string;
   age: number;
@@ -71,14 +74,19 @@ export const EXAMPLE_PROFILES: readonly ExampleProfile[] = [
   { name: "Valeria", age: 20, from: "Perú", flag: "🇵🇪", career: "Arquitectura", tags: ["Me gusta cocinar", "Arte"], tone: "peach" },
   { name: "Tomás", age: 18, from: "Paraguay", flag: "🇵🇾", career: "Derecho", tags: ["Prefiero la calma", "Cine"], tone: "lilac" },
   { name: "Agustina", age: 22, from: "Colombia", flag: "🇨🇴", career: "Psicología", tags: ["Muy sociable", "Idiomas"], tone: "butter" },
+  { name: "Bruno", age: 20, from: "Brasil", flag: "🇧🇷", career: "Diseño Gráfico", tags: ["Arte", "Música"], tone: "mint" },
+  { name: "Camila", age: 19, from: "Chile", flag: "🇨🇱", career: "Economía", tags: ["Madrugo", "Hago deporte"], tone: "sky" },
+  { name: "Diego", age: 23, from: "Bolivia", flag: "🇧🇴", career: "Medicina", tags: ["Me gusta cocinar", "Cine"], tone: "peach" },
+  { name: "Sofía", age: 18, from: "Ecuador", flag: "🇪🇨", career: "Medicina", tags: ["Lectura", "Idiomas"], tone: "lilac" },
+  { name: "Mateo", age: 21, from: "Argentina", flag: "🇦🇷", career: "Economía", tags: ["Muy sociable", "Hago deporte"], tone: "butter" },
 ];
 
 /**
- * Con cuántos perfiles REALES (estudiantes 18+ que tildaron la comunidad) el carrusel apaga del todo los ejemplos (DR44.3 «~12»).
+ * Con cuántos perfiles REALES (estudiantes 18+ que tildaron la comunidad) el carrusel apaga del todo los ficticios (DR67 h: 10).
  * Mientras tanto, cada perfil real retira UN ejemplo (el pozo de ejemplos tiene `EXAMPLE_PROFILES.length`), así la tira mantiene su
  * densidad sin mezclar más ficción de la necesaria.
  */
-export const EXAMPLES_OFF_AT = 12;
+export const EXAMPLES_OFF_AT = 10;
 
 export function examplesToShow(realCount: number): number {
   const real = Number.isFinite(realCount) ? Math.max(0, Math.floor(realCount)) : 0;
