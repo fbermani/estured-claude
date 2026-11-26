@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
-import { LEGAL_DOCUMENTS } from "@/lib/legal/versions";
+import { PREAPERTURA_LEGAL } from "@/lib/legal/versions";
 import { OPERATOR_SECTION_HREF } from "@/lib/legal/operator";
 
 /**
@@ -93,7 +93,7 @@ export function PreaperturaPrivacyBody() {
   return (
     <div className="grid gap-3 text-[15px] leading-relaxed text-ink-soft">
       <p className="text-sm">
-        Versión de la preapertura, vigente desde el {LEGAL_DOCUMENTS.privacy.updatedLabel}.
+        Versión de la preapertura, vigente desde el {PREAPERTURA_LEGAL.updatedLabel}.
       </p>
       <h3 className={h3}>Quién es responsable de tus datos</h3>
       <p>

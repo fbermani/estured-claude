@@ -19,9 +19,9 @@ describe("consentVersion (LEG-012)", () => {
 });
 
 describe("fecha del pie", () => {
-  it("es la del texto legal más reciente", async () => {
-    const { LEGAL_TEXTS_UPDATED_LABEL } = await import("@/lib/legal/versions");
-    const newest = Object.values(LEGAL_DOCUMENTS).sort((a, b) => b.version.localeCompare(a.version))[0];
+  it("es la del texto legal más reciente, incluidos los de la preapertura", async () => {
+    const { LEGAL_TEXTS_UPDATED_LABEL, PREAPERTURA_LEGAL } = await import("@/lib/legal/versions");
+    const newest = [...Object.values(LEGAL_DOCUMENTS), PREAPERTURA_LEGAL].sort((a, b) => b.version.localeCompare(a.version))[0];
     expect(LEGAL_TEXTS_UPDATED_LABEL).toBe(newest.updatedLabel);
   });
 });

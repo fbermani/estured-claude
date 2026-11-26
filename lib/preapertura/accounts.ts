@@ -6,6 +6,7 @@ import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { createInvitation, redeemInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
 import { isMissingSchemaError } from "@/lib/stayChange/schema";
 import { isMissingAttributionColumn, type Attribution } from "@/lib/attribution/attribution";
+import { PREAPERTURA_LEGAL } from "@/lib/legal/versions";
 
 /**
  * Alta de cuentas REALES de la preapertura (DR43.1), mismo patrón que `registerStudent` / `registerFamily`: usuario de Auth
@@ -16,7 +17,8 @@ import { isMissingAttributionColumn, type Attribution } from "@/lib/attribution/
  * completa en el paso 2; el apellido y la relación familiar se piden al abrir). Es un supuesto reversible, documentado en NEXT_STEPS.
  * Todo con service role y SIN loguear mails ni contraseñas.
  */
-export const PREAPERTURA_CONSENT_VERSION = "v0.1-borrador-preapertura";
+/** Versión de los Términos y la Privacidad de la preapertura (`lib/legal/versions.ts`). */
+export const PREAPERTURA_CONSENT_VERSION: string = PREAPERTURA_LEGAL.version;
 
 /** IP del cliente para trazabilidad (columna `inet`): solo si es una IP válida; cualquier otra cosa que mande el cliente se descarta. */
 export function clientIpOf(headers: { get(name: string): string | null }): string | null {

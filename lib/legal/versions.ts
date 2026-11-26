@@ -24,7 +24,15 @@ export const DATED_CONSENT_VERSION = "2026-11-22";
 
 export type LegalDocumentKey = keyof typeof LEGAL_DOCUMENTS;
 
+/**
+ * Términos y Privacidad de la preapertura (`components/preapertura/legal/LegalPreapertura.tsx`). Su `version` es la que se guarda en
+ * cada consentimiento de la preapertura (`PREAPERTURA_CONSENT_VERSION`). Reemplaza a «v0.1-borrador-preapertura» desde el
+ * 2026-11-26: número de registro, sin el rótulo «Ejemplo» y retiro «desde tu perfil». Al cambiar ese texto, actualizá ambos campos.
+ */
+export const PREAPERTURA_LEGAL = { version: "2026-11-26", updatedLabel: "26 de noviembre de 2026" } as const;
+
 /** Fecha más reciente entre los textos publicados (la que muestra el pie). Se deriva: no puede quedar desfasada. */
-export const LEGAL_TEXTS_UPDATED_LABEL: string = Object.values(LEGAL_DOCUMENTS).reduce((newest, doc) =>
-  doc.version > newest.version ? doc : newest,
-).updatedLabel;
+export const LEGAL_TEXTS_UPDATED_LABEL: string = [...Object.values(LEGAL_DOCUMENTS), PREAPERTURA_LEGAL].reduce<{
+  version: string;
+  updatedLabel: string;
+}>((newest, doc) => (doc.version > newest.version ? doc : newest), PREAPERTURA_LEGAL).updatedLabel;
