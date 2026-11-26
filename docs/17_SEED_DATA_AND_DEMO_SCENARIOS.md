@@ -274,7 +274,7 @@ mode: perfil_verificado
 has_operational_management_access: false
 verification_status: verified_active
 availability_mode: by_room_type_to_confirm
-public_availability_label: Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+public_availability_label: Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva.
 ```
 
 Tarifas ejemplo:

@@ -393,7 +393,7 @@ Incumplimiento reiterado de términos; información engañosa; cancelaciones inj
 
 ### 12.1 Copy obligatorio
 
-Modo Perfil Verificado: **"Disponibilidad informada por la residencia. Requiere confirmación al solicitar."**
+Modo Perfil Verificado: **"Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."**
 
 Modo Gestión Operativa con datos actualizados: **"Disponibilidad asegurada."**
 

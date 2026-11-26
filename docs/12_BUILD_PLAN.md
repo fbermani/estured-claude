@@ -234,7 +234,7 @@ Pantalla: `/r/[slug]`. Debe mostrar: fotos; nombre; zona; sello verificada; tari
 - Invitados exploran con acceso limitado; registrados ven información ampliada según privacidad.
 - Nunca se muestran apellido completo, mail, teléfono, fecha de nacimiento, universidad o documentos.
 - Las tarifas muestran ambas monedas con el aviso referencial obligatorio.
-- Disponibilidad usa el texto correcto: **"Disponibilidad informada por la residencia. Requiere confirmación al solicitar."** (Perfil Verificado) o **"Disponibilidad asegurada."** (Gestión Operativa).
+- Disponibilidad usa el texto correcto: **"Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."** (Perfil Verificado) o **"Disponibilidad asegurada."** (Gestión Operativa).
 - El FAQ responde solo con información cargada por la residencia.
 
 ---

@@ -288,7 +288,7 @@ Mitigación: recordatorios tempranos; timeline claro de renovación; valor del c
 
 La residencia publica disponibilidad por tipo de habitación/plaza.
 
-Copy visible: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
+Copy visible: "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."
 
 Debe actualizarse al menos cada 30 días o marcarse como completa. Si no: enviar recordatorios; mostrar "Sin disponibilidad actualizada" si corresponde; si persiste 15 días adicionales, la residencia deja de aparecer en búsquedas activas; penalizar si se repite.
 

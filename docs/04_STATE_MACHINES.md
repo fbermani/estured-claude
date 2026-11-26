@@ -775,7 +775,7 @@ Estados por residencia o tipo de habitación:
 
 | Estado técnico | Texto visible | Descripción |
 |---|---|---|
-| `available_to_confirm` | Disponibilidad informada por la residencia. Requiere confirmación al solicitar. | Hay disponibilidad declarada/semi-real. |
+| `available_to_confirm` | Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva. | Hay disponibilidad declarada/semi-real. |
 | `full` | Residencia completa. (Cuando aplica a **un tipo** de habitación: "{Tipo}: completa", ver `docs/08` §4.5.) | La residencia declara no tener cupos. |
 | `not_updated` | Sin disponibilidad actualizada. | No hubo actualización dentro del plazo requerido. |
 | `paused_by_residence` | Solicitudes pausadas por la residencia. | La residencia pausó temporalmente. |
@@ -807,7 +807,8 @@ Estados por plaza/cama:
 - Si no actualiza: recibe recordatorios, puede mostrarse como `not_updated`.
 - Si el estado `not_updated` persiste más de **15 días**, la residencia desaparece de búsquedas activas hasta que actualice.
 - El estado `full` lo selecciona la residencia cuando no tiene cupos reales.
-- Una residencia con `not_updated` puede seguir recibiendo solicitudes, pero con advertencia visible para el estudiante.
+- Con `not_updated` se reciben solicitudes, con advertencia, solo hasta que se oculta de las búsquedas (día 45).
+- Desde el día 45 (`hidden_from_search_at`) no se admiten solicitudes ni propuestas nuevas para ese tipo (DR69).
 - El rechazo constante por falta de disponibilidad sin actualizar penaliza visibilidad.
 
 ---

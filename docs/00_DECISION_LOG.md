@@ -1960,3 +1960,45 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 **Supuestos reversibles del bloque A:** los ejemplos se apagan con 10 perfiles reales; las fichas muestran 2 etiquetas; con el perfil completo el botón principal es Instagram; en celular el popup ocupa la pantalla; con la convocatoria cerrada no se listan beneficios de fundadora; el retiro de la comunidad se guarda aunque falten datos del perfil.
 **Reversión:** (i) vuelve restaurando la etiqueta en `BlurredPreview` y quitando `LegalLinks`. El bloque A vuelve revirtiendo sus commits; la columna de 0111 puede quedar sin uso.
 
+### DR68: textos de las páginas públicas, «solicitar», orden de las landings y apertura (2026-11-26)
+
+**Fuente:** el dueño aprobó cada texto de a uno (2026-11-25 y 26). Protocolo `docs/13` §5. Textos exactos: `docs/propuestas/TEXTOS_PUBLICOS_2026-11-26.md`.
+
+| # | Decisión |
+|---|---|
+| DR68 (a) | **Frases vetadas.** Se quitan «Explorar es gratis» y «Cada solicitud la confirma la residencia», y sus paráfrasis. Reemplaza DR55 (2). «Sujeta a confirmación» sigue en ficha, formulario, reglamento, emails y legales (DR25 se mantiene). |
+| DR68 (b) | **«Solicitar».** El copy dice «enviar tu solicitud de reserva», en páginas públicas, ficha, registro, paneles y metadata. Renovación y cambio de habitación usan «pedir». `StatusTag`: «Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva.» |
+| DR68 (c) | **Home.** Textos nuevos de hero. Orden: hero, 4 pasos, «Por qué EstuRed», residencias con comunidad, audiencias, guías, 5 preguntas y cierre. Reemplaza DR22 A.2, A.4 y A.5. La home deja de mencionar la propuesta de ajuste (`docs/08` §4.1). |
+| DR68 (d) | **Comprobante.** «Comprobante verificable» y «código verificable» pasan a «comprobante de reserva» y «código y QR». Modifica DR13 (1) y DR15 (1). `/verify` no cambia. |
+| DR68 (e) | **`/for-students`.** Hero y beneficios nuevos. «Qué pagás y cuándo» reemplaza «Paso a paso» y «Qué pagás y a quién». Modifica DR22 B y DR15 (2). |
+| DR68 (f) | **`/for-residences` y `/fundadoras`.** Título «Menos mensajes repetidos, mejor gestión». La ficha pública se presenta antes de «Previsibilidad». |
+| DR68 (g) | **Buscadores.** Las descripciones dicen «visitadas en persona», sin «verificadas» (LEG-017). |
+| DR68 (h) | **Apertura con el sello.** Dura 2,5 s, aparece una vez por visita y un toque la saltea. Con «reducir movimiento» el sello queda quieto. |
+| DR68 (i) | **Riesgos avisados y aceptados por el dueño:** «seguridad de elegir bien» (LEG-015/016), «todo queda registrado» (la conversación por fuera no se registra) y la bajada de comunidad (carrera, intereses y hábitos vienen apagados). |
+
+**Sin cambios:** `/terms`, `/privacy` y `docs/20`/`docs/21` conservan «al solicitar»; cambiarlos exige versionar el texto legal. Pendiente del dueño.
+
+### DR69: desde el día 45 sin actualizar disponibilidad no entran solicitudes (2026-11-26)
+
+**Fuente:** decisión del dueño. Reemplaza la regla de `docs/03` §9.6 y `docs/04` §10.4.
+
+| # | Decisión |
+|---|---|
+| DR69 (a) | **Días 30 a 45** (`not_updated`): la habitación admite solicitudes, con advertencia visible. |
+| DR69 (b) | **Desde el día 45** (`hidden_from_search_at` con valor): ese tipo de habitación no admite solicitudes nuevas, tampoco con el link directo. Se valida en el servidor. |
+| DR69 (c) | **Alcance:** solicitud del estudiante, propuesta del familiar y envío de una propuesta aceptada. Lo ya enviado no cambia. No habilita lista de espera. |
+| DR69 (d) | **Reactivación:** la residencia actualiza su disponibilidad y el tipo vuelve a recibir solicitudes. |
+
+**Pendiente:** el job no avisa a la residencia, aunque `docs/07` §14.3 dice «notificar». Hoy solo hay aviso en su panel (`GAPS.md`).
+
+### DR70: monto fijo en «Pago recibido» (2026-11-25, sin implementar)
+
+**Fuente:** decisión del dueño (opción A). Aclara DR63 (d).
+
+| # | Decisión |
+|---|---|
+| DR70 (a) | «Pago recibido» muestra el monto acordado, sin editar. La residencia elige la moneda y confirma. Aplica a solicitudes y renovaciones. |
+| DR70 (b) | Si el monto no coincide, la residencia no confirma y abre un caso de Soporte. |
+
+**Bloqueado antes de escribir código:** (1) §13.3 dice que el valor final en pesos se fija al pagar; un monto fijo en pesos choca con esa regla. (2) Falta aprobar el texto de «el monto no coincide».
+

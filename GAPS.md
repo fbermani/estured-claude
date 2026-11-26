@@ -6,6 +6,18 @@
 
 ---
 
+## [ABIERTO — medio, operación] La residencia no recibe aviso antes de quedar bloqueada (DR69, 2026-11-26)
+
+`checkStaleAvailability` marca `not_updated` (día 30) y `hidden_from_search_at` (día 45) sin notificar, aunque `docs/07` §14.3 dice «notificar». Desde DR69 el día 45 corta las solicitudes. Fix: recordatorio antes del día 30 y antes del día 45.
+
+## [ABIERTO — decisión del dueño] Pesos: valor al pagar vs. monto fijo (DR70, 2026-11-26)
+
+`docs/00` §13.3, `ExchangeRateNote` y `/terms` dicen que el valor final en pesos se fija al pagar. El snapshot, las instrucciones de pago y DR70 usan el monto fijado al enviar la solicitud. Definir una sola regla.
+
+## [ABIERTO — texto legal] «Al solicitar» en `/terms` y plantillas (DR68, 2026-11-26)
+
+`lib/legal/termsText.ts`, `docs/20` y `docs/21` conservan la frase. Cambiarla exige versionar el texto legal.
+
 ## [ABIERTO — medio, rendimiento] Material Symbols bloquea el primer pintado (2026-11-08)
 
 `app/layout.tsx` carga la fuente variable completa de Material Symbols con un `<link rel="stylesheet">` a Google Fonts: es CSS bloqueante y descarga todos los íconos y ejes. Se pasó a `display=block` (evita ver «arrow_forward» como texto mientras carga). Fix real: subset con `&icon_names=` (lista ordenada de los íconos usados; ojo con los nombres dinámicos que vienen de datos, p. ej. `cat.icon`, amenities) o self-hosting del subset con `next/font/local`. Requiere inventariar los íconos y un test que falle si aparece uno fuera de la lista.

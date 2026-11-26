@@ -91,7 +91,7 @@ Usuarios invitados ven información limitada. Usuarios registrados pueden ver pe
 
 Modo Perfil Verificado:
 
-**"Disponibilidad informada por la residencia. Requiere confirmación al solicitar."**
+**"Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."**
 
 Modo Gestión Operativa, con disponibilidad actualizada por plaza/cama:
 
@@ -273,7 +273,9 @@ Ruta base: `/admin`
 
 **Estados:** cargando residencias destacadas; sin residencias destacadas; error al cargar contenido dinámico.
 
-**Regla:** la landing no debe prometer disponibilidad confirmada. Debe usar lenguaje de solicitud y confirmación.
+**Regla:** la landing no debe prometer disponibilidad confirmada.
+
+**DR68 (2026-11-26):** orden, textos y frases vetadas en `docs/propuestas/TEXTOS_PUBLICOS_2026-11-26.md`. Reemplaza lo que se contradiga arriba: la home no menciona la propuesta de ajuste y no usa «Cada solicitud la confirma la residencia».
 
 ---
 
@@ -289,6 +291,8 @@ Ruta base: `/admin`
 
 **CTA principal:** Buscar residencia en CABA. **CTA secundario:** Crear cuenta de estudiante. **CTA terciario (DR4):** Crear cuenta de familiar (`/register/family`).
 
+**DR68 (2026-11-26):** «Qué pagás y cuándo» reemplaza los pasos del proceso. La landing avisa «Enviar tu solicitud de reserva no te asegura el lugar» en lugar de «sujeta a confirmación».
+
 ---
 
 ### 4.3. Landing residencias
@@ -298,6 +302,8 @@ Ruta base: `/admin`
 **Contenido mínimo:** menos consultas repetidas; gestión de solicitudes; posibilidad de proponer ajustes de condiciones antes de confirmar; lista de espera; renovaciones; comunidad visible; Residencia Verificada; Modo Perfil Verificado (gratuito); Modo Gestión Operativa (plan pago, gratis por 1 año para residencias pioneras) *[MVP: todo gratis, D8 — la landing no vende un plan pago; ver nota de §3.3]*; reglas de calidad.
 
 **CTA principal:** Quiero sumar mi residencia. **CTA secundario:** Ver cómo funciona para residencias.
+
+**DR68 (2026-11-26):** título «Menos mensajes repetidos, mejor gestión», sin párrafo. La ficha pública va antes de «Previsibilidad». Reemplaza el «Copy recomendado» de abajo.
 
 **Copy recomendado:** "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes."
 
@@ -360,11 +366,12 @@ Ruta base: `/admin`
 **Bloque de FAQ:** el estudiante puede escribir una pregunta libre; el sistema responde solo con información cargada por la residencia (FAQ + archivos). Si no hay respuesta, se muestra: "No tenemos esa información todavía. Podés escribirle a la residencia una vez que envíes tu solicitud." La pregunta sin respuesta queda registrada para la residencia.
 
 **Bloque de disponibilidad:**
-- Perfil Verificado: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
+- Perfil Verificado: "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."
 - Gestión Operativa: "Disponibilidad asegurada."
 - Completa (**un tipo de habitación**): etiqueta "{Tipo}: completa" (p. ej. "Doble: completa") con el tip "No hay lugar informado en este tipo. Podés sumarte a la lista de espera." No afirma que toda la residencia esté completa.
 - Completa (**todos** los tipos): "Residencia completa. Podés sumarte a la lista de espera."
 - Sin actualización: "Sin disponibilidad actualizada. Podés consultar o sumarte a lista de espera si está habilitada."
+- **DR69:** entre los días 30 y 45 admite solicitudes con advertencia; desde el día 45 no admite solicitudes (textos en `docs/03` §9.6).
 
 > **Decisión D3 (2026-10-20).** El estado de disponibilidad de este bloque y el selector de tipo del formulario de solicitud salen del tipo de habitación; el mapa de camas solo informa ocupación (ver §2.6).
 >
@@ -936,7 +943,7 @@ Contenido y acciones sin cambios de fondo respecto al original.
 
 Sin cambios de fondo. Modo Perfil Verificado: disponibilidad por tipo, estado Completa, actualización cada 30 días. Modo Gestión Operativa: disponibilidad por plaza/cama.
 
-**Regla nueva:** si la disponibilidad no se actualiza por más de 15 días consecutivos en estado `not_updated`, mostrar advertencia prominente: "Tu residencia dejó de aparecer en las búsquedas activas por falta de actualización."
+**Regla (DR69):** si un tipo de habitación pasa 45 días sin actualizar, mostrar advertencia prominente: "Hay habitaciones sin actualizar hace más de 45 días. No se ven en las búsquedas ni reciben solicitudes de reserva. Actualizá tu disponibilidad."
 
 ---
 

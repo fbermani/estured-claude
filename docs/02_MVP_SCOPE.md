@@ -450,7 +450,7 @@ Modo Perfil Verificado:
 
 - disponibilidad por tipo de habitación/plaza;
 - confirmación manual;
-- texto: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
+- texto: "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."
 
 Modo Gestión Operativa:
 

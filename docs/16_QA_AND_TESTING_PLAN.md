@@ -197,7 +197,7 @@ Esperado: ve perfiles individuales según permisos; nunca ve apellido completo, 
 Esperado: no permite solicitud directa; permite lista de espera; muestra "Residencia completa".
 
 **SEARCH-004 — Disponibilidad informada**
-Esperado: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
+Esperado: "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."
 
 **SEARCH-005 — Disponibilidad asegurada**
 Esperado: "Disponibilidad asegurada" solo con Gestión Operativa y plaza actualizada.

@@ -511,7 +511,7 @@ En Modo Perfil Verificado, la disponibilidad es informada por la residencia y re
 
 Texto visible:
 
-> Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+> Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva.
 
 ### 9.2 Disponibilidad asegurada (Gestión Operativa)
 
@@ -546,11 +546,17 @@ Diferente de `Sin disponibilidad actualizada` (la residencia no actualizó info 
 
 ### 9.6 Solicitudes cuando disponibilidad está `not_updated`
 
-Una residencia con estado `not_updated` puede seguir recibiendo solicitudes, pero con una advertencia visible para el estudiante:
+**DR69 (`docs/00`, 2026-11-26).**
 
-> Esta residencia no ha actualizado su disponibilidad recientemente. La confirmación puede demorar más de lo habitual.
+Entre los días 30 y 45 sin actualizar, el tipo de habitación admite solicitudes, con advertencia:
 
-Si el estado `not_updated` persiste más de 15 días, la residencia deja de aparecer en búsquedas activas hasta que actualice.
+> La residencia no actualizó su disponibilidad. Podés enviar tu solicitud de reserva igual, pero no te asegura el lugar.
+
+Desde el día 45 deja de aparecer en búsquedas activas y no admite solicitudes nuevas:
+
+> La residencia no actualizó su disponibilidad. Por ahora no recibe solicitudes de reserva.
+
+El bloqueo alcanza la solicitud del estudiante, la propuesta del familiar y su aceptación. Lo ya enviado no cambia. Se levanta cuando la residencia actualiza.
 
 ### 9.7 Falsa disponibilidad
 

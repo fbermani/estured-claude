@@ -1027,6 +1027,8 @@ Reglas:
 - si `not_updated` persiste más de 15 días: registrar `hidden_from_search_at`, ocultar de búsquedas activas;
 - impactar métrica de disponibilidad.
 
+**DR69 (2026-11-26):** crear solicitud, proponer como familiar y enviar una propuesta aceptada rechazan un tipo con `hidden_from_search_at`. Error: «La residencia no actualizó la disponibilidad de esta habitación. Probá otro tipo.» El aviso a la residencia sigue sin implementar.
+
 ---
 
 ## 15. Solicitudes de reserva

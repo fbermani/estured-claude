@@ -535,7 +535,7 @@ La disponibilidad del MVP es semi-real en Perfil Verificado.
 
 Texto visible:
 
-> Disponibilidad informada por la residencia. Requiere confirmación al solicitar.
+> Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva.
 
 Si una residencia usa Gestión Operativa con disponibilidad real por plaza/cama:
 
