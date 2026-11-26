@@ -200,6 +200,28 @@ describe("saveProfile: un menor invitado nunca persiste la comunidad", () => {
   });
 });
 
+describe("número de registro (DR67, migración 0111)", () => {
+  const META = { ip: null, userAgent: "vitest" } as const;
+
+  it("un alta de estudiante queda con número desde 11; un familiar, sin número", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const email = emailOf("numero");
+    known.push(email);
+    const kid = await createStudentAccount(admin, { email, password: PASSWORD, birthDate: "2000-05-02", age: 26, isMinor: false, invitation: null, ...META });
+    expect(kid.ok).toBe(true);
+    if (!kid.ok) return;
+    const { data } = await admin.from("preapertura_estudiantes").select("registration_number").eq("user_id", kid.userId).single();
+    expect((data as { registration_number: number }).registration_number).toBeGreaterThanOrEqual(11);
+
+    const family = familyFields("numero");
+    known.push(family.email, family.student_email);
+    expect((await registerFamilyInvite(IDLE, form(family))).status).toBe("success");
+    const familyId = await userIdByEmail(family.email);
+    const { data: row } = await admin.from("preapertura_estudiantes").select("registration_number").eq("user_id", familyId!).single();
+    expect(row).toEqual({ registration_number: null });
+  });
+});
+
 describe("envío vacío: cuenta de prueba SOLO en desarrollo", () => {
   const EMPTY_STEP1 = { email: "", password: "", birth_date: "" };
   const EMPTY_FAMILY = { email: "", student_email: "", password: "" };

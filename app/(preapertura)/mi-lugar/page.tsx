@@ -14,7 +14,7 @@ import { getSafeUser } from "@/lib/supabase/safe-get-user";
 export const metadata: Metadata = { title: "Mi lugar", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-const EMPTY: MiLugarData = { role: null, firstName: null, createdAt: null, profilePercent: null, invitation: null };
+const EMPTY: MiLugarData = { role: null, firstName: null, createdAt: null, profilePercent: null, registrationNumber: null, invitation: null };
 
 /**
  * «Mi lugar» final (Fase 3, SPEC pantalla 5): celebración con el número real, panel blureado «se activa cuando abramos», 5 pasos y

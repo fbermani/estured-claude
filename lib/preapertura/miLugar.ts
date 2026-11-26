@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { MAX_CHIPS } from "@/lib/preapertura/options";
 import { profileProgress } from "@/lib/preapertura/validation";
 import { firstNameOnly } from "@/lib/preapertura/communityRail";
+import { isMissingSchemaError } from "@/lib/stayChange/schema";
 
 /**
  * Datos de «Mi lugar» (SPEC pantalla 5). Todo con service role, SIEMPRE por el `user_id` de la sesión (nunca de un parámetro del cliente).
@@ -56,18 +57,36 @@ export type MiLugarData = {
   firstName: string | null;
   createdAt: string | null;
   profilePercent: number | null;
+  /** Número fijo desde 11 (DR67). `null` en familiares, cuentas sin fila o sin la migración 0111. */
+  registrationNumber: number | null;
   invitation: FamilyInvitationView | null;
 };
 
 const COLUMNS = "role, created_at, first_name, country, university, career, entry_month, entry_unsure, room_type, habits, interests";
 
+type MiLugarRow = ProfileFields & { role: string; created_at: string; registration_number?: number | null };
+
+/** La fila propia. Sin la columna del número (0111 sin aplicar) se repite sin ella, para no dejar «Mi lugar» vacío. */
+async function loadRow(admin: SupabaseClient, userId: string): Promise<MiLugarRow | null> {
+  const query = (columns: string) => admin.from("preapertura_estudiantes").select(columns).eq("user_id", userId).maybeSingle();
+  let result = await query(`${COLUMNS}, registration_number`);
+  if (isMissingSchemaError(result.error)) result = await query(COLUMNS);
+  return result.data as MiLugarRow | null;
+}
+
 export async function loadMiLugar(admin: SupabaseClient, userId: string, now: Date = new Date()): Promise<MiLugarData> {
-  const { data } = await admin.from("preapertura_estudiantes").select(COLUMNS).eq("user_id", userId).maybeSingle();
-  const row = data as (ProfileFields & { role: string; created_at: string }) | null;
-  if (!row) return { role: null, firstName: null, createdAt: null, profilePercent: null, invitation: null };
+  const row = await loadRow(admin, userId);
+  if (!row) return { role: null, firstName: null, createdAt: null, profilePercent: null, registrationNumber: null, invitation: null };
 
   if (row.role === "student") {
-    return { role: "student", firstName: firstNameOnly(row.first_name) || null, createdAt: row.created_at, profilePercent: profilePercentOf(row), invitation: null };
+    return {
+      role: "student",
+      firstName: firstNameOnly(row.first_name) || null,
+      createdAt: row.created_at,
+      profilePercent: profilePercentOf(row),
+      registrationNumber: row.registration_number ?? null,
+      invitation: null,
+    };
   }
 
   let invitation: FamilyInvitationView | null = null;
@@ -89,5 +108,5 @@ export async function loadMiLugar(admin: SupabaseClient, userId: string, now: Da
       studentFirstName,
     };
   }
-  return { role: "family", firstName: null, createdAt: row.created_at, profilePercent: null, invitation };
+  return { role: "family", firstName: null, createdAt: row.created_at, profilePercent: null, registrationNumber: null, invitation };
 }
