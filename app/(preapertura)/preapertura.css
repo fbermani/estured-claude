@@ -42,6 +42,22 @@
   animation: pre-ring 1.8s var(--ease-out-fresh) infinite;
 }
 
+/* Tarjeta lateral de fundadoras: halo dorado que se expande y se desvanece (transform + opacity). */
+@keyframes pre-glow {
+  0% { opacity: 0.8; transform: scale(0.98); }
+  75%, 100% { opacity: 0; transform: scale(1.05); }
+}
+.pre-halo::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 3px solid var(--color-gold);
+  border-radius: calc(var(--radius-card) + 8px);
+  opacity: 0;
+  pointer-events: none;
+  animation: pre-glow 2.6s var(--ease-out-fresh) infinite;
+}
+
 /* prefers-reduced-motion: carrusel quieto y desplazable a mano; el anillo no se muestra. */
 @media (prefers-reduced-motion: reduce) {
   .pre-rail {
@@ -51,7 +67,8 @@
   .pre-track {
     animation: none;
   }
-  .pre-dot::after {
+  .pre-dot::after,
+  .pre-halo::before {
     display: none;
   }
 }

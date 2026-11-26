@@ -33,10 +33,10 @@ describe("FounderCta: el enlace lleva a /fundadoras y se puede clickear", () => 
   it("la tarjeta flotante declara pointer-events-auto (si no, hereda none del contenedor del popup y no recibe clics)", () => {
     const tag = anchorTag(render("float"));
     expect(tag).toContain("pointer-events-auto");
-    expect(tag).toContain("fixed");
-    // Solo desde 1280 px: más angosto se solaparía con el popup centrado y ahí se usa la variante del final del popup.
-    expect(tag).toContain("min-[1280px]:grid");
-    expect(anchorTag(render("modal"))).toContain("min-[1280px]:hidden");
+    // Al costado del popup solo desde 1100 px (600 + 20 + 340 + margen); más angosto se usa la compacta de adentro. Ya no flota fija.
+    expect(tag).not.toMatch(/(^|[\s"])fixed([\s"]|$)/);
+    expect(tag).toContain("min-[1100px]:grid");
+    expect(anchorTag(render("modal"))).toContain("min-[1100px]:hidden");
   });
 
   it("dentro del popup real: el aside cuelga del contenedor pointer-events-none y el enlace lo compensa", () => {
@@ -64,5 +64,69 @@ describe("FounderCta: el enlace lleva a /fundadoras y se puede clickear", () => 
     expect(unknown).toContain("Solo 15 lugares");
     expect(unknown).not.toContain("en proceso\"");
     expect(unknown).toContain("Quiero ser fundadora");
+  });
+
+  const four = { kind: "counted", taken: 4, remaining: 11, hasExternal: true } as const;
+
+  it("la compacta muestra marca, pregunta, cupo y los cuatro beneficios cortos (DR67)", () => {
+    const html = render("modal", four);
+    for (const t of ["Residencias fundadoras · Gratis", "¿Tenés una residencia?", "Perfil verificado", "Insignia fundadora", "Más arriba al abrir", "Premium 1.er año"]) {
+      expect(html).toContain(t);
+    }
+    expect(html).not.toContain("Gratis para tu residencia.");
+  });
+
+  it("la lateral muestra la pregunta larga, los cinco beneficios y que es gratis", () => {
+    const html = render("float", four);
+    for (const t of [
+      "¿Tenés una residencia en Buenos Aires?",
+      "Te visitamos y armamos tu perfil con vos",
+      "Perfil Verificado sin costo",
+      "Insignia «Residencia fundadora»",
+      "Aparecés más arriba al abrir",
+      "Plan Premium bonificado el primer año",
+      "Gratis para tu residencia.",
+    ]) {
+      expect(html).toContain(t);
+    }
+  });
+
+  it("sin residencias en proceso no hay medidor", () => {
+    expect(render("modal", { kind: "none" })).not.toContain("en proceso\"");
+  });
+
+  it("con la convocatoria cerrada no promete beneficios de fundadora ni muestra el cupo", () => {
+    for (const variant of ["modal", "float"] as const) {
+      const html = renderToStaticMarkup(createElement(FounderCta, { state: four, closure: { kind: "closed" }, variant }));
+      expect(html).toContain("La convocatoria de Residencia fundadora cerró");
+      expect(html).toContain("Sumar mi residencia");
+      expect(html).not.toMatch(/Insignia|Premium|[Mm]ás arriba|Quedan|en proceso"/); // sin `i`: el ícono se llama «workspace_premium»
+    }
+  });
+});
+
+describe("PreaperturaDialog: lateral al lado y celular completo (DR67)", () => {
+  function dialog(props: Partial<ComponentProps<typeof PreaperturaDialog>>) {
+    return renderToStaticMarkup(
+      createElement(PreaperturaDialog, { labelledBy: "t", ...props } as ComponentProps<typeof PreaperturaDialog>, createElement("h1", { id: "t" }, "Hola")),
+    );
+  }
+
+  it("por defecto es una hoja inferior con manija", () => {
+    const html = dialog({});
+    expect(html).toContain("data-dialog-handle");
+    expect(html).not.toContain("pre-full");
+    expect(html).not.toContain("min-[1100px]:gap-5");
+  });
+
+  it("con `fullOnMobile` ocupa la pantalla en celular y no tiene manija", () => {
+    const html = dialog({ fullOnMobile: true });
+    expect(html).toContain("pre-full");
+    expect(html).toContain("items-stretch");
+    expect(html).not.toContain("data-dialog-handle");
+  });
+
+  it("con `asideBeside` la caja y la lateral van en fila desde 1100 px", () => {
+    expect(dialog({ asideBeside: true })).toContain("min-[1100px]:gap-5");
   });
 });

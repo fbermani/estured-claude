@@ -34,8 +34,10 @@ const SIZES = {
  * (`process.env.NODE_ENV === "development"`): si se pasa `onDevClose`, se dibuja el botón visible «Cerrar (solo dev)» arriba del
  * popup para ocultarlo y revisar la landing blureada sin blur. Next elimina esa rama del build de producción.
  *
- * `aside` se renderiza dentro del diálogo pero fuera de su caja (p. ej. la tarjeta de fundadoras fija abajo a la derecha), así
- * queda dentro del orden de tabulación y del árbol accesible.
+ * `aside` se renderiza dentro del diálogo pero fuera de su caja (p. ej. la tarjeta lateral de fundadoras), así queda dentro del
+ * orden de tabulación y del árbol accesible. Con `asideBeside`, desde 1100 px la caja y la lateral van en fila, centradas y
+ * separadas 20 px (600 + 20 + 340 + márgenes). Con `fullOnMobile`, debajo de 640 px el popup ocupa toda la pantalla, sin manija
+ * (con aviso de cookies deja su espacio arriba: `.pre-full` en `preapertura.css`).
  */
 export function PreaperturaDialog({
   labelledBy,
@@ -44,6 +46,8 @@ export function PreaperturaDialog({
   initialFocus,
   onDevClose,
   aside,
+  asideBeside = false,
+  fullOnMobile = false,
   children,
 }: {
   labelledBy: string;
@@ -54,6 +58,8 @@ export function PreaperturaDialog({
   /** Solo se usa en desarrollo: nunca existe un cierre en producción. */
   onDevClose?: () => void;
   aside?: ReactNode;
+  asideBeside?: boolean;
+  fullOnMobile?: boolean;
   children: ReactNode;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -134,27 +140,36 @@ export function PreaperturaDialog({
     <div
       ref={wrapperRef}
       onKeyDown={onKeyDown}
-      className="pointer-events-none fixed inset-0 z-[60] flex items-end justify-center p-2.5 sm:items-center sm:p-12"
+      className={`pointer-events-none fixed inset-0 z-[60] flex justify-center sm:items-center sm:p-12 ${
+        fullOnMobile ? "pre-full items-stretch" : "items-end p-2.5"
+      } ${asideBeside ? "min-[1100px]:gap-5" : ""}`}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}
-        className={`animate-dialog-center pointer-events-auto relative w-full max-h-[calc(100dvh-92px)] sm:max-h-[calc(100dvh-96px)] ${SIZES[size]}`}
+        className={`animate-dialog-center pointer-events-auto relative w-full sm:max-h-[calc(100dvh-96px)] ${
+          fullOnMobile ? "h-full sm:h-auto" : "max-h-[calc(100dvh-92px)]"
+        } ${SIZES[size]}`}
       >
         {devClose && (
           <button
             type="button"
             onClick={onDevClose}
-            className="absolute -top-12 right-0 inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]"
+            className={`${fullOnMobile ? "right-3 top-3 sm:-top-12 sm:right-0" : "-top-12 right-0"} absolute z-10 inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]`}
           >
             <Icon name="close" className="text-lg" />
             Cerrar (solo dev)
           </button>
         )}
-        <div data-dialog-scroll className="@container max-h-[inherit] overflow-y-auto overscroll-contain rounded-card bg-paper shadow-float">
-          <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-11 rounded-full bg-field-border/50 sm:hidden" />
+        <div
+          data-dialog-scroll
+          className={`@container overflow-y-auto overscroll-contain bg-paper shadow-float sm:max-h-[inherit] sm:rounded-card ${
+            fullOnMobile ? "h-full sm:h-auto" : "max-h-[inherit] rounded-card"
+          }`}
+        >
+          {!fullOnMobile && <div data-dialog-handle aria-hidden="true" className="mx-auto mt-2 h-1.5 w-11 rounded-full bg-field-border/50 sm:hidden" />}
           {children}
         </div>
       </div>

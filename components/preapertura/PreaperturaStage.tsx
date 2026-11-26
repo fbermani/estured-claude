@@ -46,6 +46,8 @@ export function PreaperturaStage({
   size,
   initialFocus,
   aside,
+  asideBeside,
+  fullOnMobile,
   previewLabel,
 }: {
   preview: ReactNode;
@@ -55,6 +57,10 @@ export function PreaperturaStage({
   size?: "sm" | "entry" | "md" | "mid" | "lugar" | "form" | "wide" | "lg";
   initialFocus?: string;
   aside?: ReactNode;
+  /** La lateral va al lado de la caja desde 1100 px (ver `PreaperturaDialog`). */
+  asideBeside?: boolean;
+  /** En celular el popup ocupa toda la pantalla (ver `PreaperturaDialog`). */
+  fullOnMobile?: boolean;
   /** Etiqueta fija arriba a la izquierda del fondo blureado. Sin valor, no se muestra. */
   previewLabel?: string;
 }) {
@@ -112,6 +118,8 @@ export function PreaperturaStage({
               : undefined
           }
           aside={aside}
+          asideBeside={asideBeside}
+          fullOnMobile={fullOnMobile}
         >
           {children}
         </PreaperturaDialog>
