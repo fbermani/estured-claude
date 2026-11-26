@@ -1,6 +1,7 @@
 import { BackNav } from "@/components/preapertura/BackNav";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { LegalLinks } from "@/components/preapertura/LegalLinks";
 import { Countdown } from "@/components/preapertura/Countdown";
 import { FounderMeter } from "@/components/preapertura/FounderMeter";
 import { FOUNDER_CAPACITY, type FounderClosure, type FounderState, type StudentCounter } from "@/lib/preapertura/rules";
@@ -127,6 +128,7 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
             Recibís tu cuenta
           </span>
         </p>
+        <LegalLinks className="-mb-3" />
       </div>
     </div>
   );

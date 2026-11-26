@@ -6,6 +6,10 @@
 
 - [ ] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
 - [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
+- [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (en `staging`; falta publicar).
+- [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), 10 perfiles de ejemplo (`EXAMPLE_PROFILES`, tests del carrusel), «Gratis. Sin tarjeta.», perfil obligatorio.
+- [ ] **Dueño:** confirmar las 4 residencias fundadoras y cargarlas por `/register/residence`.
+- [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
 - [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
 - [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
 - [ ] **Antes de enviar WhatsApp:** Privacidad, `lib/legal/termsText.ts`, `docs/21`, versión de consentimiento.

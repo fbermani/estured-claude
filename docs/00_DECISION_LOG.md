@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-25 (DR67: WhatsApp, Google, registro sin contraseña, número desde 11 y popup). Anterior: 2026-11-14 (DR48: la residencia abre documentos de residentes y solicitantes con pago habilitado, con registro; DR42–DR47: preapertura, ver `docs/23_PREAPERTURA.md`; DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-25 (DR67: WhatsApp, Google, registro sin contraseña, número desde 11, popup, 15 fundadoras y perfil obligatorio). Anterior: 2026-11-14 (DR48: la residencia abre documentos de residentes y solicitantes con pago habilitado, con registro; DR42–DR47: preapertura, ver `docs/23_PREAPERTURA.md`; DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -1938,7 +1938,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Archivos que reflejan DR66:** `docs/04` §5.8, §8.8 y §8.10; `docs/06` §8.x (`preferred_payment_method`), §12.1 y §13.2; `docs/07` §16.8, §16.10 y §17.9b; `docs/08` §4.5/§6.5 y §6.7; `docs/NEXT_STEPS.md`; `docs/PLAN_SALIDA_PRODUCCION.md`; `db/migrations/0110_payment_reopen_cap_and_escalation.sql`.
 
-### DR67: WhatsApp, Google, registro sin contraseña, número de registro y popup de preapertura (2026-11-25, sin implementar)
+### DR67: WhatsApp, Google, registro sin contraseña, número de registro y popup de preapertura (2026-11-25, implementado en parte: ver (i))
 
 **Fuente:** decisiones del dueño del 2026-11-25. Protocolo `docs/13` §5: doc primero, código después. Reemplaza DR26. Modifica DR43 (paso 1 y número) y `docs/23` §3.
 
@@ -1949,8 +1949,12 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR67 (c) | **Paso 1 sin contraseña.** Email obligatorio. El servidor genera una contraseña interna aleatoria. La persona define la suya con un enlace. El popup ya no muestra «¿Ya te sumaste? Ingresá». El aviso «Ya hay una cuenta con ese email» ofrece mandar un enlace. |
 | DR67 (d) | **Número de registro.** Aparece solo después de registrarse. Empieza en 11 y nadie recibe del 1 al 10. Se guarda fijo en cada fila (secuencia), no se recalcula. Texto: «Tu número de registro». Se quitan «persona en sumarse», «Es solo el orden en que te sumaste» y el «#N si terminás ahora» del paso 1. El contador público de estudiantes sigue siendo real. Supuesto reversible: solo los estudiantes reciben número. |
 | DR67 (e) | **Popup.** Título: «Muy pronto: encontrá y reservá tu residencia en Buenos Aires, con la seguridad de elegir bien.». «Enterate primero» destacado. «Acceso anticipado abierto» más visible, animado solo con `transform` y `opacity`. «Soy familiar» pasa al paso 1. En celular, la tarjeta de fundadoras se ve sin desplazarse y el carrusel baja. **Propuesta pendiente de aprobar con el mockup:** tres beneficios en vez de «Sumarte es gratis», botón «Quiero enterarme primero», «1 minuto · Gratis», y tarjeta de fundadoras con los beneficios de DR46. |
+| DR67 (f) | **15 lugares de fundadora** (modifica DR46.1). El medidor sigue mostrando solo altas reales; no se muestran ocupados lugares sin alta. El dueño pidió mostrar 4 ocupados: rige cuando esas 4 estén cargadas. Pendiente de confirmación. |
+| DR67 (g) | **Perfil obligatorio** (modifica DR43.4). «Completar mi perfil» es la acción principal tras el registro; se quita «Lo completo después». Supuesto reversible: obligatorios nombre, país, universidad, carrera, mes de ingreso y tipo de habitación; opcionales hábitos, intereses y comunidad (consentimiento). |
+| DR67 (h) | **Carrusel:** 10 perfiles de ejemplo, sin el rótulo de sección «Ejemplos ilustrativos». Cada tarjeta ficticia conserva «Ejemplo» (DR44.3). El contador de estudiantes sigue desde 25 registrados reales. |
+| DR67 (i) | **Popup:** microcopy «Gratis. Sin tarjeta.» (reemplaza «1 minuto · Gratis»). Se quita la etiqueta «Así se va a ver EstuRed» (también en fundadoras). Términos y Privacidad al pie de ambos popups. La etiqueta de «Mi lugar» sigue. **Implementado:** etiqueta y enlaces. El resto, sin código. |
 
 **Pendientes del dueño:** número de WhatsApp y cuenta de Meta; plantillas; cliente OAuth de Google (dev y prod).
 **Pendiente antes de enviar WhatsApp:** Privacidad (teléfono, Meta como encargado), `lib/legal/termsText.ts` (hoy dice que WhatsApp no es canal), `docs/21` y versión de consentimiento.
-**Reversión:** DR67 es solo documental hasta implementarse.
+**Reversión:** (i) vuelve restaurando la etiqueta en `BlurredPreview` y quitando `LegalLinks`. El resto de DR67 sigue sin código.
 

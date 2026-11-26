@@ -24,7 +24,6 @@ export default async function SolicitudResidenciaPage({ searchParams }: { search
   return (
     <PreaperturaStage
       preview={<ResidencesBackdrop />}
-      previewLabel="Así se va a ver EstuRed para residencias"
       labelledBy="pre-resi-title"
       size="mid"
       initialFocus="#rr-residence_name"

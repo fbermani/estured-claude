@@ -9,7 +9,7 @@ import { DEV_SCREENS, devPrepareHref, isCurrentDevScreen } from "@/lib/preapertu
  * «Pantallas (dev)»: navegador flotante para recorrer TODAS las pantallas del flujo de preapertura en orden, sin completar datos. SOLO
  * existe en desarrollo: el layout lo importa dentro de una rama `NODE_ENV === "development"` que el build de producción elimina.
  * Cada enlace pasa por `/dev-preapertura/preparar`, que deja la sesión que la pantalla necesita (cuenta de prueba, o sin sesión).
- * Va arriba a la izquierda, debajo del Navbar real del fondo y de la etiqueta «Así se va a ver»: no tapa el CTA de fundadoras ni el selector «Simular usuario».
+ * Va arriba a la izquierda, debajo del Navbar real del fondo y de la etiqueta del fondo: no tapa el CTA de fundadoras ni el selector «Simular usuario».
  */
 export function DevScreenNav() {
   const [open, setOpen] = useState(false);

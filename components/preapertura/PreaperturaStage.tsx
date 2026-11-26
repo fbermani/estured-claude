@@ -55,7 +55,7 @@ export function PreaperturaStage({
   size?: "sm" | "entry" | "md" | "mid" | "lugar" | "form" | "wide" | "lg";
   initialFocus?: string;
   aside?: ReactNode;
-  /** Etiqueta fija arriba a la izquierda del fondo blureado (por defecto «Así se va a ver EstuRed»). */
+  /** Etiqueta fija arriba a la izquierda del fondo blureado. Sin valor, no se muestra. */
   previewLabel?: string;
 }) {
   const pathname = usePathname();

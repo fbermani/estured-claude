@@ -23,7 +23,6 @@ export default async function FundadorasPage() {
   return (
     <PreaperturaStage
       preview={<ResidencesBackdrop />}
-      previewLabel="Así se va a ver EstuRed para residencias"
       labelledBy="pre-fund-title"
       describedBy="pre-fund-text"
       size="mid"

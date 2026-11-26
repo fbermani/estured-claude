@@ -8,6 +8,7 @@ import { FreeBadge } from "@/components/preapertura/FreeBadge";
 import { LiveCount } from "@/components/preapertura/LiveCount";
 import { MiniCommunityRail } from "@/components/preapertura/MiniCommunityRail";
 import { FounderCta } from "@/components/preapertura/FounderCta";
+import { LegalLinks } from "@/components/preapertura/LegalLinks";
 import { getCommunityRail } from "@/lib/preapertura/communityRailData";
 import type { FounderClosure, FounderState, StudentCounter } from "@/lib/preapertura/rules";
 
@@ -74,6 +75,8 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
       <div className="mt-4">
         <FounderCta state={founders} closure={closure} variant="modal" />
       </div>
+
+      <LegalLinks className="-mb-3 mt-2" />
     </div>
   );
 }
