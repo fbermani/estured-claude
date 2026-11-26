@@ -8,7 +8,7 @@ Fuentes: `docs/23_PREAPERTURA.md`, `design-proposals/voz-y-tono/GUIA_DE_VOZ.md`,
 |---|---|
 | 1. Identidad | Reabierta en lo visual (2026-11-25): brand kit en validación (`BRAND_KIT.md`) |
 | 2. Bio y perfil | Cerrada (hay una propuesta de segundo link) |
-| 3. Historias destacadas | Seis cerradas; historias en validación (`HISTORIAS_DESTACADAS.md`) |
+| 3. Historias destacadas | Cerrada (2026-11-25): seis destacadas y 29 historias (`HISTORIAS_DESTACADAS.md`) |
 | 4. Posteos | Cerrada (2026-11-25): 12 piezas aprobadas (`GUIONES_Y_POSTS.md`); producción en `PRODUCCION.md` |
 | 5. Éxito desde el día 1 (hashtags, interacción, métricas, lanzamiento, automatización) | En validación |
 

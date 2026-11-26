@@ -52,7 +52,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 ### Etapa 2 — Instagram
 
 - [ ] Cuenta profesional, bio, destacadas y la tanda base de 12 piezas publicada (`marketing/instagram/ESTRATEGIA_INSTAGRAM.md` §2–§4). Meta Ads arranca **después** de las 12 piezas.
-  - Aprobado 2026-11-25: 12 piezas (3 fijadas) y 29 historias de destacadas (en validación). Producción: una pieza por chat (`marketing/instagram/PRODUCCION.md`). Publicar cuando el link de la bio abra el popup en producción.
+  - Aprobado 2026-11-25: 12 piezas (3 fijadas) y 29 historias de destacadas. Producción: una pieza por chat (`marketing/instagram/PRODUCCION.md`). Publicar cuando el link de la bio abra el popup en producción.
   - Pendiente de medición: `/guias` no captura UTM ni carga el pixel (solo `app/(preapertura)/layout.tsx`). Resolver antes de medir links a guías.
 - [ ] Regla vigente: ningún post nombra residencias ni muestra precios.
 - [ ] Enlace de la bio al dominio con UTM propio.

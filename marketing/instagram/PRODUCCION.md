@@ -52,7 +52,7 @@ No uses el agente ilustrador ni personajes.
 | 1 | P1 | Carrusel familias. Crea la plantilla de carrusel | CAP | Pendiente |
 | 2 | P2 | Carrusel estudiantes | CAP | Pendiente |
 | 3 | P3 | Carrusel residencias | CAP | Pendiente |
-| 4 | HL | 6 portadas y 29 historias (`HISTORIAS_DESTACADAS.md`) | CAP, validar historias | Pendiente |
+| 4 | HL | 6 portadas y 29 historias (`HISTORIAS_DESTACADAS.md`) | CAP | Pendiente |
 | 5 | P4 | Reel filtros. Crea la plantilla de reel y define la voz | CAP | Pendiente |
 | 6 | P5 | Carrusel verificación | CAP | Pendiente |
 | 7 | P6 | Reel consultas repetidas | P4 | Pendiente |

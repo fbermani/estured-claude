@@ -1,6 +1,6 @@
 # Historias de las destacadas
 
-Documento vivo, 2026-11-25. Estado: en validación.
+Documento vivo, 2026-11-25. Estado: 29 historias aprobadas.
 Reglas: `GUIONES_Y_POSTS.md` §1. Diseño: `BRAND_KIT.md`. Capturas K01 a K19: `GUIONES_Y_POSTS.md` §7.
 
 ## 1. Reglas
