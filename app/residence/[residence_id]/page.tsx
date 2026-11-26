@@ -602,7 +602,7 @@ export default async function ResidenceOverviewPage({
                           {formatShortName(app.student_profiles?.first_name, app.student_profiles?.last_initial)}
                         </Link>
                         <p className="-mt-2 text-sm text-ink-soft">
-                          {app.room_types?.name ?? "—"}, solicitó el {formatDate(app.created_at)}
+                          {app.room_types?.name ?? "—"}, envió su solicitud el {formatDate(app.created_at)}
                         </p>
                         {stayLabel(app) && <p className="text-xs text-ink-faint">{stayLabel(app)}</p>}
                       </div>
@@ -620,7 +620,7 @@ export default async function ResidenceOverviewPage({
                   <tr>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estudiante</th>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Habitación</th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Solicitada</th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Enviada</th>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Ingreso y duración</th>
                     <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider">Estado</th>
                   </tr>

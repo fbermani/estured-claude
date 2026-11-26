@@ -45,7 +45,7 @@ export async function activateFromWaitlist(
     return { ok: false, error: "Esta entrada ya no está activa." };
   }
   if (!entry.room_type_id) {
-    return { ok: false, error: "Esta entrada no tiene un tipo de habitación elegido — solicitá directamente desde la ficha de la residencia." };
+    return { ok: false, error: "Esta entrada no tiene un tipo de habitación elegido — enviá tu solicitud de reserva desde la ficha de la residencia." };
   }
 
   const { count: activeCount } = await admin

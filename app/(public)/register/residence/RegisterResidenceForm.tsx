@@ -311,7 +311,7 @@ export function RegisterResidenceForm({ variant = "default", devSuccess }: { var
           No creás una cuenta ahora: el equipo de EstuRed se pone en contacto para conocer tu residencia. Los precios y las fotos se completan más adelante.
         </p>
       )}
-      <SubmitButton idle={pre ? "Quiero que me contacten" : "Solicitar sumar mi residencia"} pending="Enviando…" isPending={isPending} />
+      <SubmitButton idle={pre ? "Quiero que me contacten" : "Sumar mi residencia"} pending="Enviando…" isPending={isPending} />
       <DevEmptyHint what="una solicitud de prueba" />
     </form>
   );

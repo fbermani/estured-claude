@@ -105,7 +105,7 @@ export default async function ResidenceRenewalsPage({
                       {RESIDENCE_OFFER_STATUS_COPY[latestOffer.status]?.label ?? latestOffer.status}
                     </Badge>
                   ) : pendingRequest ? (
-                    <Badge tone="amber">Solicitó renovación</Badge>
+                    <Badge tone="amber">Pidió renovación</Badge>
                   ) : (
                     <Badge tone="neutral">Sin oferta</Badge>
                   )}

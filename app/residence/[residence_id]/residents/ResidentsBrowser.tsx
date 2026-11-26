@@ -506,7 +506,7 @@ function DetailPanel({
                 {!row.renewal.reservationConfirmed ? null : row.renewal.statusLabel ? (
                   <Badge tone={row.renewal.statusTone}>{row.renewal.statusLabel}</Badge>
                 ) : row.renewal.studentRequested ? (
-                  <Badge tone="amber">Solicitó renovación</Badge>
+                  <Badge tone="amber">Pidió renovación</Badge>
                 ) : (
                   <Badge tone="neutral">Sin oferta</Badge>
                 )}

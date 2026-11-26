@@ -85,7 +85,7 @@ export async function createApplicationRequest(
       return {
         status: "error",
         message:
-          "Sos menor de edad: necesitás un familiar vinculado con teléfono cargado para poder solicitar.",
+          "Sos menor de edad: necesitás un familiar vinculado con teléfono cargado para poder enviar tu solicitud de reserva.",
       };
     }
     contactTarget = "family_member";
@@ -93,7 +93,7 @@ export async function createApplicationRequest(
   } else {
     const { data: appUser } = await admin.from("users").select("phone").eq("id", sessionUser.id).single();
     if (!appUser?.phone) {
-      return { status: "error", message: "Necesitás tener un teléfono cargado para poder solicitar." };
+      return { status: "error", message: "Necesitás tener un teléfono cargado para poder enviar tu solicitud de reserva." };
     }
   }
 
@@ -125,7 +125,7 @@ export async function createApplicationRequest(
     .eq("id", residenceId)
     .maybeSingle();
   if (!residence || residence.status !== "verified_active") {
-    return { status: "error", message: "Esta residencia ya no está disponible para solicitar." };
+    return { status: "error", message: "Ya no se pueden enviar solicitudes de reserva a esta residencia." };
   }
 
   // DR14: el reglamento se acepta al enviar (checkbox obligatorio) y contra la versión vigente que el estudiante vio. Nunca toca los estados.

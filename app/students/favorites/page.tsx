@@ -144,7 +144,7 @@ export default async function StudentFavoritesPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-ink">Favoritos</h1>
-          <p className="mt-1 text-sm text-ink-soft">Residencias guardadas para comparar antes de solicitar.</p>
+          <p className="mt-1 text-sm text-ink-soft">Residencias guardadas para comparar antes de enviar tu solicitud de reserva.</p>
         </div>
         <Button href="/search" variant="outline" size="sm">
           Explorar residencias

@@ -102,7 +102,7 @@ export function StayChangeCancelModal({
               <p id={descId} className="mt-1 text-sm leading-relaxed text-ink-soft">
                 {withdrawLabel
                   ? `Todavía no se lo enviamos a ${residenceName}. Tu reserva sigue igual.`
-                  : `Le avisamos a ${residenceName} que dejaste de buscar. Tu reserva sigue igual y vuelve el límite de fechas: solo vas a poder solicitar para después del ${contractEndLabel}.`}
+                  : `Le avisamos a ${residenceName} que dejaste de buscar. Tu reserva sigue igual y vuelve el límite de fechas: solo vas a poder enviar solicitudes de reserva para después del ${contractEndLabel}.`}
               </p>
             </header>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-6">

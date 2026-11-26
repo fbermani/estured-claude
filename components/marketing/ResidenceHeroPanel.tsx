@@ -21,7 +21,7 @@ const mini = "whitespace-nowrap rounded-full border-[1.5px] border-line-2 bg-whi
 
 /**
  * Hero de /for-residences (propuesta b): réplica en HTML/CSS del panel real de la residencia («Para hacer hoy»,
- * Renovaciones, Residentes, menú «Preguntas» con contador) más la tarjeta «Quién solicita» con hábitos de
+ * Renovaciones, Residentes, menú «Preguntas» con contador) más la tarjeta «Quién quiere reservar» con hábitos de
  * convivencia. Datos de ejemplo y nombres ficticios, rotulados. Decorativo y estático: una sola imagen para
  * lectores de pantalla. Server Component, sin movimiento.
  */
@@ -29,7 +29,7 @@ export function ResidenceHeroPanel() {
   return (
     <div
       role="img"
-      aria-label="Vista de ejemplo del panel de una residencia: solicitudes nuevas, renovaciones, residentes, lista de espera y preguntas; y la tarjeta Quién solicita con los hábitos de convivencia. Datos de ejemplo."
+      aria-label="Vista de ejemplo del panel de una residencia: solicitudes nuevas, renovaciones, residentes, lista de espera y preguntas; y la tarjeta Quién quiere reservar con los hábitos de convivencia. Datos de ejemplo."
       className="relative mx-auto w-full max-w-xl lg:max-w-none"
     >
       <div className="overflow-hidden rounded-[18px] border border-white/10 bg-cream text-ink shadow-[0_18px_50px_rgb(0_0_0/.35)]">
@@ -117,7 +117,7 @@ export function ResidenceHeroPanel() {
         <div className="mb-2 flex items-center gap-[9px]">
           <span className="flex size-[34px] items-center justify-center rounded-full bg-forest-tint text-[13px] font-bold text-forest-700">M</span>
           <div>
-            <span className="text-xs font-bold text-ink-faint">Quién solicita</span>
+            <span className="text-xs font-bold text-ink-faint">Quién quiere reservar</span>
             <br />
             <b className="text-[13.5px]">María José R.</b>
           </div>

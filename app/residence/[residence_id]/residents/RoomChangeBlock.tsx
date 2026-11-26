@@ -145,7 +145,7 @@ function PreferenceForm({
 }
 
 /**
- * «Cambio de habitación» dentro de «Habitación y cama» de la ficha del residente (DR34). Opción «Solicita cambio de habitación» + la
+ * «Cambio de habitación» dentro de «Habitación y cama» de la ficha del residente (DR34). Opción «Pide cambio de habitación» + la
  * preferencia (tipo, género, piso / nota libre), que además sirve de filtro en la lista de residentes. Estados: pendiente → en gestión →
  * resuelta / cancelada. No cobra nada ni promete disponibilidad.
  */
@@ -239,7 +239,7 @@ export function RoomChangeBlock({
             <span aria-hidden className={`flex h-4 w-7 items-center rounded-full px-0.5 transition-colors ${adding ? "bg-forest" : "bg-line-2"}`}>
               <span className={`h-3 w-3 rounded-full bg-white transition-transform ${adding ? "translate-x-3" : ""}`} />
             </span>
-            Solicita cambio de habitación
+            Pide cambio de habitación
           </button>
           {adding && (
             <PreferenceForm

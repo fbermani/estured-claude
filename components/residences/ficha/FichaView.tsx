@@ -559,7 +559,7 @@ export async function FichaView({
           {chapter("tarifas") && (
             <Chapter chapter={chapter("tarifas")!}>
               <p className="-mt-2 mb-5 text-sm text-ink-soft">
-                Precios mensuales por tipo de habitación, visibles para todos. La disponibilidad la informa la residencia por tipo.
+                Precios mensuales por tipo de habitación, visibles para todos.
               </p>
               <div className="space-y-5">
                 <RequestNotices

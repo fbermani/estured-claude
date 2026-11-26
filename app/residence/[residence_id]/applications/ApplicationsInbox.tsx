@@ -383,7 +383,7 @@ function ApplicationDetail({
           <dd className="font-medium text-ink">{app.initialDurationMonths} meses</dd>
         </div>
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">
-          <dt className="text-ink-faint">{app.priceAgreed ? "Tarifa acordada" : "Tarifa solicitada"}</dt>
+          <dt className="text-ink-faint">{app.priceAgreed ? "Tarifa acordada" : "Tarifa pedida"}</dt>
           <dd className="font-medium text-ink">{app.priceUsd !== null ? formatUsd(app.priceUsd) : "—"}</dd>
         </div>
         <div className="flex justify-between border-b border-sand-200 pb-2 sm:col-span-1">

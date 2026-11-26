@@ -49,7 +49,7 @@ export function RequestNotices({
           <p className="flex items-start gap-2">
             <Icon name="swap_horiz" className="mt-0.5 shrink-0 text-base" />
             <span>
-              <strong>Estás buscando cambiar de residencia;</strong> tu residencia actual fue avisada. Podés solicitar para cualquier fecha,
+              <strong>Estás buscando cambiar de residencia;</strong> tu residencia actual fue avisada. Podés enviar tu solicitud de reserva para cualquier fecha,
               aunque se superponga con tu estadía.
             </span>
           </p>
@@ -94,7 +94,7 @@ export function RequestNotices({
       )}
       {notUpdated && (
         <p className={box}>
-          La residencia no actualizó su disponibilidad. Podés enviar la solicitud igual: te confirma si hay lugar.
+          La residencia no actualizó su disponibilidad. Podés enviar tu solicitud de reserva igual, pero no te asegura el lugar.
         </p>
       )}
       {mode === "family" && (

@@ -103,7 +103,7 @@ export function getNextStep(input: {
           description: `${
             hadPreviousApplications
               ? "Tus solicitudes anteriores ya se cerraron. Podés buscar y enviar una nueva cuando quieras."
-              : "Podés buscar y solicitar ya, sin costo."
+              : "Podés buscar y enviar tu solicitud de reserva ya, sin costo."
           } Completar tu perfil es opcional: ayuda a que las residencias te conozcan mejor.`,
         }
       : {}),

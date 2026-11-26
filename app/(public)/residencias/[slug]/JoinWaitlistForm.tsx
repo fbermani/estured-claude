@@ -48,10 +48,10 @@ export function JoinWaitlistForm({
   if (chosenType) {
     scopeMessage =
       chosenType.state === "available"
-        ? `${chosenType.name} tiene disponibilidad informada: podés solicitarla sin esperar.`
+        ? `${chosenType.name} tiene disponibilidad informada: podés enviar tu solicitud de reserva sin esperar.`
         : chosenType.state === "full"
           ? `${chosenType.name}: completa por ahora.${othersText}`
-          : `${chosenType.name}: sin lugar para solicitar por ahora.${othersText}`;
+          : `${chosenType.name}: sin lugar para nuevas solicitudes de reserva por ahora.${othersText}`;
   } else {
     scopeMessage = `Elegí un tipo para ver su estado, o sumate a la espera de cualquiera.${othersText}`;
   }

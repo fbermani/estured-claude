@@ -49,7 +49,7 @@ function Chips({ title, items }: { title: string; items: string[] }) {
 }
 
 /**
- * "Quién solicita" (D32, Ciclo 51): perfil académico + intereses de quien
+ * "Quién quiere reservar" (D32, Ciclo 51): perfil académico + intereses de quien
  * pide el lugar, tal como lo armó `buildApplicantProfile` en el servidor.
  * Solo lectura: acá no se calcula ninguna regla de privacidad, solo se
  * muestra lo que ya llegó filtrado (menor / interruptores de visibilidad).
@@ -76,7 +76,7 @@ export function ApplicantProfileBlock({
         <ApplicantAvatar initial={applicant.avatarInitial} className="h-11 w-11 text-base" />
         <div className="min-w-0">
           <h3 id="applicant-title" className="text-xs font-bold uppercase tracking-widest text-muted">
-            Quién solicita
+            Quién quiere reservar
           </h3>
           <p className="truncate text-base font-bold text-ink">{applicant.displayName}</p>
         </div>

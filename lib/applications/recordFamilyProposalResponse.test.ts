@@ -178,7 +178,7 @@ describe.skipIf(!hasCreds)("recordFamilyProposalResponse (integración)", () => 
       academicObjective: "Estudiar Ingeniería en la UTN, sede Buenos Aires.",
     });
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toMatch(/^Ya tenés una reserva hasta \d{2}\/\d{2}\/\d{4}\. Podés solicitar para fechas posteriores\.$/);
+    if (!result.ok) expect(result.error).toMatch(/^Ya tenés una reserva hasta \d{2}\/\d{2}\/\d{4}\. Podés enviar tu solicitud de reserva para fechas posteriores\.$/);
 
     const { data: unchanged } = await admin.from("family_application_proposals").select("status").eq("id", proposalId).single();
     expect(unchanged!.status).toBe("pending_student_approval");

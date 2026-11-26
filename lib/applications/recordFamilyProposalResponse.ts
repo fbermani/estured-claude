@@ -109,7 +109,7 @@ export async function recordFamilyProposalResponse(
     return { ok: false, error: "El vínculo con tu familiar ya no está activo." };
   }
   if (!familyMember?.phone) {
-    return { ok: false, error: "Tu familiar necesita tener un teléfono cargado para poder solicitar." };
+    return { ok: false, error: "Tu familiar necesita tener un teléfono cargado para poder enviar la solicitud de reserva." };
   }
 
   const { count: activeCount } = await admin

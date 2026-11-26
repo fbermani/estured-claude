@@ -110,7 +110,7 @@ function Shortcut({
 
 const WHAT_HAPPENS = [
   { icon: "event_upcoming", title: "Tu residencia se entera con tiempo", text: "Recibe tu fecha estimada de salida y tu mensaje, si querés dejarlo." },
-  { icon: "travel_explore", title: "Buscás sin esperar al fin del contrato", text: "Solicitá y sumate a listas de espera aunque las fechas se superpongan con tu estadía." },
+  { icon: "travel_explore", title: "Buscás sin esperar al fin del contrato", text: "Enviá solicitudes de reserva y sumate a listas de espera aunque las fechas se superpongan con tu estadía." },
   { icon: "request_quote", title: "Conocés los costos de salida antes de decidir", text: "Tu residencia te informa por escrito depósito, preaviso y entrega." },
 ];
 
@@ -253,8 +253,8 @@ export function StayChangeCard(props: StayChangeCardProps) {
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
               Le avisaste a {residenceName} el {formatDateOnly(arDateOf(active.createdAt))}. Salida estimada:{" "}
-              <strong className="text-ink">{active.estimatedExitDate ? formatDateOnly(active.estimatedExitDate) : "sin definir"}</strong>. Ya podés solicitar y
-              sumarte a listas de espera aunque las fechas se superpongan con tu estadía.
+              <strong className="text-ink">{active.estimatedExitDate ? formatDateOnly(active.estimatedExitDate) : "sin definir"}</strong>. Ya podés enviar solicitudes de reserva
+              y anotarte en listas de espera aunque las fechas se superpongan con tu estadía.
             </p>
             {now.getTime() - new Date(active.createdAt).getTime() < 120_000 && (
               <p role="status" className="mt-3 flex items-start gap-2 rounded-field bg-success-bg px-3.5 py-2.5 text-sm font-semibold text-success-fg">

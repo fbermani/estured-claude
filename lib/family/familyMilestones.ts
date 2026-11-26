@@ -68,7 +68,7 @@ export async function notifyFamilyApplicationMilestone(
       },
       expired_no_payment: {
         title: `La solicitud de ${studentName} a ${residenceName} venció sin pago`,
-        body: `No se registró el pago a la residencia dentro del plazo de 48 h. ${studentName} puede volver a solicitar; la disponibilidad se confirma con la residencia.`,
+        body: `No se registró el pago a la residencia dentro del plazo de 48 h. ${studentName} puede volver a enviar su solicitud de reserva; la disponibilidad se confirma con la residencia.`,
       },
     };
     await notifyLinkedFamily(admin, ctx.studentProfileId, {

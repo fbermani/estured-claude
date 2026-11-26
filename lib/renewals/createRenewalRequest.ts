@@ -38,7 +38,7 @@ export async function createRenewalRequest(
     .maybeSingle();
   if (!reservation) return { ok: false, error: "No encontramos esa reserva." };
   if (reservation.status !== "confirmed") {
-    return { ok: false, error: "Solo se puede solicitar renovación de una reserva confirmada." };
+    return { ok: false, error: "Solo se puede pedir renovación de una reserva confirmada." };
   }
 
   const { data: studentProfile } = await admin

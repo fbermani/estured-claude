@@ -242,7 +242,7 @@ describe("createApplicationFromRoomType: residencia no publicada (SEG14-02)", ()
   it.each(["paused_by_admin", "draft", "suspended"])("residencia en estado %s: no crea solicitud ni snapshot", async (status) => {
     const { admin, inserts } = fakeAdmin({ status, adjustment_policy: "quarterly" });
     const result = await createApplicationFromRoomType(admin, params);
-    expect(result).toEqual({ error: "Esta residencia ya no está disponible para solicitar." });
+    expect(result).toEqual({ error: "Ya no se pueden enviar solicitudes de reserva a esta residencia." });
     expect(inserts.application_snapshots).toBeUndefined();
     expect(inserts.application_requests).toBeUndefined();
   });

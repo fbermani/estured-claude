@@ -116,7 +116,7 @@ export async function createStayChangeIntent(
     await createNotification(admin, {
       userId: params.actorUserId,
       title: "Avisaste que buscás un cambio",
-      body: `Le avisamos a ${ctx.currentResidenceName} que buscás un cambio. Ya podés solicitar con fechas que se superponen. Tu reserva sigue igual y la baja de tu estadía la registra tu residencia. ${UNPAID_DISCLAIMER}`,
+      body: `Le avisamos a ${ctx.currentResidenceName} que buscás un cambio. Ya podés enviar solicitudes de reserva con fechas que se superponen. Tu reserva sigue igual y la baja de tu estadía la registra tu residencia. ${UNPAID_DISCLAIMER}`,
       ...entity,
     });
     for (const userId of familyUserIds) {

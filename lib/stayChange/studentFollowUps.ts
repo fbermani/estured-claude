@@ -142,7 +142,7 @@ export async function confirmStayChangeIntentByFamily(
       category: "requests_reservations",
       userId: student.user_id as string,
       title: "Tu familiar confirmó tu aviso de cambio",
-      body: "Le avisamos a tu residencia actual. Ya podés solicitar con fechas que se superponen. Tu reserva sigue igual.",
+      body: "Le avisamos a tu residencia actual. Ya podés enviar solicitudes de reserva con fechas que se superponen. Tu reserva sigue igual.",
       ...entity,
     });
   }

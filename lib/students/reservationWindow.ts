@@ -44,7 +44,7 @@ export type ReservationWindowNotice = {
    * "Quiero cambiar" abierto (DR3): puede pedir cualquier fecha, aunque se superponga.
    */
   minRequestStartDate: string | null;
-  /** "Ya tenés una reserva hasta 20/01/2027. Podés solicitar para fechas posteriores." */
+  /** "Ya tenés una reserva hasta 20/01/2027. Podés enviar tu solicitud de reserva para fechas posteriores." */
   message: string;
   /** Fin formateado "DD/MM/AAAA". */
   endDateLabel: string;
@@ -85,7 +85,7 @@ export function reservationWindowMessage(window: ReservationWindow, audience: "s
   if (audience === "family") {
     return `Este estudiante ya tiene una reserva hasta ${formatDateOnly(window.endDate)}. Podés proponer para fechas posteriores.`;
   }
-  return `Ya tenés una reserva hasta ${formatDateOnly(window.endDate)}. Podés solicitar para fechas posteriores.`;
+  return `Ya tenés una reserva hasta ${formatDateOnly(window.endDate)}. Podés enviar tu solicitud de reserva para fechas posteriores.`;
 }
 
 /**
@@ -101,7 +101,7 @@ export function describeReservationWindow(
     return {
       minRequestStartDate: null,
       message:
-        "Estás buscando cambiar de residencia; tu residencia actual fue avisada. Podés solicitar para cualquier fecha, aunque se superponga con tu estadía.",
+        "Estás buscando cambiar de residencia; tu residencia actual fue avisada. Podés enviar tu solicitud de reserva para cualquier fecha, aunque se superponga con tu estadía.",
       endDateLabel: formatDateOnly(window.endDate),
       stayChangeOpen: true,
     };

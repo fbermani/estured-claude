@@ -21,7 +21,7 @@ export default async function RegisterFamilyPage() {
           Acompañá a tu estudiante en su búsqueda
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
-          Creá tu cuenta y solicitá vincularte. El estudiante tiene que aprobar el vínculo antes
+          Creá tu cuenta y pedí vincularte. El estudiante tiene que aprobar el vínculo antes
           de que puedas ver su búsqueda.
         </p>
       </div>

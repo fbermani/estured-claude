@@ -54,7 +54,7 @@ describe("textos y fecha mínima (puro)", () => {
     expect(minRequestStartDate(null)).toBeNull();
   });
   it("mensajes en voseo, fecha DD/MM/AAAA sin correr el día", () => {
-    expect(reservationWindowMessage(WINDOW)).toBe("Ya tenés una reserva hasta 20/01/2027. Podés solicitar para fechas posteriores.");
+    expect(reservationWindowMessage(WINDOW)).toBe("Ya tenés una reserva hasta 20/01/2027. Podés enviar tu solicitud de reserva para fechas posteriores.");
     expect(reservationWindowMessage(WINDOW, "family")).toBe(
       "Este estudiante ya tiene una reserva hasta 20/01/2027. Podés proponer para fechas posteriores.",
     );
@@ -63,7 +63,7 @@ describe("textos y fecha mínima (puro)", () => {
     expect(describeReservationWindow(null)).toBeNull();
     expect(describeReservationWindow(WINDOW)).toEqual({
       minRequestStartDate: "2027-01-20",
-      message: "Ya tenés una reserva hasta 20/01/2027. Podés solicitar para fechas posteriores.",
+      message: "Ya tenés una reserva hasta 20/01/2027. Podés enviar tu solicitud de reserva para fechas posteriores.",
       endDateLabel: "20/01/2027",
       stayChangeOpen: false,
     });
@@ -261,7 +261,7 @@ describe.skipIf(!hasCreds)("reserva vigente: superposición, lista de espera y f
       durationMonths: 3,
     });
     expect(blocked.ok).toBe(false);
-    if (!blocked.ok) expect(blocked.error).toMatch(/^Ya tenés una reserva hasta \d{2}\/\d{2}\/\d{4}\. Podés solicitar para fechas posteriores\.$/);
+    if (!blocked.ok) expect(blocked.error).toMatch(/^Ya tenés una reserva hasta \d{2}\/\d{2}\/\d{4}\. Podés enviar tu solicitud de reserva para fechas posteriores\.$/);
 
     // El mismo día del fin del período ya se puede.
     expect(

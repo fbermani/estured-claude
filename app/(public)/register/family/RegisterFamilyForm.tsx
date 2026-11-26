@@ -90,7 +90,7 @@ export function RegisterFamilyForm() {
 
         <TurnstileWidget resetKey={state} />
         <Button type="submit" size="lg" disabled={isPending}>
-          {isPending ? "Creando tu cuenta…" : "Crear cuenta y solicitar vínculo"}
+          {isPending ? "Creando tu cuenta…" : "Crear cuenta y pedir el vínculo"}
         </Button>
       </form>
     </Card>

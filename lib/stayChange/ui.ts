@@ -16,7 +16,7 @@ export function buildStayChangeSteps(uiKey: StayChangeUiKey, hasResponse = false
   const labels = {
     notice: "Avisaste a tu residencia",
     response: "Tu residencia responde",
-    search: "Buscás y solicitás",
+    search: "Buscás y enviás solicitudes",
     confirm: "Confirmás tu nuevo lugar",
   };
   const make = (states: [StepState, StepState, StepState, StepState], responded = false): StayChangeStep[] => [

@@ -657,7 +657,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
               <div>
                 <p className="font-bold text-ink">{renewalStatus ? renewalStatus.label : "¿Se acerca el fin de tu estadía?"}</p>
                 <p className="text-sm text-ink-soft">
-                  {renewalStatus ? "Revisá el estado de tu renovación." : "Solicitá tu renovación, sin plazos mínimos de anticipación."}
+                  {renewalStatus ? "Revisá el estado de tu renovación." : "Pedí tu renovación, sin plazos mínimos de anticipación."}
                 </p>
               </div>
             </div>

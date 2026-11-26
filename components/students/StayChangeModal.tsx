@@ -118,7 +118,7 @@ export function StayChangeModal({
             />
             {pastContract && (
               <p id={dateWarnId} className="-mt-3 rounded-field bg-info-bg px-3.5 py-2.5 text-xs leading-relaxed text-info-fg">
-                Esa fecha es posterior al fin de tu contrato ({contractEndLabel}). No hace falta avisar para mudarte después: ya podés solicitar para esas fechas.
+                Esa fecha es posterior al fin de tu contrato ({contractEndLabel}). No hace falta avisar para mudarte después: ya podés enviar tu solicitud de reserva para esas fechas.
               </p>
             )}
 

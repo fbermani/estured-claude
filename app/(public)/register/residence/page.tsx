@@ -14,7 +14,7 @@ export default async function RegisterResidencePage() {
     <div className="mx-auto max-w-xl px-4 py-14 sm:py-20">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-ink">
-          Solicitá sumar tu residencia
+          Sumá tu residencia
         </h1>
         <p className="mt-2 text-sm text-ink-soft">
           Dejanos los datos principales. El equipo de EstuRed te contacta para
