@@ -13,8 +13,8 @@
 - [ ] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
 - [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
 - [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (en `staging`; falta publicar).
-- [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), 10 perfiles de ejemplo (`EXAMPLE_PROFILES`, tests del carrusel), «Gratis. Sin tarjeta.», perfil obligatorio.
-- [ ] **Dueño:** confirmar las 4 residencias fundadoras y cargarlas por `/register/residence`.
+- [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), carrusel DR67 (h): 5 perfiles más en `EXAMPLE_PROFILES`; `CommunityCard` sin cinta ni punteado y más grande; título según `hasExamples` en `EntryContent`; ajustar `UrgencyPanel`, `MiLugarContent` y `aria-label`; tests del carrusel, «Gratis. Sin tarjeta.», perfil obligatorio.
+- [ ] **Dueño:** cargar las 4 residencias fundadoras en `estured.com/fundadoras/datos` (avisadas antes: reciben un mail). Las propias no.
 - [ ] **Bloque A, familiares:** «Completar mi perfil» es solo de estudiantes (`saveProfile` rechaza familiares). La pantalla del familiar muestra el estado de la invitación.
 - [ ] **Bloque A, celulares bajos:** tras implementar, medir en `staging` que el botón de fundadoras se vea sin desplazarse (375×600).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
