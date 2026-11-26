@@ -411,6 +411,8 @@ Este modal debe mostrarse:
 - En el resumen de solicitud al ver el monto estimado en ARS.
 - En cualquier pantalla donde se muestre conversión de USD a ARS.
 
+> **DR72 (2026-11-26):** la cotización queda fija al enviar la solicitud de reserva. La última oración del texto citado queda sin vigencia. El texto se reemplaza cuando el dueño apruebe el nuevo.
+
 ### 13.4. Reglas del snapshot
 
 - La cotización mostrada en el modal es la del día (actualizada diariamente desde monedapi.ar).
@@ -2000,7 +2002,9 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR70 (a) | «Pago recibido» muestra el monto acordado, sin editar. La residencia elige la moneda y confirma. Aplica a solicitudes y renovaciones. |
 | DR70 (b) | Si el monto no coincide, la residencia no confirma y abre un caso de Soporte. |
 
-**Bloqueado antes de escribir código:** (1) §13.3 dice que el valor final en pesos se fija al pagar; un monto fijo en pesos choca con esa regla. (2) Falta aprobar el texto de «el monto no coincide».
+**Bloqueado antes de escribir código:** falta aprobar el texto de «el monto no coincide». El choque con §13.3 lo resolvió DR72.
+
+**Hueco en renovaciones:** el monto acordado (`expected_amount_usd`/`ars`) se guarda solo para solicitudes (`enableResidencePayment`). La oferta de renovación no define cuánto se paga a la residencia. Hay que decidirlo antes de aplicar DR70 (a) a renovaciones.
 
 
 ### DR71: ajustes del popup de preapertura (2026-11-26)
@@ -2013,3 +2017,16 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR71 (b) | **Celular:** la entrada vuelve a verse como popup sobre la página blureada, con margen y bordes redondeados. |
 | DR71 (c) | **Tarjeta de fundadoras del popup:** etiqueta, pregunta y cupo centrados. |
 | DR71 (d) | **`/fundadoras`:** título «Menos mensajes repetidos, mejor gestión.» y debajo «Sin costo para tu residencia.». El botón «Quiero que me contacten» va después del encabezado. La insignia y el Plan Premium pasan a la lista de beneficios. |
+
+### DR72: la cotización en pesos queda fija al enviar la solicitud de reserva (2026-11-26, textos pendientes)
+
+**Fuente:** decisión del dueño. Reemplaza la regla «al momento del pago» de §13.3 y de `docs/03` §8.1 y §8.5 (3).
+
+| # | Decisión |
+|---|---|
+| DR72 (a) | La cotización del snapshot queda fija al enviar la solicitud de reserva. En la propuesta del familiar, al aprobarla el estudiante. Vale para el pago de la reserva y el fee. La propuesta de ajuste no la cambia (§13.4). |
+| DR72 (b) | La residencia asume la variación del dólar entre el envío y el cobro. |
+| DR72 (c) | Supuesto reversible (`docs/13` §4): en renovaciones, la cotización queda fija cuando la residencia crea la oferta. Es el comportamiento actual. |
+| DR72 (d) | Supuesto reversible (`docs/13` §4): los pagos posteriores los acuerda cada residencia con cada estudiante (DR63 (b)). Esta regla no los alcanza. |
+
+**Estado:** el código ya calcula así el pago de la reserva (`resolveExpectedAmounts`). Falta aprobar y cambiar el aviso de §13.3 (`ExchangeRateNote`) y sus frases cortas, `/terms` §10 y §16 (versión nueva) y `docs/01`, `02`, `03`, `07`, `08`, `10`, `17`, `20` y `21`.
