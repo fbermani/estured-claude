@@ -45,6 +45,9 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - [ ] **Medición.** Pixel de Meta y eventos: `PageView`, preregistro completado (estudiante y familiar), solicitud de fundadora. Verificar el dominio en el Business Manager. Cargar el pixel con consentimiento y sin enviar datos personales en claro. **[Yo]** el código; **[Vos]** las cuentas de Meta.
   - Código listo (2026-11-22); falta `NEXT_PUBLIC_META_PIXEL_ID` en Production y verificar dominio en Meta **[Vos]**.
   - Aviso de cookies hecho (2026-11-22); el pixel carga solo con consentimiento.
+  - Visto en `estured.com` el 2026-11-26: sin ID no hay aviso, `fbq` ni orígenes de Meta en la CSP (esperado).
+  - Contradicción de cookies en `/privacy` corregida en `staging` (aprobada el 2026-11-26). **Antes de cargar el ID:** pasarla a `main`.
+  - Dueño (2026-11-26): dominio, Instagram con Página de Facebook y `hola@` listos. Falta elegir portfolio y crear la cuenta publicitaria propia de EstuRed.
 - [ ] **Medición sin Meta:** parámetros UTM guardados con cada preregistro, para saber qué pieza trae a quién.
 - [ ] **Secuencia de nutrición** para los preregistrados (mails 1 a 3 en las primeras semanas): confirmación, qué pasa ahora, contenido útil de las guías. Sin promesas de disponibilidad ni de match. Un lead sin contacto en semanas se enfría.
 - [ ] **Estado real de la preapertura en `MEMORY.md`** con los contadores en cero y la fecha de cierre de fundadoras decidida (A5).

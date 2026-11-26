@@ -163,7 +163,7 @@ export function PreaperturaPrivacyBody() {
         escribiendo a {mail}. Respondemos pedidos de acceso en 10 días corridos y de corrección o borrado en 5 días hábiles.
       </p>
       <h3 className={h3}>Cookies</h3>
-      <p>Usamos solo las cookies necesarias para que inicies sesión.</p>
+      <p>Usamos cookies necesarias y de campaña. Las de Meta, solo si aceptás.</p>
       <h3 className={h3}>Cambios</h3>
       <p>Si cambiamos esta política, te avisamos por mail antes de que rija.</p>
       <p className="border-t border-line pt-3 text-sm text-ink-soft">
