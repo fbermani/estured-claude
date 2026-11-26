@@ -19,6 +19,7 @@ Mockup **aprobado** el 2026-11-26. **Bloque A hecho** (2026-11-26, plan `docs/su
 - [ ] **Dueño:** cargar las 4 residencias fundadoras en `estured.com/fundadoras/datos` (avisadas antes: reciben un mail). Las propias no.
 - [ ] **Dueño, vetar o confirmar:** carreras de los ficticios (Diego y Sofía «Medicina», Mateo «Economía»); cartel de «Mi lugar»; texto nuevo de los Términos y si sube la versión de consentimiento.
 - [ ] Menores de la revisión: el retiro de la comunidad pasa por el tope de 60 guardados por hora; `recordCommunityConsent` y `loadMiLugar` no registran sus errores; `SIZES.lugar` y `profilePercent` sin uso.
+- [ ] Menores visuales: en escritorio el aviso de cookies tapa 9 px de la banda; la deriva del carrusel va más rápido con muchos perfiles reales; los `text-*` sobre `<Icon>` no cambian el tamaño en la app.
 - [ ] Anterior al bloque: `lib/support/support.test.ts` falla (los avisos a admins comparten `related_entity_id` y el test usa `maybeSingle`).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
 - [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.

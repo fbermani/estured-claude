@@ -325,7 +325,8 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 - [x] **Publicado el 2026-11-26:** `463f165` (imagen de la vista previa del link, y cartel y enlaces legales del popup). Deploy `dpl_2cQGqUh9QwcUfg7RhiSpuoNZbD62` en `gru1`. Verificado: `og:image` en `estured.com` (`/`, `/preregistro`, `/for-residences`, `/guias`, una guía, `/nosotros`, `/terms`) e imagen 200 `image/png` de 28 KB. Sin fichas de residencia en prod.
 - [ ] **WhatsApp [Vos]:** mandar `https://estured.com/?v=2`: debe salir la imagen grande.
-- [ ] **Popup nuevo (DR67, bloque A), en `staging`.** Antes de pasarlo a `main`:
+- [ ] **Popup nuevo (DR67, bloque A), en `staging`.** Verificado el 2026-11-26 en `5480bae`: botón de fundadoras visible en celular (también con aviso de cookies, de 360×600 a 390×844), tarjeta al costado desde 1100 px, sin scroll horizontal a 320 px, y número, perfil y «Mi lugar» con una cuenta de prueba. Antes de pasarlo a `main`:
+  - [ ] **[Vos]** Hacer un alta real en `estured.vercel.app/preregistro` (el formulario tiene Turnstile; no se automatizó) y confirmar que termina en «Mi lugar» con número.
   - [ ] **[Vos] Migración 0111** en prod: pegar `db/migrations/0111_preapertura_registration_number.sql` en el [SQL Editor](https://supabase.com/dashboard/project/hioscbefryufsbypsmtx/sql/new). Numera desde 11 a los estudiantes ya registrados. El código funciona sin ella (no muestra número). Quien se registre antes de aplicarla recibe número al aplicarla.
   - [ ] **[Vos]** Confirmar que existe Instagram `@estured.residencias` (la pantalla final lo enlaza).
   - [ ] **[Vos]** Revisar el cambio en los Términos de la preapertura (`/terms`, `/consentimientos`): ya no nombran el rótulo «Ejemplo», hablan del número de registro y el retiro es «desde tu perfil». No cambié `PREAPERTURA_CONSENT_VERSION` ni la fecha en `lib/legal/versions.ts`: decidilo.
