@@ -2,6 +2,17 @@
 
 # EstuRed — Próximos pasos
 
+## Textos públicos y reglas (DR68–DR70, 2026-11-26)
+
+- [x] Textos de páginas públicas, ficha, registro y paneles en `staging`.
+- [x] Bloqueo desde el día 45 sin actualizar (DR69), con tests. Sin probar en pantalla.
+- [ ] **Dueño:** definir la regla de pesos (`docs/00` §13.3 vs. monto fijo, DR70).
+- [ ] **Dueño:** aprobar el aviso «el monto no coincide» (DR70).
+- [ ] Apertura: 2,5 s, una vez por visita y toque para saltear (DR68 h). Esperar a que termine la sesión que la diagnostica.
+- [ ] Recordatorio a la residencia antes del día 45 (`GAPS.md`).
+- [ ] Capturas `public/landing/proceso-*.webp` y captura de la ficha completa.
+- [ ] «Al solicitar» en `/terms`, `docs/20` y `docs/21` (exige versionar el texto legal).
+
 ## Apertura con el sello (2026-11-26)
 
 - Hecho: `SealIntro` en `staging` (`4427347`). Verificado en staging al cerrar el popup (dev), en computadora y a 375 px.
