@@ -10,21 +10,21 @@
 
 ## Rediseño del popup (DR67, 2026-11-25)
 
-Mockup **aprobado** el 2026-11-26. Plan del bloque A: `docs/superpowers/plans/2026-11-26-popup-preapertura-bloque-a.md` (pendiente de que el dueño dé el arranque).
+Mockup **aprobado** el 2026-11-26. **Bloque A hecho** (2026-11-26, plan `docs/superpowers/plans/2026-11-26-popup-preapertura-bloque-a.md`). Falta publicarlo en producción.
 
 - [x] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
-- [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
 - [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (publicado el 2026-11-26).
-- [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), carrusel DR67 (h): 5 perfiles más en `EXAMPLE_PROFILES`; `CommunityCard` sin cinta ni punteado y más grande; título según `hasExamples` en `EntryContent`; ajustar `UrgencyPanel`, `MiLugarContent` y `aria-label`; tests del carrusel, «Gratis. Sin tarjeta.», perfil obligatorio.
+- [x] **Bloque A:** popup nuevo, 15 fundadoras, número fijo desde 11 (0111, aplicada en dev), perfil obligatorio, 10 perfiles ficticios, registro con selector estudiante o familiar y pantalla «Registro listo».
+- [ ] **Dueño, antes de producción:** autorizar `main`, aplicar 0111 y confirmar que existe `@estured.residencias`.
 - [ ] **Dueño:** cargar las 4 residencias fundadoras en `estured.com/fundadoras/datos` (avisadas antes: reciben un mail). Las propias no.
-- [ ] **Bloque A, familiares:** «Completar mi perfil» es solo de estudiantes (`saveProfile` rechaza familiares). La pantalla del familiar muestra el estado de la invitación.
-- [ ] **Bloque A, celulares bajos:** tras implementar, medir en `staging` que el botón de fundadoras se vea sin desplazarse (375×600).
-- [ ] **Bloque A, computadoras bajas:** con las fichas grandes, compactar el popup con `max-height: 830px` (como en el mockup).
+- [ ] **Dueño, vetar o confirmar:** carreras de los ficticios (Diego y Sofía «Medicina», Mateo «Economía»); cartel de «Mi lugar»; texto nuevo de los Términos y si sube la versión de consentimiento.
+- [ ] Menores de la revisión: el retiro de la comunidad pasa por el tope de 60 guardados por hora; `recordCommunityConsent` y `loadMiLugar` no registran sus errores; `SIZES.lugar` y `profilePercent` sin uso.
+- [ ] Anterior al bloque: `lib/support/support.test.ts` falla (los avisos a admins comparten `related_entity_id` y el test usa `maybeSingle`).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
 - [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
 - [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
 - [ ] **Antes de enviar WhatsApp:** Privacidad, `lib/legal/termsText.ts`, `docs/21`, versión de consentimiento.
-- [ ] **Dueño:** cliente OAuth de Google (dev y prod), número de WhatsApp, confirmar que existe `@estured.residencias`.
+- [ ] **Dueño:** cliente OAuth de Google (dev y prod) y número de WhatsApp.
 
 ## Seguridad — kit de 25 controles (2026-11-25)
 

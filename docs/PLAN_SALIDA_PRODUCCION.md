@@ -55,7 +55,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
   - Aprobado 2026-11-25: 12 piezas (3 fijadas) y 29 historias de destacadas. Producción: una pieza por chat (`marketing/instagram/PRODUCCION.md`). Publicar cuando el link de la bio abra el popup en producción.
   - Pendiente de medición: `/guias` no captura UTM ni carga el pixel (solo `app/(preapertura)/layout.tsx`). Resolver antes de medir links a guías.
 - [ ] Regla vigente: ningún post nombra residencias ni muestra precios.
-- [ ] Enlace de la bio al dominio con UTM propio.
+- [ ] Enlace de la bio: `estured.com`, sin UTM (decisión del dueño, 2026-11-26; las altas por la bio no se miden).
 - [ ] Rutina de interacción diaria (§5.2). Es la actividad que no se negocia: primero Instagram, después la app.
 
 ### Etapa 3 — Producción mínima
@@ -325,6 +325,11 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 - [x] **Publicado el 2026-11-26:** `463f165` (imagen de la vista previa del link, y cartel y enlaces legales del popup). Deploy `dpl_2cQGqUh9QwcUfg7RhiSpuoNZbD62` en `gru1`. Verificado: `og:image` en `estured.com` (`/`, `/preregistro`, `/for-residences`, `/guias`, una guía, `/nosotros`, `/terms`) e imagen 200 `image/png` de 28 KB. Sin fichas de residencia en prod.
 - [ ] **WhatsApp [Vos]:** mandar `https://estured.com/?v=2`: debe salir la imagen grande.
+- [ ] **Popup nuevo (DR67, bloque A), en `staging`.** Antes de pasarlo a `main`:
+  - [ ] **[Vos] Migración 0111** en prod: pegar `db/migrations/0111_preapertura_registration_number.sql` en el [SQL Editor](https://supabase.com/dashboard/project/hioscbefryufsbypsmtx/sql/new). Numera desde 11 a los estudiantes ya registrados. El código funciona sin ella (no muestra número). Quien se registre antes de aplicarla recibe número al aplicarla.
+  - [ ] **[Vos]** Confirmar que existe Instagram `@estured.residencias` (la pantalla final lo enlaza).
+  - [ ] **[Vos]** Revisar el cambio en los Términos de la preapertura (`/terms`, `/consentimientos`): ya no nombran el rótulo «Ejemplo», hablan del número de registro y el retiro es «desde tu perfil». No cambié `PREAPERTURA_CONSENT_VERSION` ni la fecha en `lib/legal/versions.ts`: decidilo.
+  - [ ] **[Vos]** Autorizar la publicación en `main`. Sin variables nuevas.
 
 ## G. Post-deploy
 

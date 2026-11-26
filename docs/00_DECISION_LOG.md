@@ -1938,7 +1938,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Archivos que reflejan DR66:** `docs/04` §5.8, §8.8 y §8.10; `docs/06` §8.x (`preferred_payment_method`), §12.1 y §13.2; `docs/07` §16.8, §16.10 y §17.9b; `docs/08` §4.5/§6.5 y §6.7; `docs/NEXT_STEPS.md`; `docs/PLAN_SALIDA_PRODUCCION.md`; `db/migrations/0110_payment_reopen_cap_and_escalation.sql`.
 
-### DR67: WhatsApp, Google, registro sin contraseña, número de registro y popup de preapertura (2026-11-25, implementado en parte: ver (i))
+### DR67: WhatsApp, Google, registro sin contraseña, número de registro y popup de preapertura (2026-11-25, implementado en parte: bloque A)
 
 **Fuente:** decisiones del dueño del 2026-11-25. Protocolo `docs/13` §5: doc primero, código después. Reemplaza DR26. Modifica DR43 (paso 1 y número) y `docs/23` §3.
 
@@ -1952,9 +1952,11 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR67 (f) | **15 lugares de fundadora** (modifica DR46.1). El medidor sigue mostrando solo altas reales. El dueño confirmó (2026-11-25) que existen 4 residencias fundadoras: se cargan por `/fundadoras/datos` y el medidor las cuenta. Si una es propia, no va por ese formulario (contaría como externa, DR46.2). |
 | DR67 (g) | **Perfil obligatorio** (modifica DR43.4). «Completar mi perfil» es la acción principal tras el registro; se quita «Lo completo después». Supuesto reversible: obligatorios nombre, país, universidad, carrera, mes de ingreso y tipo de habitación; opcionales hábitos, intereses y comunidad (consentimiento). |
 | DR67 (h) | **Carrusel** (modifica DR44.3): 10 perfiles ficticios, sin rótulo en la sección ni en las fichas, y sin borde punteado. Mientras haya al menos un ficticio, el título es «Así vas a ver a tus posibles compañeros», sin punto «en vivo». «Se están sumando» vuelve solo cuando todas las fichas sean reales. Fichas más grandes: avatar con bandera, carrera y dos etiquetas. El contador sigue desde 25 registrados reales. |
-| DR67 (i) | **Popup:** microcopy «Gratis. Sin tarjeta.» (reemplaza «1 minuto · Gratis»). Se quita la etiqueta «Así se va a ver EstuRed» (también en fundadoras). Términos y Privacidad al pie de ambos popups. La etiqueta de «Mi lugar» sigue. **Implementado:** etiqueta y enlaces. El resto, sin código. Beneficios del popup (dueño, 2026-11-26): «Residencias verificadas en persona», «Reglas y costos claros», «Conocé la comunidad antes de elegir» (reemplaza «Aviso apenas abramos»). |
+| DR67 (i) | **Popup:** microcopy «Gratis. Sin tarjeta.» (reemplaza «1 minuto · Gratis»). Se quita la etiqueta «Así se va a ver EstuRed» (también en fundadoras). Términos y Privacidad al pie de ambos popups. La etiqueta de «Mi lugar» sigue. **Implementado:** etiqueta, enlaces y, el 2026-11-26, el resto del popup (bloque A). Beneficios del popup (dueño, 2026-11-26): «Residencias verificadas en persona», «Reglas y costos claros», «Conocé la comunidad antes de elegir» (reemplaza «Aviso apenas abramos»). |
 
 **Pendientes del dueño:** número de WhatsApp y cuenta de Meta; plantillas; cliente OAuth de Google (dev y prod).
 **Pendiente antes de enviar WhatsApp:** Privacidad (teléfono, Meta como encargado), `lib/legal/termsText.ts` (hoy dice que WhatsApp no es canal), `docs/21` y versión de consentimiento.
-**Reversión:** (i) vuelve restaurando la etiqueta en `BlurredPreview` y quitando `LegalLinks`. El resto de DR67 sigue sin código.
+**Estado (2026-11-26):** bloque A implementado en `staging`: (d), (e) sin «Soy familiar» en la entrada, (f), (g), (h) e (i). Migración 0111 aplicada en dev; en producción, pendiente. Sin código: (a), (b) y (c).
+**Supuestos reversibles del bloque A:** los ejemplos se apagan con 10 perfiles reales; las fichas muestran 2 etiquetas; con el perfil completo el botón principal es Instagram; en celular el popup ocupa la pantalla; con la convocatoria cerrada no se listan beneficios de fundadora; el retiro de la comunidad se guarda aunque falten datos del perfil.
+**Reversión:** (i) vuelve restaurando la etiqueta en `BlurredPreview` y quitando `LegalLinks`. El bloque A vuelve revirtiendo sus commits; la columna de 0111 puede quedar sin uso.
 
