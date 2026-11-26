@@ -317,9 +317,9 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 ## Publicar cambios después del primer deploy
 1. El cambio se commitea y se sube a `staging`; se aprueba en `estured.vercel.app`.
-2. [Yo] Valido el commit exacto (typecheck, lint, build). Si trae migración: aplicarla en el Supabase de prod **antes** de publicar. Las variables nuevas se cargan en Vercel Production.
+2. [Yo] Listo los archivos de código que cambian y valido el commit exacto (typecheck, lint, build). Si trae migración: aplicarla en el Supabase de prod **antes** de publicar. Las variables nuevas se cargan en Vercel Production.
 3. [Vos] `git push origin <commit validado>:main`. Publica **todo** lo que haya en `staging` hasta ese commit. Los datos de dev no viajan.
-4. Si en `staging` hay algo sin terminar: esperar, o [Yo] armar una rama desde `main` con solo los commits elegidos y validarla aparte.
+4. Si en `staging` hay algo sin terminar: esperar, o [Yo] armar una rama desde `main` con solo los commits elegidos y validarla aparte. Justo después de publicarla, [Yo] mergeo `main` en `staging` y lo pusheo: si no, el próximo push a `main` falla por *non-fast-forward*.
 5. Cada push a `main` crea un deployment nuevo. Rollback en Vercel (*Instant Rollback*; en Hobby solo al anterior). No revierte la base.
 
 ## G. Post-deploy
