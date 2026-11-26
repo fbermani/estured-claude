@@ -34,3 +34,21 @@ describe("loadMiLugar: número de registro (DR67)", () => {
     expect(none).toMatchObject({ role: null, registrationNumber: null });
   });
 });
+
+describe("loadMiLugar: perfil completo (DR67)", () => {
+  const load = (row: Record<string, unknown>) => loadMiLugar(fakeAdmin([{ data: row, error: null }]), "u1");
+
+  it("con los 6 obligatorios está completo, aunque falten hábitos e intereses", async () => {
+    expect((await load(studentRow)).profileComplete).toBe(true);
+  });
+
+  it("«Todavía no sé» cuenta como mes", async () => {
+    expect((await load({ ...studentRow, entry_month: null, entry_unsure: true })).profileComplete).toBe(true);
+  });
+
+  it("si falta cualquiera de los 6, no está completo", async () => {
+    for (const missing of ["first_name", "country", "university", "career", "entry_month", "room_type"]) {
+      expect((await load({ ...studentRow, [missing]: null })).profileComplete, missing).toBe(false);
+    }
+  });
+});

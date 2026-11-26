@@ -77,9 +77,28 @@ describe("nextEntryYear (próxima temporada, DR43.3)", () => {
 describe("validateProfile", () => {
   const adult = { isMinor: false, now: NOW };
 
-  it("todo vacío es válido (paso opcional)", () => {
-    const result = validateProfile({}, adult);
-    expect(result).toMatchObject({ ok: true, value: { firstName: null, habits: [], interests: [], consentComunidad: false, entryUnsure: false } });
+  const complete = { first_name: "Lu", country: "Chile", university: "UBA", career: "Derecho", entry: "3", room_type: "any" };
+
+  it("sin los obligatorios marca cada campo (DR67)", () => {
+    const r = validateProfile({}, adult);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.fieldErrors).toEqual({
+        first_name: "Completá tu nombre.", country: "Elegí tu país.", university: "Escribí tu universidad.",
+        career: "Elegí tu carrera.", entry: "Elegí el mes de ingreso.", room_type: "Elegí el tipo de habitación.",
+      });
+    }
+  });
+
+  it("hábitos, intereses y comunidad son opcionales", () => {
+    expect(validateProfile(complete, adult)).toMatchObject({ ok: true, value: { habits: [], interests: [], consentComunidad: false } });
+  });
+
+  it("un valor inválido conserva su mensaje; «Otra carrera» vacía marca solo el campo de texto", () => {
+    expect(validateProfile({ ...complete, country: "Narnia" }, adult)).toMatchObject({ ok: false, fieldErrors: { country: "Elegí un país de la lista." } });
+    const other = validateProfile({ ...complete, career: "__otra__", career_other: "" }, adult);
+    expect(other.ok).toBe(false);
+    if (!other.ok) expect(Object.keys(other.fieldErrors)).toEqual(["career_other"]);
   });
 
   it("perfil completo con provincia, mes, residencia actual y comunidad", () => {
@@ -121,12 +140,12 @@ describe("validateProfile", () => {
   });
 
   it("la provincia solo cuenta con Argentina", () => {
-    const result = validateProfile({ country: "Uruguay", province: "Salta" }, adult);
+    const result = validateProfile({ ...complete, country: "Uruguay", province: "Salta" }, adult);
     expect(result).toMatchObject({ ok: true, value: { country: "Uruguay", province: null } });
   });
 
   it("«Todavía no sé» no guarda mes ni año", () => {
-    expect(validateProfile({ entry: "unsure" }, adult)).toMatchObject({ ok: true, value: { entryMonth: null, entryYear: null, entryUnsure: true } });
+    expect(validateProfile({ ...complete, entry: "unsure" }, adult)).toMatchObject({ ok: true, value: { entryMonth: null, entryYear: null, entryUnsure: true } });
   });
 
   it("rechaza valores fuera de las listas cerradas", () => {
@@ -140,42 +159,42 @@ describe("validateProfile", () => {
       { habits: ["Madrugo", "Inventado"] },
       { interests: ["Skydiving"] },
     ]) {
-      const result = validateProfile(raw, adult);
+      const result = validateProfile({ ...complete, ...raw }, adult);
       expect(result.ok, JSON.stringify(raw)).toBe(false);
     }
   });
 
   it("máximo 2 hábitos y 2 intereses", () => {
-    const habits = validateProfile({ habits: ["Madrugo", "No fumo", "Hago deporte"] }, adult);
+    const habits = validateProfile({ ...complete, habits: ["Madrugo", "No fumo", "Hago deporte"] }, adult);
     expect(habits).toMatchObject({ ok: false, fieldErrors: { habits: "Elegí hasta 2." } });
-    const interests = validateProfile({ interests: ["Cine", "Series", "Arte"] }, adult);
+    const interests = validateProfile({ ...complete, interests: ["Cine", "Series", "Arte"] }, adult);
     expect(interests).toMatchObject({ ok: false, fieldErrors: { interests: "Elegí hasta 2." } });
   });
 
   it("los repetidos no cuentan dos veces", () => {
-    expect(validateProfile({ habits: ["Madrugo", "Madrugo"] }, adult)).toMatchObject({ ok: true, value: { habits: ["Madrugo"] } });
+    expect(validateProfile({ ...complete, habits: ["Madrugo", "Madrugo"] }, adult)).toMatchObject({ ok: true, value: { habits: ["Madrugo"] } });
   });
 
   it("longitudes y caracteres", () => {
-    expect(validateProfile({ first_name: "A".repeat(61) }, adult).ok).toBe(false);
-    expect(validateProfile({ first_name: "<script>" }, adult).ok).toBe(false);
-    expect(validateProfile({ first_name: "María José" }, adult).ok).toBe(true);
-    expect(validateProfile({ university: "U" }, adult).ok).toBe(false);
-    expect(validateProfile({ university: "x".repeat(121) }, adult).ok).toBe(false);
-    expect(validateProfile({ career: "__otra__", career_other: "" }, adult).ok).toBe(false);
-    expect(validateProfile({ career: "__otra__", career_other: "Ciencias de la Educación" }, adult)).toMatchObject({
+    expect(validateProfile({ ...complete, first_name: "A".repeat(61) }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, first_name: "<script>" }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, first_name: "María José" }, adult).ok).toBe(true);
+    expect(validateProfile({ ...complete, university: "U" }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, university: "x".repeat(121) }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, career: "__otra__", career_other: "" }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, career: "__otra__", career_other: "Ciencias de la Educación" }, adult)).toMatchObject({
       ok: true,
       value: { career: "Ciencias de la Educación" },
     });
   });
 
   it("«¿Ya estás en una residencia?» pide el nombre; con «no» se descarta", () => {
-    expect(validateProfile({ in_residence: "si", current_residence: "" }, adult).ok).toBe(false);
-    expect(validateProfile({ in_residence: "no", current_residence: "Residencia X" }, adult)).toMatchObject({ ok: true, value: { currentResidence: null } });
+    expect(validateProfile({ ...complete, in_residence: "si", current_residence: "" }, adult).ok).toBe(false);
+    expect(validateProfile({ ...complete, in_residence: "no", current_residence: "Residencia X" }, adult)).toMatchObject({ ok: true, value: { currentResidence: null } });
   });
 
-  it("un menor nunca activa la comunidad, aunque mande el casillero", () => {
-    const result = validateProfile({ community: "on" }, { isMinor: true, now: NOW });
+  it("un menor completa el perfil y la comunidad queda apagada, aunque mande el casillero", () => {
+    const result = validateProfile({ ...complete, community: "on" }, { isMinor: true, now: NOW });
     expect(result).toMatchObject({ ok: true, value: { consentComunidad: false } });
   });
 });

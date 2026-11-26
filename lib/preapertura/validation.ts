@@ -137,8 +137,8 @@ export type ProfileRaw = {
 };
 
 /**
- * Valida el paso 2. Todo es opcional («Lo completo después»), pero lo que llega tiene que ser de las listas cerradas o respetar
- * longitudes. `isMinor` viene SIEMPRE de la fecha de nacimiento guardada, nunca del formulario: un menor invitado no puede tildar
+ * Valida el perfil. Nombre, país, universidad, carrera, mes de ingreso (o «todavía no sé») y habitación son obligatorios (DR67);
+ * hábitos, intereses y comunidad, opcionales. Lo que llega tiene que ser de las listas cerradas o respetar longitudes. `isMinor` viene SIEMPRE de la fecha de nacimiento guardada, nunca del formulario: un menor invitado no puede tildar
  * la comunidad (se ignora en silencio: el casillero ya viene deshabilitado).
  */
 export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; now?: Date }): ProfileResult {
@@ -149,14 +149,14 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
   if (nameText) {
     if (nameText.length > 60 || !NAME_RE.test(nameText)) errors.first_name = "Revisá tu nombre: usá solo letras (hasta 60).";
     else firstName = nameText;
-  }
+  } else errors.first_name = "Completá tu nombre.";
 
   const countryText = clean(raw.country);
   let country: string | null = null;
   if (countryText) {
     if (!COUNTRY_OPTIONS.some((c) => c.name === countryText)) errors.country = "Elegí un país de la lista.";
     else country = countryText;
-  }
+  } else errors.country = "Elegí tu país.";
 
   const provinceText = clean(raw.province);
   let province: string | null = null;
@@ -171,7 +171,7 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
     if (universityText.length < 2 || universityText.length > 120 || !FREE_TEXT_RE.test(universityText)) {
       errors.university = "Revisá la universidad: entre 2 y 120 caracteres.";
     } else university = universityText;
-  }
+  } else errors.university = "Escribí tu universidad.";
 
   const careerChoice = clean(raw.career);
   let career: string | null = null;
@@ -182,7 +182,7 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
   } else if (careerChoice) {
     if (!(CAREER_OPTIONS as readonly string[]).includes(careerChoice)) errors.career = "Elegí una carrera de la lista.";
     else career = careerChoice;
-  }
+  } else errors.career = "Elegí tu carrera.";
 
   let entryMonth: number | null = null;
   let entryYear: number | null = null;
@@ -195,7 +195,7 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
       entryMonth = Number(entry);
       entryYear = nextEntryYear(entryMonth, context.now);
     }
-  }
+  } else errors.entry = "Elegí el mes de ingreso.";
 
   const roomText = clean(raw.room_type);
   let roomType: RoomType | null = null;
@@ -203,7 +203,7 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
     const found = ROOM_TYPE_OPTIONS.find((r) => r.value === roomText);
     if (!found) errors.room_type = "Elegí un tipo de habitación de la lista.";
     else roomType = found.value;
-  }
+  } else errors.room_type = "Elegí el tipo de habitación.";
 
   const habits = pickMany(raw.habits ?? [], HABIT_OPTIONS, "tus hábitos", errors, "habits");
   const interests = pickMany(raw.interests ?? [], INTEREST_OPTIONS, "tus intereses", errors, "interests");

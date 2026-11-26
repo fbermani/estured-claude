@@ -10,7 +10,7 @@ import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { devAutoAccountsEnabled, isDevAutoEmail } from "@/lib/preapertura/devAccounts";
 import { ageByBirthDate, isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
 
-export const metadata: Metadata = { title: "Armá tu perfil", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Completá tu perfil", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 type Row = {
@@ -30,7 +30,7 @@ type Row = {
   current_residence: string | null;
 };
 
-/** Paso 2 (opcional). Requiere sesión de estudiante de la preapertura; también sirve para «Editar mi perfil» (parte de lo guardado). */
+/** Perfil del estudiante (obligatorio desde DR67). Requiere sesión de estudiante de la preapertura; también sirve para «Editar mi perfil» (parte de lo guardado). */
 export default async function PerfilPage() {
   const supabase = await getSupabaseServer();
   const user = supabase ? await getSafeUser(supabase) : null;

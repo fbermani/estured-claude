@@ -11,6 +11,7 @@ export function ChoiceChip({
   value,
   checked,
   disabled,
+  required,
   onChange,
   children,
 }: {
@@ -19,6 +20,7 @@ export function ChoiceChip({
   value: string;
   checked: boolean;
   disabled?: boolean;
+  required?: boolean;
   onChange: (checked: boolean) => void;
   children: React.ReactNode;
 }) {
@@ -30,6 +32,7 @@ export function ChoiceChip({
         value={value}
         checked={checked}
         disabled={disabled}
+        required={required}
         onChange={(event) => onChange(event.target.checked)}
         className="peer absolute inset-0 m-0 cursor-pointer opacity-0 disabled:cursor-not-allowed"
       />

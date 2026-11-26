@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { readAttribution } from "@/lib/attribution/server";
@@ -112,8 +113,39 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
   };
 }
 
+/** Aparecer o retirarse de la comunidad pública es un consentimiento: queda registrado cada vez que cambia (DR44.2). */
+async function recordCommunityConsent(admin: SupabaseClient, userId: string, granted: boolean): Promise<void> {
+  const headerStore = await headers();
+  await admin.from("consents").insert({
+    user_id: userId,
+    consent_type: "preapertura_community",
+    version: PREAPERTURA_CONSENT_VERSION,
+    user_agent: headerStore.get("user-agent"),
+    metadata: { granted, source: "preapertura_paso2" },
+  });
+  await createAuditLog(admin, {
+    actorUserId: userId,
+    actorRole: "student",
+    action: granted ? "preapertura_community_enabled" : "preapertura_community_disabled",
+    entityType: "users",
+    entityId: userId,
+  });
+}
+
 /**
- * Paso 2 (opcional): guarda el perfil del estudiante logueado. El `user_id` sale SIEMPRE de la sesión (`getSafeUser`), nunca del
+ * El carrusel público muestra lo que se guardó recién: si alguien destilda la comunidad (o cambia sus datos), tiene que verse al
+ * instante. La etiqueta invalida la caché de datos del carrusel; las rutas, las páginas ya generadas que lo incluyen (`/` y
+ * `/for-students` son reescrituras de `/preapertura`).
+ */
+function refreshCommunityRail(): void {
+  revalidateTag(COMMUNITY_RAIL_TAG);
+  for (const path of ["/preapertura", "/", "/for-students"]) revalidatePath(path);
+}
+
+const PROFILE_SAVE_ERROR = "No pudimos guardar tu perfil. Probá de nuevo. Lo que completaste sigue acá.";
+
+/**
+ * Perfil (obligatorio desde DR67): guarda el del estudiante logueado. El `user_id` sale SIEMPRE de la sesión (`getSafeUser`), nunca del
  * formulario; solo escribe la fila propia con service role. La edad (y por lo tanto si puede activar la comunidad) sale de la fecha
  * de nacimiento guardada. Listas cerradas y longitudes se validan en `validateProfile`.
  */
@@ -135,6 +167,19 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
   if (readError || !row) return { status: "error", message: "No pudimos encontrar tu registro. Probá de nuevo en unos minutos." };
   // El paso 2 es del estudiante: un familiar no tiene perfil de búsqueda.
   if ((row as { role: string }).role !== "student") return { status: "error", message: "Este paso es solo para estudiantes." };
+
+  // El retiro de la comunidad nunca se bloquea (DR44, Ley 25.326): se guarda antes de validar el resto del perfil.
+  const before = Boolean((row as { consent_comunidad: boolean }).consent_comunidad);
+  const withdrawing = before && formData.get("community") !== "on";
+  if (withdrawing) {
+    const { error } = await admin.from("preapertura_estudiantes").update({ consent_comunidad: false }).eq("user_id", user.id);
+    if (error) {
+      console.error("[preapertura] community withdrawal failed:", error.code);
+      return { status: "error", message: PROFILE_SAVE_ERROR };
+    }
+    await recordCommunityConsent(admin, user.id, false);
+    refreshCommunityRail();
+  }
 
   const isMinor = isMinorByBirthDate((row as { birth_date: string | null }).birth_date);
   const result = validateProfile(
@@ -178,7 +223,7 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
     .eq("user_id", user.id);
   if (updateError) {
     console.error("[preapertura] profile update failed:", updateError.code);
-    return { status: "error", message: "No pudimos guardar tu perfil. Probá de nuevo. Lo que completaste sigue acá." };
+    return { status: "error", message: PROFILE_SAVE_ERROR };
   }
 
   // El nombre de pila también va al perfil de estudiante (la columna es obligatoria y hoy está vacía). Mejor esfuerzo.
@@ -186,31 +231,9 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
     await admin.from("student_profiles").update({ first_name: v.firstName }).eq("user_id", user.id);
   }
 
-  // Aparecer o retirarse de la comunidad pública es un consentimiento: queda registrado cada vez que cambia (DR44.2).
-  const before = Boolean((row as { consent_comunidad: boolean }).consent_comunidad);
-  if (before !== v.consentComunidad) {
-    const headerStore = await headers();
-    await admin.from("consents").insert({
-      user_id: user.id,
-      consent_type: "preapertura_community",
-      version: PREAPERTURA_CONSENT_VERSION,
-      user_agent: headerStore.get("user-agent"),
-      metadata: { granted: v.consentComunidad, source: "preapertura_paso2" },
-    });
-    await createAuditLog(admin, {
-      actorUserId: user.id,
-      actorRole: "student",
-      action: v.consentComunidad ? "preapertura_community_enabled" : "preapertura_community_disabled",
-      entityType: "users",
-      entityId: user.id,
-    });
-  }
-
-  // El carrusel público muestra lo que se guardó recién: si alguien destilda la comunidad (o cambia sus datos), tiene que verse al instante.
-  // La etiqueta invalida la caché de datos del carrusel; las rutas, las páginas ya generadas que lo incluyen (`/` y `/for-students` son
-  // reescrituras de `/preapertura`).
-  revalidateTag(COMMUNITY_RAIL_TAG);
-  for (const path of ["/preapertura", "/", "/for-students"]) revalidatePath(path);
+  // El retiro ya quedó registrado arriba: acá solo falta el cambio en el otro sentido.
+  if (!withdrawing && before !== v.consentComunidad) await recordCommunityConsent(admin, user.id, v.consentComunidad);
+  refreshCommunityRail();
 
   return { status: "success", redirectTo: "/mi-lugar" };
 }

@@ -44,6 +44,11 @@ export function profilePercentOf(row: ProfileFields): number {
   });
 }
 
+/** Los 6 datos obligatorios del perfil (DR67). «Todavía no sé» cuenta como mes. */
+export function isProfileComplete(row: ProfileFields): boolean {
+  return Boolean(row.first_name?.trim() && row.country && row.university && row.career && (row.entry_month || row.entry_unsure) && row.room_type);
+}
+
 export type FamilyInvitationView = {
   maskedEmail: string;
   status: "pending" | "linked" | "expired";
@@ -57,6 +62,8 @@ export type MiLugarData = {
   firstName: string | null;
   createdAt: string | null;
   profilePercent: number | null;
+  /** `true` solo en un estudiante con los datos obligatorios cargados. */
+  profileComplete: boolean;
   /** Número fijo desde 11 (DR67). `null` en familiares, cuentas sin fila o sin la migración 0111. */
   registrationNumber: number | null;
   invitation: FamilyInvitationView | null;
@@ -76,7 +83,7 @@ async function loadRow(admin: SupabaseClient, userId: string): Promise<MiLugarRo
 
 export async function loadMiLugar(admin: SupabaseClient, userId: string, now: Date = new Date()): Promise<MiLugarData> {
   const row = await loadRow(admin, userId);
-  if (!row) return { role: null, firstName: null, createdAt: null, profilePercent: null, registrationNumber: null, invitation: null };
+  if (!row) return { role: null, firstName: null, createdAt: null, profilePercent: null, profileComplete: false, registrationNumber: null, invitation: null };
 
   if (row.role === "student") {
     return {
@@ -84,6 +91,7 @@ export async function loadMiLugar(admin: SupabaseClient, userId: string, now: Da
       firstName: firstNameOnly(row.first_name) || null,
       createdAt: row.created_at,
       profilePercent: profilePercentOf(row),
+      profileComplete: isProfileComplete(row),
       registrationNumber: row.registration_number ?? null,
       invitation: null,
     };
@@ -108,5 +116,5 @@ export async function loadMiLugar(admin: SupabaseClient, userId: string, now: Da
       studentFirstName,
     };
   }
-  return { role: "family", firstName: null, createdAt: row.created_at, profilePercent: null, registrationNumber: null, invitation };
+  return { role: "family", firstName: null, createdAt: row.created_at, profilePercent: null, profileComplete: false, registrationNumber: null, invitation };
 }

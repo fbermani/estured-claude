@@ -27,7 +27,7 @@ import {
 import { profileProgress } from "@/lib/preapertura/validation";
 import { ChoiceChip } from "@/components/preapertura/ChoiceChip";
 import { ProfileCardLive, ProfileMeter, SearchCardLive, type PreviewData } from "@/components/preapertura/ProfilePreview";
-import { CheckRow, FormAlert, StepDots, SubmitButton, errorHint, errorProps, useFocusOnError } from "@/components/preapertura/FormParts";
+import { CheckRow, FormAlert, SubmitButton, errorHint, errorProps, useFocusOnError } from "@/components/preapertura/FormParts";
 
 export type ProfileInitial = {
   firstName: string;
@@ -49,7 +49,8 @@ const INITIAL_STATE: ProfileState = { status: "idle" };
 const FIELD_CLASS = "min-h-12 aria-invalid:border-danger-fg";
 
 /**
- * Paso 2 (SPEC pantalla 3, mockup v4): «Armá tu perfil». Todo opcional («Lo completo después»). Las tarjetas «Así te van a ver» y
+ * «Completá tu perfil» (DR67): nombre, país, universidad, carrera, mes de ingreso y habitación son obligatorios; hábitos,
+ * intereses y comunidad, opcionales. Las tarjetas «Así te van a ver» y
  * «Busca residencia» se arman en vivo: a la derecha y fijas en escritorio; en móvil, un resumen fijo arriba que se despliega.
  * La validación real (listas cerradas, longitudes, 2 hábitos y 2 intereses) es la del servidor. Un menor invitado no puede activar
  * la comunidad: el casillero va deshabilitado («Disponible desde los 18 años»).
@@ -127,14 +128,10 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
       <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
         <BackNav href="/mi-lugar">Volver a Mi lugar</BackNav>
         {devAccount && <DevAccountNotice className="mt-1" />}
-        <p className="flex items-center gap-2 text-sm font-bold text-ink-soft">
-          <StepDots step={2} />
-          Paso 2 de 2, tu perfil
-        </p>
-        <h1 id="pre-profile-title" className="mt-3 font-display text-3xl leading-tight tracking-tight text-ink">
-          Armá tu perfil
+        <h1 id="pre-profile-title" className="mt-1 font-display text-3xl leading-tight tracking-tight text-ink">
+          Completá tu perfil
         </h1>
-        <p className="mt-1 text-ink-soft">Un perfil completo te da más oportunidades cuando abramos.</p>
+        <p className="mt-1 text-ink-soft">Lo necesitamos para mostrarte residencias que te sirvan.</p>
 
         {/* Móvil: resumen fijo arriba que se despliega y muestra las dos tarjetas. */}
         <details className="group sticky top-0 z-[3] -mx-5 mt-3 border-b border-line bg-paper px-5 @min-[640px]:-mx-9 @min-[640px]:px-9 @min-[860px]:hidden">
@@ -185,6 +182,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               id="pre-first_name"
               name="first_name"
               label="Nombre"
+              required
               autoComplete="given-name"
               maxLength={60}
               value={name}
@@ -197,6 +195,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               id="pre-country"
               name="country"
               label="¿De dónde sos?"
+              required
               value={country}
               onChange={(event) => {
                 setCountry(event.target.value);
@@ -237,6 +236,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                 id="pre-university"
                 name="university"
                 label="Universidad"
+                required
                 list="pre-unis"
                 placeholder="Ej.: UBA"
                 maxLength={120}
@@ -257,6 +257,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               id="pre-career"
               name="career"
               label="Carrera"
+              required
               value={career}
               onChange={(event) => setCareer(event.target.value)}
               hint={errorHint(errors, "career", "pre")}
@@ -276,6 +277,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                 id="pre-career_other"
                 name="career_other"
                 label="¿Cuál?"
+                required
                 placeholder="Ej.: Ciencias de la Educación"
                 maxLength={120}
                 autoComplete="off"
@@ -290,7 +292,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
 
           <Group legend="¿Cuándo querés entrar?" error={errors?.entry} id="entry">
             {ENTRY_MONTH_OPTIONS.map((o) => (
-              <ChoiceChip key={o.value} type="radio" name="entry" value={o.value} checked={entry === o.value} onChange={() => setEntry(o.value)}>
+              <ChoiceChip key={o.value} type="radio" name="entry" value={o.value} required checked={entry === o.value} onChange={() => setEntry(o.value)}>
                 {o.label}
               </ChoiceChip>
             ))}
@@ -298,11 +300,13 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
 
           <Group legend="Tipo de habitación" error={errors?.room_type} id="room_type">
             {ROOM_TYPE_OPTIONS.map((o) => (
-              <ChoiceChip key={o.value} type="radio" name="room_type" value={o.value} checked={roomType === o.value} onChange={() => setRoomType(o.value)}>
+              <ChoiceChip key={o.value} type="radio" name="room_type" value={o.value} required checked={roomType === o.value} onChange={() => setRoomType(o.value)}>
                 {o.label}
               </ChoiceChip>
             ))}
           </Group>
+
+          <p className="text-sm text-ink-soft">Hábitos, intereses y aparecer en la comunidad son opcionales.</p>
 
           <Group legend="Tus hábitos" hint="Elegí 2" error={errors?.habits} id="habits">
             {HABIT_OPTIONS.map((h) => {
@@ -382,23 +386,17 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
             )}
           </CheckRow>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          <div className="flex">
             <SubmitButton isPending={isPending}
               block={false}
               idle={
                 <>
-                  Terminar
+                  Guardar mi perfil
                   <Icon name="arrow_forward" className="text-xl" />
                 </>
               }
               pending="Guardando…"
             />
-            <Link
-              href="/mi-lugar?perfil=incompleto"
-              className="inline-flex min-h-11 items-center rounded-field px-1 font-bold text-forest-700 underline underline-offset-4 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink"
-            >
-              Lo completo después
-            </Link>
           </div>
         </form>
       </div>

@@ -200,6 +200,62 @@ describe("saveProfile: un menor invitado nunca persiste la comunidad", () => {
   });
 });
 
+describe("saveProfile: el retiro de la comunidad nunca se bloquea (DR44, Ley 25.326)", () => {
+  const META = { ip: null, userAgent: "vitest" } as const;
+
+  /** Estudiante adulto con la comunidad activa y el perfil vacío. */
+  async function publicStudent(tag: string): Promise<string> {
+    const email = emailOf(tag);
+    known.push(email);
+    const created = await createStudentAccount(admin!, { email, password: PASSWORD, birthDate: "2000-05-02", age: 26, isMinor: false, invitation: null, ...META });
+    if (!created.ok) throw new Error(`No se pudo crear la cuenta de prueba: ${created.reason}`);
+    await admin!.from("preapertura_estudiantes").update({ consent_comunidad: true }).eq("user_id", created.userId);
+    sessionUserId = created.userId;
+    return created.userId;
+  }
+  async function communityConsentOf(userId: string): Promise<boolean> {
+    const { data } = await admin!.from("preapertura_estudiantes").select("consent_comunidad").eq("user_id", userId).single();
+    return (data as { consent_comunidad: boolean }).consent_comunidad;
+  }
+  async function consentRecords(userId: string) {
+    const { data } = await admin!.from("consents").select("metadata").eq("user_id", userId).eq("consent_type", "preapertura_community");
+    return (data ?? []) as { metadata: { granted: boolean } }[];
+  }
+
+  it("retirar la comunidad se guarda aunque falten obligatorios, con su registro", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const userId = await publicStudent("retiro");
+    const state = await saveProfile({ status: "idle" }, form({ first_name: "Lu" })); // sin `community`
+    expect(state.status).toBe("error");
+    expect(state).toHaveProperty("fieldErrors.university");
+    expect(await communityConsentOf(userId)).toBe(false);
+    expect((await consentRecords(userId)).map((c) => c.metadata.granted)).toEqual([false]);
+    const { data: audit } = await admin.from("audit_logs").select("id").eq("actor_user_id", userId).eq("action", "preapertura_community_disabled");
+    expect(audit).toHaveLength(1);
+  });
+
+  it("con la casilla tildada y datos faltantes no cambia nada", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const userId = await publicStudent("sigue");
+    const state = await saveProfile({ status: "idle" }, form({ first_name: "Lu", community: "on" }));
+    expect(state.status).toBe("error");
+    expect(await communityConsentOf(userId)).toBe(true);
+    expect(await consentRecords(userId)).toHaveLength(0);
+  });
+
+  it("retirar con el perfil completo registra una sola vez", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const userId = await publicStudent("retiro-completo");
+    const state = await saveProfile(
+      { status: "idle" },
+      form({ first_name: "Lu", country: "Chile", university: "UBA", career: "Derecho", entry: "3", room_type: "any" }),
+    );
+    expect(state.status).toBe("success");
+    expect(await communityConsentOf(userId)).toBe(false);
+    expect(await consentRecords(userId)).toHaveLength(1);
+  });
+});
+
 describe("número de registro (DR67, migración 0111)", () => {
   const META = { ip: null, userAgent: "vitest" } as const;
 
