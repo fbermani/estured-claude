@@ -10,7 +10,7 @@ export function GET() {
   const body = [
     "# EstuRed",
     "",
-    "> EstuRed conecta a estudiantes y familias con residencias estudiantiles de la Ciudad Autónoma de Buenos Aires (CABA) que visita en persona antes de publicarlas. Las solicitudes quedan registradas y sujetas a confirmación de cada residencia; la reserva se confirma con un comprobante verificable. EstuRed es una plataforma intermediaria: no es una residencia ni garantiza disponibilidad.",
+    "> EstuRed conecta a estudiantes y familias con residencias estudiantiles de la Ciudad Autónoma de Buenos Aires (CABA) que visita en persona antes de publicarlas. Las solicitudes quedan registradas y sujetas a confirmación de cada residencia; la reserva se confirma con un comprobante de reserva. EstuRed es una plataforma intermediaria: no es una residencia ni garantiza disponibilidad.",
     "",
     "## Páginas principales",
     `- [Buscar residencias](${SITE_URL}/search): catálogo de residencias publicadas tras la visita presencial, con filtros por barrio, universidad, servicios y precio.`,

@@ -7,7 +7,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { STUDENT_BENEFITS } from "@/components/marketing/BenefitBento";
 import { BenefitCompare } from "@/components/marketing/BenefitCompare";
 import { CommunityPreview } from "@/components/marketing/CommunityPreview";
-import { StepsList } from "@/app/(public)/for-students/StepsList";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { getSessionUser } from "@/lib/auth/session";
 import { FamilyHighlight } from "@/components/marketing/FamilyHighlight";
@@ -18,75 +17,22 @@ import { WhatYouPay } from "@/components/marketing/WhatYouPay";
 export const metadata: Metadata = pageMetadata({
   title: "Para estudiantes y familias",
   description:
-    "Mudarse a CABA con más confianza: residencias verificadas, solicitudes registradas y comprobante de reserva verificable.",
+    "Residencias en CABA visitadas en persona. Mirá comunidad, reglamento y costos antes de enviar tu solicitud de reserva.",
   path: "/for-students",
 });
 
-const steps = [
-  {
-    icon: "search",
-    title: "Creá tu cuenta y buscá",
-    hook: "Filtrá y compará residencias con reglas y comunidad a la vista.",
-    detail: [
-      "Creá tu cuenta, completá tu perfil y buscá tu residencia.",
-      "Completá tu perfil, usá los filtros y mirá reglas, disponibilidad y comunidad de cada residencia para decidir con más información.",
-    ],
-    shot: { src: "/landing/proceso-1-busqueda.webp", alt: "Ejemplo de la búsqueda de residencias con filtros", w: 2280, h: 1480 },
-  },
-  {
-    icon: "edit_note",
-    title: "Enviá tu solicitud",
-    hook: "Gratis y registrada. Si no hay lugar, lista de espera automática.",
-    detail: [
-      "Enviá tu solicitud. Cuanto más completo tu perfil, mejor. Si ese tipo de habitación está completo, ponete en lista de espera y te avisamos automáticamente cuando haya disponibilidad.",
-      "Tu solicitud queda registrada y no depende de conversaciones por WhatsApp que puedan perderse.",
-    ],
-    shot: { src: "/landing/proceso-2-solicitud.webp", alt: "Ejemplo del formulario de solicitud", w: 2240, h: 904 },
-  },
-  {
-    icon: "mark_email_read",
-    title: "La residencia te responde",
-    hook: "Propuesta con valores finales, sin costos ocultos.",
-    detail: [
-      "Si la residencia acepta, te envía la propuesta definitiva y los valores finales para abonar, sin costos ocultos, todo claro y registrado.",
-      "Si te proponen un ajuste, la decisión final siempre es tuya.",
-    ],
-    shot: { src: "/landing/proceso-3-respuesta.webp", alt: "Ejemplo de la propuesta de una residencia", w: 1248, h: 584 },
-  },
-  {
-    icon: "apartment",
-    title: "Le pagás a la residencia",
-    hook: "Lo acordado para reservar; ella confirma que lo recibió.",
-    detail: [
-      "Le pagás a la residencia lo acordado para reservar (por ejemplo, el primer mes o la matrícula) y la residencia confirma que lo recibió.",
-      "La residencia confirma la recepción del pago, así que ese paso también queda con registro.",
-    ],
-    shot: { src: "/landing/proceso-4-pago.webp", alt: "Ejemplo del paso de pago a la residencia", w: 1248, h: 820 },
-  },
-  {
-    icon: "verified",
-    title: "Confirmás y recibís tu comprobante",
-    hook: "Fee de EstuRed del 5%, aparte. Ves el monto exacto antes de pagar.",
-    detail: [
-      "Confirmá tu reserva: abonás el fee de EstuRed (5% de tu estadía inicial) y obtenés tu Comprobante de Reserva Confirmada.",
-      "Ves el monto exacto antes de pagar, y lo podés pagar vos o el familiar que designes. La factura sale a nombre de quien paga y el comprobante tiene un código que cualquiera puede verificar.",
-    ],
-    shot: { src: "/landing/proceso-5-comprobante.webp", alt: "Ejemplo del Comprobante de Reserva Confirmada", w: 1312, h: 960 },
-  },
-];
-
 const faqs = [
   {
-    q: "¿Cuánto cuesta usar EstuRed?",
-    a: "Enviar una solicitud es gratis. Si la reserva avanza, pagás a la residencia lo acordado y a EstuRed un fee del 5% sobre tu estadía inicial, sin contar el depósito. El monto exacto lo ves antes de pagar.",
+    q: "¿Qué requisitos piden las residencias?",
+    a: "Los ves en la ficha y en el reglamento de cada residencia, antes de enviar tu solicitud de reserva.",
   },
   {
-    q: "¿Qué requisitos piden las residencias?",
-    a: "Los requisitos de ingreso los ves en la ficha y en el reglamento de cada residencia, antes de enviar tu solicitud.",
+    q: "¿Qué pasa si no hay lugar?",
+    a: "Podés anotarte en la lista de espera de esa habitación. La residencia puede avisarte si se libera un lugar.",
   },
   {
     q: "¿EstuRed verifica a los estudiantes?",
-    a: "No. EstuRed verifica a las residencias, no a las personas. Vos elegís qué mostrás en tu perfil, y cada residencia revisa las solicitudes que recibe antes de confirmar.",
+    a: "No. Verificamos residencias, no personas. Vos elegís qué mostrás en tu perfil.",
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
@@ -104,30 +50,15 @@ export default async function ForStudentsPage() {
     <>
       <StudentsHero residences={catalog} />
 
-      {/* Beneficios — comparativo «Lo que suele pasar → Con EstuRed» (tabla real) */}
+      {/* Beneficios — comparativo «A ciegas → Con EstuRed» (tabla real) */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <SectionHeader
-          eyebrow="Beneficios"
-          title="Lo que cambia cuando buscás con EstuRed"
-          description="Conocé los requisitos y beneficios de cada residencia sin moverte de tu casa."
-        />
-        <BenefitCompare items={STUDENT_BENEFITS} label="Lo que suele pasar y lo que cambia con EstuRed" />
+        <SectionHeader eyebrow="Beneficios" title="Lo que ves antes de elegir" />
+        <BenefitCompare items={STUDENT_BENEFITS} label="A ciegas y con EstuRed" />
       </section>
 
       <CommunityPreview variant="students" />
 
       <FamilyHighlight />
-
-      <section className="bg-surface border-y border-sand-200">
-        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
-          <SectionHeader
-            eyebrow="Paso a paso"
-            title="Así funciona el proceso"
-            description="Enviar una solicitud es gratis. La residencia revisa tu perfil y confirma si hay lugar."
-          />
-          <StepsList steps={steps} />
-        </div>
-      </section>
 
       <div className="border-b border-sand-200">
         <WhatYouPay />
@@ -171,8 +102,8 @@ export default async function ForStudentsPage() {
             Empezá tu búsqueda con todo a la vista
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink-soft">
-            Buscá entre las residencias verificadas de CABA y enviá tu solicitud.
-            Es gratis.
+            Buscá entre las residencias verificadas de CABA. Enviar tu solicitud
+            de reserva es gratis.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button href="/search" size="lg">

@@ -24,8 +24,8 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
           <span className="sr-only">EstuRed</span>
           <p className="mt-2 max-w-sm text-sm text-white/70">
             La convivencia también se elige. Residencias estudiantiles
-            verificadas en CABA, con solicitudes registradas y comprobantes
-            verificables.
+            verificadas en CABA, con solicitudes registradas y comprobante
+            de reserva.
           </p>
           <ul className="mt-2 space-y-1 text-sm text-white/80">
             {["Residencias verificadas presencialmente", "Solicitudes registradas en la plataforma", "Comprobante de Reserva Confirmada"].map((t) => (

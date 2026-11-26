@@ -82,13 +82,11 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             className="hero-rise max-w-[620px] text-4xl font-bold leading-[1.06] tracking-tight text-white md:text-[52px] md:leading-[1.04]"
             style={style({ "--d": "0.18s" })}
           >
-            Elegí tu residencia en Buenos Aires{" "}
-            <span className="text-orange-light">
-              con todo verificado y por escrito.
-            </span>
+            No elijas tu residencia{" "}
+            <span className="text-orange-light">a ciegas.</span>
           </h1>
           <p className="hero-rise mt-3.5 max-w-[590px] text-[17px] text-white/85 md:mt-5 md:text-[19px]" style={style({ "--d": "0.3s" })}>
-            Un proceso registrado paso a paso y un comprobante de reserva que cualquiera puede consultar online.
+            Mirá la comunidad, el reglamento y los costos antes de enviar tu solicitud de reserva.
           </p>
           <div className="hero-rise mt-[22px] flex flex-col items-stretch gap-1 md:mt-7 md:flex-row md:flex-wrap md:items-center md:gap-3" style={style({ "--d": "0.42s" })}>
             <Button href="/search" size="lg" variant="secondary" className="whitespace-nowrap [--btn-focus:#fff]">
@@ -107,9 +105,6 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
               Crear cuenta de estudiante
             </Link>
           </div>
-          <p className="hero-rise mt-1 text-center text-[13px] text-white/80 md:mt-3.5 md:text-left md:text-[13.5px]" style={style({ "--d": "0.6s" })}>
-            Explorar es gratis · Cada solicitud la confirma la residencia.
-          </p>
         </div>
 
         {/* Collage: fotos reales del catálogo + tarjetas decorativas (en móvil va después de la fila de confianza) */}
@@ -154,7 +149,7 @@ export function StudentsHero({ residences }: { residences: Residence[] }) {
             <br />
             <code className="rounded bg-cream-2 px-1.5 py-px text-xs font-bold tracking-[0.02em] text-ink">ER-XXXX-XXXX</code>
             <br />
-            <span className="text-ink-faint">Cualquiera puede consultarlo</span>
+            <span className="text-ink-faint">Con código y QR propios</span>
           </FloatCard>
         </div>
 

@@ -35,10 +35,17 @@ const pains = [
   },
   {
     icon: "diversity_3",
-    title: "Afinidad de convivencia antes de aceptar",
+    title: "Afinidad de convivencia antes de responder",
     quote: "«Una mala convivencia y se te vacía media habitación.»",
-    text: "Ves intereses y hábitos de cada estudiante antes de decir que sí. Elegís pensando en quién ya vive en esa habitación.",
+    text: "Ves intereses y hábitos de cada estudiante. Pensás en quién ya vive en esa habitación.",
   },
+];
+
+const HERO_CHIPS = [
+  { icon: "fact_check", label: "Solicitudes completas" },
+  { icon: "event_repeat", label: "Lista de espera y renovaciones" },
+  { icon: "payments", label: "Sin comisión sobre tu tarifa" },
+  { icon: "verified", label: "Perfil Verificado gratis" },
 ];
 
 const faqs = [
@@ -53,14 +60,14 @@ const faqs = [
     more: "Todavía no hay precio publicado para el Plan Premium.",
   },
   {
-    q: "¿Quién define precios, condiciones y acepta reservas?",
-    a: "Vos. La residencia define sus precios y condiciones, y decide qué solicitudes acepta.",
+    q: "¿Quién define precios y condiciones?",
+    a: "Tu residencia. También responde cada solicitud de reserva.",
     more: "EstuRed no fija tarifas ni decide por vos.",
   },
   {
     q: "¿Quién cobra matrícula, seña o depósito?",
     a: "Vos, directo al estudiante y según lo que acordaron. EstuRed no interviene en ese cobro.",
-    more: "EstuRed cobra aparte, al estudiante, un fee del 5% sobre la estadía inicial. Nunca sobre el depósito ni se descuenta de lo que te pagan a vos.",
+    more: "EstuRed cobra aparte, al estudiante, un 5% de su estadía inicial. No se descuenta de lo que te pagan.",
   },
   {
     q: "¿Cómo es la verificación?",
@@ -104,15 +111,19 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
               Para residencias estudiantiles
             </p>
             <h1 className="text-4xl font-bold sm:text-5xl">
-              Menos mensajes, más residencia
+              Menos mensajes repetidos, mejor gestión
             </h1>
-            <p className="mt-5 text-lg text-forest-tint">
-              EstuRed no reemplaza tu operación: la ordena. Menos consultas
-              repetidas, solicitudes completas, lista de espera y renovaciones
-              con un proceso claro. Lo que paga el estudiante por tu residencia
-              te llega completo: EstuRed no cobra comisión sobre tu tarifa.
-              Perfil Verificado gratuito.
-            </p>
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {HERO_CHIPS.map((c) => (
+                <li
+                  key={c.label}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-paper/25 bg-paper/10 px-3.5 py-1.5 text-sm font-semibold text-paper"
+                >
+                  <Icon name={c.icon} className="text-lg text-amber-soft-300" />
+                  {c.label}
+                </li>
+              ))}
+            </ul>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button href="/register/residence" size="lg" variant="secondary">
                 Sumá tu residencia, es gratis
@@ -160,9 +171,9 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
         </SwipeStack>
       </section>
 
-      <StayChangeHighlight variant="residences" />
-
       <CommunityPreview variant="residences" />
+
+      <StayChangeHighlight variant="residences" />
 
       <section className="bg-surface border-y border-sand-200">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
@@ -202,9 +213,6 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
             </Card>
             </Reveal>
           </div>
-          <p className="mt-6 text-center text-xs text-ink-faint">
-            Plan Premium bonificado el primer año para Residencias fundadoras.
-          </p>
         </div>
       </section>
 

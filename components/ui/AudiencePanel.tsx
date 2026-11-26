@@ -51,23 +51,19 @@ export function AudiencePanel({
   icon,
   who,
   promise,
-  badge,
   mini,
   perks,
   cta,
   href,
-  note,
 }: {
   tone: AudienceTone;
   icon: string;
   who: string;
   promise: string;
-  badge?: string;
   mini: ReactNode;
   perks: AudiencePerk[];
   cta: string;
   href: string;
-  note: string;
 }) {
   const t = TONES[tone];
   return (
@@ -83,14 +79,6 @@ export function AudiencePanel({
           {who}
         </p>
         <h3 className={`relative mt-3 text-2xl font-bold leading-[1.1] ${t.title}`}>{promise}</h3>
-        {badge && (
-          <span
-            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-xl bg-paper py-1 pl-1.5 pr-2.5 text-xs font-bold leading-tight shadow-card ring-1 ring-line ${t.who}`}
-          >
-            <Icon name="verified" className="text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }} />
-            <span>{badge}</span>
-          </span>
-        )}
       </div>
 
       <div className="relative z-10 -mt-14 px-4">
@@ -121,7 +109,6 @@ export function AudiencePanel({
           {cta}
           <Icon name="arrow_forward" className="text-xl transition-transform duration-200 ease-out-fresh group-hover/btn:translate-x-1 group-active/btn:translate-x-1" />
         </Link>
-        <small className="text-center text-[12.5px] text-ink-faint">{note}</small>
       </div>
     </article>
   );
@@ -217,7 +204,7 @@ export function FamilyMini() {
       <Row>
         <Icon name="qr_code_2" className="text-orange-700" />
         <div>
-          <small className="block text-xs text-ink-faint">Código verificable</small>
+          <small className="block text-xs text-ink-faint">Código y QR</small>
           <b className="rounded-lg bg-cream-2 px-2 py-0.5 font-mono text-[13px] tracking-wider">ER-2026-XXXXX-XXXXX</b>
         </div>
       </Row>

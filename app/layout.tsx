@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | EstuRed",
   },
   description:
-    "EstuRed te ayuda a elegir con confianza dónde empieza tu nueva etapa: residencias estudiantiles de CABA que visitamos en persona antes de publicarlas, con solicitudes registradas y comprobantes verificables.",
+    "Residencias estudiantiles en CABA que visitamos en persona. Mirá costos y reglamento antes de enviar tu solicitud de reserva.",
 };
 
 /** Color de la barra del navegador en mobile = --color-cream. Sin bloquear el zoom (WCAG 1.4.4). */

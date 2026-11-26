@@ -9,31 +9,31 @@ import { PayCard } from "@/components/marketing/PayCard";
 const studentItems = [
   {
     icon: "edit_note",
-    label: "Enviar una solicitud",
-    amount: "Gratis",
+    label: "Al enviar tu solicitud de reserva",
+    amount: "Nada",
     tone: "free",
-    text: "Buscar, conocer perfiles, anotarte en lista de espera y enviar solicitudes no tiene costo.",
+    text: "Buscar, ver perfiles y anotarte en lista de espera tampoco tiene costo.",
   },
   {
     icon: "apartment",
-    label: "Pago 1: a la residencia",
-    amount: "Lo acordado",
+    label: "Si te aceptan",
+    amount: "La reserva",
     tone: "residence",
-    text: "Por ejemplo, el primer mes o la matrícula, y después las mensualidades. Le pagás directamente a la residencia, que confirma que lo recibió. EstuRed no cobra ese dinero.",
+    text: "Le pagás a la residencia lo acordado, como el primer mes o la matrícula.",
   },
   {
     icon: "payments",
-    label: "Pago 2: aparte, a EstuRed",
-    amount: "Fee del 5%",
+    label: "Cuando la residencia confirma tu pago",
+    amount: "5% a EstuRed",
     tone: "fee",
-    text: "Verás todos los montos antes de enviar tu solicitud. Solo abonás por nuestro servicio una vez que la residencia confirma tu pago, y lo podés pagar vos o el familiar que designes.",
+    text: "Sobre tu estadía inicial. Lo pagás vos o el familiar que designes. Al validarlo, tu reserva queda confirmada.",
   },
   {
-    icon: "receipt_long",
-    label: "Tu comprobante",
-    amount: "Reserva confirmada",
-    tone: "free",
-    text: "Abonado el fee, obtenés tu Comprobante de Reserva Confirmada y tu reserva queda confirmada. Tiene un código que cualquiera puede verificar.",
+    icon: "calendar_month",
+    label: "Durante tu estadía",
+    amount: "Mensualidades",
+    tone: "residence",
+    text: "Se las pagás a la residencia, según sus condiciones.",
   },
 ] as const;
 
@@ -43,34 +43,16 @@ const toneClass = {
   fee: "border-amber-soft-300 bg-amber-soft-100/40",
 } as const;
 
-/** Bloque «Qué pagás y a quién» (INVENTARIO_COPY §7.1). */
-export function WhatYouPay({ variant = "student" }: { variant?: "student" | "residence" | "short" }) {
-  if (variant === "short") {
-    return (
-      <section id="que-pagas-resumen" className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
-        <SectionHeader eyebrow="Costos" title="Qué pagás y a quién" />
-        <p className="text-base leading-relaxed text-ink-soft">
-          Enviar una solicitud es gratis. A la residencia le pagás directamente lo acordado y a EstuRed un fee del 5% de tu estadía
-          inicial: el monto exacto lo ves antes de pagar.
-        </p>
-        <Link
-          href="/for-students#que-pagas"
-          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-out-fresh hover:translate-x-1"
-        >
-          Ver el detalle de costos <Icon name="arrow_forward" className="text-base" />
-        </Link>
-      </section>
-    );
-  }
-
+/** Estudiantes: «Qué pagás y cuándo» (DR68). Residencias: diagrama de costos (`MoneyFlow`). */
+export function WhatYouPay({ variant = "student" }: { variant?: "student" | "residence" }) {
   if (variant === "residence") return <MoneyFlow />;
 
   return (
     <section id="que-pagas" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
       <SectionHeader
         eyebrow="Costos"
-        title="Qué pagás y a quién"
-        description="Cuatro cosas distintas, cada una con su momento. Pasá el mouse o tocá cada una para ver el detalle."
+        title="Qué pagás y cuándo"
+        description="Sabés qué pagás ahora y qué después."
       />
       <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {studentItems.map((item, i) => (
@@ -82,6 +64,14 @@ export function WhatYouPay({ variant = "student" }: { variant?: "student" | "res
       <p className="mt-6 text-center text-sm text-ink-soft">
         Los precios se publican en dólares, con su equivalente referencial en pesos actualizado a
         diario. <ExchangeRateNote />
+      </p>
+      <p className="mt-4 text-center">
+        <Link
+          href="/#el-proceso"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest-700 transition-transform duration-200 ease-out-fresh hover:translate-x-1"
+        >
+          Ver los 4 pasos <Icon name="arrow_forward" className="text-base" />
+        </Link>
       </p>
     </section>
   );

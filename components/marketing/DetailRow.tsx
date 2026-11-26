@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /**
- * Fila expandible (gancho a la vista, detalle al abrir) con el mismo lenguaje que `for-students/StepsList`:
+ * Fila expandible (gancho a la vista, detalle al abrir) con el mismo lenguaje que las filas de pasos de las landings:
  * <details> nativo, accesible por teclado, sin JS. Server Component.
  */
 export function DetailRow({

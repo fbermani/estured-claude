@@ -6,16 +6,15 @@ import { DetailRow } from "@/components/marketing/DetailRow";
 /**
  * Bloque destacado del flujo "Quiero cambiar" para las landings (DR3; SPEC §7). Variante `students` para
  * `/for-students` y `residences` para `/for-residences`. Sin métricas inventadas ni promesas de lugar o reembolso:
- * EstuRed es plataforma intermediaria, los costos de salida los informa cada residencia y toda solicitud está sujeta a
- * confirmación. Las composiciones visuales son réplicas estáticas (`aria-hidden`), no datos reales.
+ * EstuRed es plataforma intermediaria y los costos de salida los informa cada residencia. Las composiciones visuales son réplicas estáticas (`aria-hidden`), no datos reales.
  */
 
 const STUDENT_STEPS = [
   { title: "Avisás con un botón", hook: "Tu reserva sigue igual", text: "Desde Mi residencia tocás “Quiero cambiar”. Tu residencia se entera con tiempo y tu reserva sigue igual." },
   {
     title: "Buscás sin trabas de fechas",
-    hook: "Solicitás y te sumás a listas de espera",
-    text: "Solicitás y te sumás a listas de espera aunque se superpongan con tu estadía. Te avisamos si se libera lugar.",
+    hook: "Enviás solicitudes y te sumás a listas de espera",
+    text: "Enviás solicitudes de reserva y te sumás a listas de espera aunque se superpongan con tu estadía. La residencia puede avisarte si se libera un lugar.",
   },
   { title: "Conocés los costos antes", hook: "Por escrito, antes de decidir", text: "Tu residencia te informa por escrito depósito, preaviso y entrega. Lo ves vos y tu familia." },
 ];
@@ -72,7 +71,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
             )}
             <p className="mt-4 text-xs leading-relaxed text-ink-faint">
               Lo cancelás cuando quieras. Las otras residencias solo ven que estás en proceso de mudanza, no de cuál venís. Los costos de salida los informa cada
-              residencia: EstuRed no los fija ni los cobra. Toda solicitud está sujeta a confirmación.
+              residencia: EstuRed no los fija ni los cobra.
             </p>
 
           </Reveal>
@@ -85,7 +84,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
                   <span className="size-2 rounded-full bg-orange" /> Aviso abierto
                 </p>
                 <p className="mt-2 font-display text-xl font-bold text-ink">Estás buscando un cambio</p>
-                <p className="mt-1 text-sm text-ink-soft">Ya podés solicitar y sumarte a listas de espera aunque las fechas se superpongan con tu estadía.</p>
+                <p className="mt-1 text-sm text-ink-soft">Ya podés enviar solicitudes de reserva y anotarte en listas de espera, aunque las fechas se superpongan.</p>
               </div>
               <div className="space-y-3 p-5">
                 <div className="grid grid-cols-4 gap-2 text-xs font-semibold text-ink-soft">

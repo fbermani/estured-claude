@@ -5,7 +5,7 @@ import { ResidencesLanding } from "@/components/marketing/ResidencesLanding";
 export const metadata: Metadata = pageMetadata({
   title: "Publicá tu residencia estudiantil",
   description:
-    "EstuRed no reemplaza tu operación. La ordena, la hace más clara y te ayuda a convertir mejores solicitudes.",
+    "Menos mensajes repetidos y mejor gestión: solicitudes completas, lista de espera y sin comisión sobre tu tarifa.",
   path: "/for-residences",
 });
 

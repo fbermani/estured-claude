@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 /**
- * Tarjeta de «Qué pagás y a quién». Se expande con hover del mouse (desktop) y con
+ * Tarjeta de «Qué pagás y cuándo». Se expande con hover del mouse (desktop) y con
  * click/tap o teclado (mobile y accesibilidad). El detalle es el mismo en ambos casos.
  */
 export function PayCard({

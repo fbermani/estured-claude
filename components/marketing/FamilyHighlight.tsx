@@ -5,9 +5,9 @@ import { DetailRow } from "@/components/marketing/DetailRow";
 
 /**
  * Bloque "Para las familias" de `/for-students` (DR4, `docs/00` §31; `docs/08` §3.2): las familias son público clave.
- * Describe el rol real del familiar vinculado: SEGUIR el estado, PROPONER residencias (el estudiante decide) y PAGAR el
- * fee EstuRed si el estudiante lo designa. Sin promesas de lugar ni de resultados: toda solicitud está sujeta a la
- * confirmación de la residencia, y el familiar no ve los mensajes privados ni los documentos del estudiante.
+ * Describe el rol real del familiar vinculado: SEGUIR el estado, PROPONER residencias (el estudiante decide) y VER el
+ * comprobante; el pago del fee va en la bajada (DR68). Sin promesas de lugar ni de resultados, y el familiar no ve los
+ * mensajes privados ni los documentos del estudiante.
  */
 
 const ABILITIES = [
@@ -24,10 +24,10 @@ const ABILITIES = [
     text: "Le sugerís residencias que te gusten. Tu estudiante las revisa y decide si avanza: vos acompañás, la decisión es suya.",
   },
   {
-    icon: "payments",
-    title: "Pagás el fee si te designa",
-    hook: "Solo si tu estudiante te elige",
-    text: "Si tu estudiante te elige para pagar el fee EstuRed, ves el monto, los datos de transferencia y el plazo, y los datos de facturación del pago quedan a tu nombre.",
+    icon: "receipt_long",
+    title: "Ves el comprobante",
+    hook: "El de la reserva de tu estudiante",
+    text: "Cuando la reserva se confirma, lo abrís desde tu panel. Tiene código y QR propios.",
   },
 ];
 
@@ -44,13 +44,13 @@ export function FamilyHighlight() {
           </h2>
           <p className="mt-4 text-base text-ink-soft sm:text-lg">
             Creás una cuenta de familiar y pedís vincularte con tu estudiante, que aprueba la vinculación. Desde ahí acompañás el
-            proceso con la información que corresponde a tu rol.
+            proceso con la información que corresponde a tu rol. Si tu estudiante te designa, también podés pagar el fee de EstuRed.
           </p>
           <p className="mt-4 flex items-start gap-2 rounded-field bg-surface px-4 py-3 text-sm text-ink-soft">
             <Icon name="lock" className="mt-0.5 shrink-0 text-lg text-forest-700" />
             <span>
-              Tu estudiante mantiene el control: sus documentos y mensajes privados son suyos, y las solicitudes se envían
-              solo desde su cuenta. Toda solicitud está sujeta a la confirmación de la residencia.
+              Tu estudiante mantiene el control: sus documentos y mensajes privados son suyos. Las solicitudes de reserva se
+              envían solo desde su cuenta.
             </span>
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

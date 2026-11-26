@@ -54,7 +54,7 @@ export async function ReceiptMiniature() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={qr} alt="" width={64} height={64} className="rounded-field border border-sand-200" />
         <figcaption className="min-w-0 flex-1 text-xs leading-snug text-ink-faint">
-          Cualquiera puede verificarlo con el QR o el número, en <span className="font-medium text-ink">/verify</span>.
+          Con código y QR propios
         </figcaption>
         <EsturedSeal size={76} className="-mb-1 -mr-1 shrink-0" />
       </div>

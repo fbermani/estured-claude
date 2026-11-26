@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 
-type Step = { slogan: string; title: string; description: string; img: string; imgMobile: string; alt: string };
+type Step = { title: string; description: string; img: string; imgMobile: string; alt: string };
 
 const DUR = 7000;
 
@@ -20,11 +20,13 @@ const DECK: Record<number, { t: string; o: number; z: number }> = {
   1: { t: "translate(18px,14px) rotate(3deg) scale(.96)", o: 0.92, z: 4 },
   2: { t: "translate(-14px,26px) rotate(-2.5deg) scale(.92)", o: 0.75, z: 3 },
   3: { t: "translate(0,34px) scale(.88)", o: 0, z: 2 },
-  4: { t: "translate(-70%,-10px) rotate(-9deg)", o: 0, z: 6 },
 };
 
+/** La tarjeta que acaba de pasar (última posición) sale volando hacia la izquierda. */
+const LEAVING = { t: "translate(-70%,-10px) rotate(-9deg)", o: 0, z: 6 };
+
 /**
- * «El proceso» de la home: a la izquierda un slogan corto por paso (desktop), a la derecha un mazo de tarjetas con
+ * «El proceso» de la home: a la izquierda el título de cada paso (desktop), a la derecha un mazo de tarjetas con
  * captura real de la app y la explicación. Rota solo cada 7 s (pausa con hover/foco/botón y respeta
  * prefers-reduced-motion). En mobile: una tarjeta a ancho completo con swipe, flechas y puntos.
  * Client component: ver nota en HoverFeatureList.tsx sobre el RSC boundary (solo recibe datos serializables).
@@ -73,14 +75,14 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
       onPointerEnter={(e) => e.pointerType === "mouse" && setHover(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setHover(false)}
     >
-      {/* Slogans (solo desktop) */}
+      {/* Títulos de los pasos (solo desktop) */}
       <div className="hidden lg:block">
         <div role="tablist" aria-label="Pasos del proceso" aria-orientation="vertical" className="grid gap-1">
           {steps.map((s, i) => {
             const selected = i === active;
             return (
               <button
-                key={s.slogan}
+                key={s.title}
                 ref={(el) => {
                   tabRefs.current[i] = el;
                 }}
@@ -109,7 +111,7 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                     selected ? "translate-x-1 text-ink" : "text-ink-faint"
                   }`}
                 >
-                  {s.slogan}
+                  {s.title}
                 </span>
                 <span aria-hidden className="absolute bottom-1 left-[74px] right-4 h-[3px] overflow-hidden rounded-full bg-cream-2 opacity-0 data-[on=true]:opacity-100" data-on={selected}>
                   <i
@@ -176,11 +178,11 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
           >
             {steps.map((s, i) => {
               const pos = (i - active + n) % n;
-              const d = DECK[Math.min(pos, 4)] ?? DECK[4];
+              const d = pos === n - 1 ? LEAVING : (DECK[pos] ?? DECK[3]);
               const front = i === active;
               return (
                 <article
-                  key={s.slogan}
+                  key={s.title}
                   id={`proc-card-${i}`}
                   role="tabpanel"
                   aria-labelledby={`proc-tab-${i}`}
@@ -208,12 +210,10 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                       </picture>
                     </div>
                   </div>
-                  <div className={`grid gap-2 p-[18px] pb-5 lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:invisible"}`}>
-                    <span className="text-xs font-bold text-forest-700">
-                      Paso {i + 1}: {s.slogan}
-                    </span>
-                    <h3 className="text-xl text-ink lg:text-[22px]">{s.title}</h3>
-                    <p className="text-[15px] leading-relaxed text-ink-soft">{s.description}</p>
+                  <div className={`grid flex-1 content-start gap-2 bg-forest-ink p-[18px] pb-5 lg:flex-none lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:[&>*]:invisible"}`}>
+                    <span className="text-xs font-bold text-amber-soft-300">Paso {i + 1}</span>
+                    <h3 className="text-xl text-white lg:text-[22px]">{s.title}</h3>
+                    <p className="text-[15px] leading-relaxed text-forest-tint">{s.description}</p>
                   </div>
                 </article>
               );
@@ -235,7 +235,7 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
           <div className="flex gap-0.5">
             {steps.map((s, i) => (
               <button
-                key={s.slogan}
+                key={s.title}
                 type="button"
                 aria-label={`Paso ${i + 1}: ${s.title}`}
                 aria-current={i === active}

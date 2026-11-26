@@ -10,7 +10,16 @@ import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import { formatArs, formatUsd, usdToArsRounded } from "@/lib/mock/exchange";
 
 /** Tarjeta reducida para la home (DR22): foto, sello, nombre, barrio, precio «desde» y disponibilidad. */
-export function ResidenceCardCompact({ residence, arsPerUsd }: { residence: Residence; arsPerUsd: number }) {
+export function ResidenceCardCompact({
+  residence,
+  arsPerUsd,
+  showCommunity = false,
+}: {
+  residence: Residence;
+  arsPerUsd: number;
+  /** Solo con perfiles visibles: sin ellos la página de comunidad está vacía. */
+  showCommunity?: boolean;
+}) {
   const href = `/residencias/${residence.slug}`;
   return (
     <Card className="group relative border-line-2! shadow-anchor! flex h-full flex-col overflow-hidden transition duration-200 ease-out-fresh motion-safe:active:scale-[0.985] active:shadow-card-hover">
@@ -57,6 +66,16 @@ export function ResidenceCardCompact({ residence, arsPerUsd }: { residence: Resi
         <div className="mt-2">
           <StatusTag mode={residence.availabilityMode} />
         </div>
+        {showCommunity && (
+          <Link
+            href={`${href}/comunidad`}
+            aria-label={`Ver comunidad de ${residence.name}`}
+            className="pointer-events-auto relative z-10 mt-3 flex min-h-11 items-center justify-center gap-1.5 rounded-full border-[1.5px] border-forest px-4 text-sm font-bold text-forest-700 transition-colors hover:bg-forest-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+          >
+            <Icon name="groups" className="text-lg" />
+            Ver comunidad
+          </Link>
+        )}
       </div>
     </Card>
   );

@@ -61,7 +61,7 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
           Residencias fundadoras
         </span>
         <h1 id="pre-fund-title" className="font-display text-[clamp(28px,7vw,40px)] leading-[1.05] tracking-[-0.03em]">
-          Menos mensajes, más residencia. <span className="text-gold">Y gratis.</span>
+          Menos mensajes repetidos, mejor gestión. <span className="text-gold">Y gratis.</span>
         </h1>
         <p id="pre-fund-text" className="max-w-[52ch] text-white/90">
           Estamos sumando las primeras residencias de Buenos Aires antes de abrir. Te visitamos y armamos tu perfil con vos.

@@ -15,9 +15,9 @@ const INTRO_S = 3.5;
 const delay = (s: number) => ({ "--d": `${s}s` }) as CSSProperties;
 
 const MINI_POINTS = [
-  { icon: "verified", label: "Verificadas por EstuRed" },
-  { icon: "flight_takeoff", label: "Sin viajar" },
-  { icon: "receipt_long", label: "Comprobante verificable" },
+  { icon: "edit_document", label: "Proceso registrado" },
+  { icon: "sell", label: "Costos a la vista" },
+  { icon: "rule", label: "Reglamento claro" },
 ];
 
 /** Campo decorativo del buscador (mock visual): no es un control, todo el bloque es un link a /search. */
@@ -99,10 +99,10 @@ export function HomeHero({ residences, intro = true }: { residences: Residence[]
           className="hero-seq text-[1.875rem] font-bold leading-[1.1] tracking-tight text-white sm:text-[2.375rem] md:text-6xl"
           style={delay(0.12 + t)}
         >
-          Elegí tu residencia a distancia, <span className="text-amber-soft-300">sin adivinar.</span>
+          Encontrá y reservá tu residencia, <span className="text-amber-soft-300">con la seguridad de elegir bien.</span>
         </h1>
         <p className="hero-seq mx-auto mt-4 max-w-[600px] text-base text-forest-tint sm:text-[17px] md:text-xl" style={delay(0.18 + t)}>
-          Residencias en Buenos Aires visitadas en persona por nuestro equipo. Solicitá y coordiná desde donde estés, sin viajar.
+          Visitamos y verificamos residencias estudiantiles, para que vos elijas con tranquilidad y confianza.
         </p>
 
         {/* Buscador: mock visual. Lleva a /search; los campos no son controles. */}
@@ -121,12 +121,6 @@ export function HomeHero({ residences, intro = true }: { residences: Residence[]
           </span>
         </Link>
 
-        <p className="hero-rise mt-3.5 text-[13px] text-forest-tint" style={delay(0.32 + t)}>
-          Explorar es gratis · Cada solicitud la confirma la residencia.{" "}
-          <Link href="/register/residence" className="font-bold text-white underline-offset-2 hover:underline">
-            Sumá tu residencia, es gratis
-          </Link>
-        </p>
         <ul
           className="mt-4 flex flex-wrap justify-center gap-x-[18px] gap-y-2 text-[13px] font-semibold text-forest-tint"
         >
@@ -137,6 +131,23 @@ export function HomeHero({ residences, intro = true }: { residences: Residence[]
             </li>
           ))}
         </ul>
+
+        {/* Residencias: tarjeta clara sobre el fondo oscuro (DR68). El naranja queda solo en «Buscar». */}
+        <div
+          className="hero-rise mx-auto mt-6 flex max-w-[660px] flex-col items-center gap-3 rounded-card bg-paper p-4 text-ink shadow-float sm:flex-row sm:justify-between sm:gap-5 sm:px-5 sm:text-left"
+          style={delay(0.48 + t)}
+        >
+          <p className="text-sm text-ink-soft">
+            <b className="block font-display text-lg text-ink">¿Tenés una residencia?</b>
+            Recibí solicitudes completas, sin comisión sobre tu tarifa.
+          </p>
+          <Link
+            href="/register/residence"
+            className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white transition-colors hover:bg-forest-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest sm:w-auto"
+          >
+            Sumá tu residencia, es gratis
+          </Link>
+        </div>
       </div>
 
       {set.length > 0 && (

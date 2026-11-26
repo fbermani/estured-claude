@@ -63,7 +63,7 @@ export function MoneyFlow() {
               <div className="grid content-start gap-3 rounded-2xl border border-amber-soft-300 bg-amber-soft-100/40 p-4">
                 <p className="text-xs font-bold text-amber-soft-700">Pago 2: aparte, a EstuRed</p>
                 <Payer />
-                <Arrow tone="amber" title="Fee de EstuRed (5%)" text="También lo paga el estudiante, cuando la reserva se confirma. No sale de lo que te pagan a vos." />
+                <Arrow tone="amber" title="Fee de EstuRed (5%)" text="También lo paga el estudiante, después de que confirmás su pago. No sale de lo que te pagan a vos." />
                 <div className="flex items-center gap-3 rounded-2xl bg-amber-soft-100 px-4 py-3 font-bold text-amber-soft-700">
                   <Icon name="hub" className="text-2xl" />
                   EstuRed

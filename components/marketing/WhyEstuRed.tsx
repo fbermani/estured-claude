@@ -8,10 +8,9 @@ import { ReceiptMiniature } from "@/components/marketing/ReceiptMiniature";
  * y miniatura del comprobante de reserva.
  */
 const ROWS = [
-  { what: "La residencia", withUs: "Verificada en persona por EstuRed", outside: "La chequeás por tu cuenta" },
-  { what: "Precio y costos", withUs: "Publicados, sin costos ocultos", outside: "Los consultás uno por uno" },
-  { what: "Acuerdos", withUs: "Registrados en tu cuenta", outside: "Quedan en chats sueltos" },
-  { what: "Reserva confirmada", withUs: "Comprobante con código verificable", outside: "Depende de cada residencia" },
+  { what: "La residencia", withUs: "La visitamos en persona", outside: "La chequeás por tu cuenta" },
+  { what: "Costos", withUs: "A la vista antes de enviar tu solicitud de reserva", outside: "Los consultás uno por uno" },
+  { what: "Tu reserva", withUs: "Tenés tu comprobante", outside: "Queda en chats sueltos" },
   { what: "Si algo no coincide", withUs: "Abrís un caso de Soporte", outside: "Lo resolvés directo con la residencia" },
 ];
 
@@ -21,9 +20,8 @@ export function WhyEstuRed() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
         <SectionHeader
           eyebrow="Por qué EstuRed"
-          title="Hacelo por EstuRed y queda todo por escrito"
+          title="Con EstuRed, todo queda registrado y por escrito."
           align="left"
-          description="Instagram y los referidos sirven para descubrir. Para reservar, conviene que quede registrado."
         />
 
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">

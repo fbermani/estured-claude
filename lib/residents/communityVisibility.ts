@@ -103,6 +103,58 @@ type RawStay = {
     | null;
 };
 
+/**
+ * H04 / docs/10 §9.2: quién muestra perfil individual. Estadía activa, mayor de edad según `birth_date`
+ * (sin fecha = menor) y con el interruptor maestro encendido.
+ */
+function showsIndividualProfile(
+  status: string,
+  profile: { birth_date: string | null; student_visibility_settings: { is_individual_profile_visible: boolean } | null } | null,
+): boolean {
+  return (
+    status === "active" &&
+    !!profile &&
+    !isMinorByBirthDate(profile.birth_date) &&
+    !!profile.student_visibility_settings?.is_individual_profile_visible
+  );
+}
+
+export type VisibleProfileRow = {
+  status: string;
+  residences: { slug: string } | null;
+  student_profiles: {
+    birth_date: string | null;
+    student_visibility_settings: { is_individual_profile_visible: boolean } | null;
+  } | null;
+};
+
+export function slugsWithVisibleProfiles(rows: VisibleProfileRow[]): Set<string> {
+  const slugs = new Set<string>();
+  for (const row of rows) {
+    if (row.residences && showsIndividualProfile(row.status, row.student_profiles)) slugs.add(row.residences.slug);
+  }
+  return slugs;
+}
+
+/**
+ * DR68: de estas residencias, cuáles tienen al menos un perfil visible (botón «Ver comunidad» de la home).
+ * Una sola consulta. Ante un error devuelve vacío: mejor ocultar el botón que llevar a una página vacía.
+ */
+export async function getSlugsWithVisibleProfiles(admin: SupabaseClient, slugs: string[]): Promise<Set<string>> {
+  if (slugs.length === 0) return new Set();
+  const { data, error } = await admin
+    .from("resident_stays")
+    .select("status, residences!inner(slug), student_profiles!inner(birth_date, student_visibility_settings(is_individual_profile_visible))")
+    .in("residences.slug", slugs)
+    .eq("is_current", true)
+    .eq("status", "active");
+  if (error) {
+    console.error("[community] getSlugsWithVisibleProfiles failed:", error);
+    return new Set();
+  }
+  return slugsWithVisibleProfiles((data ?? []) as unknown as VisibleProfileRow[]);
+}
+
 /** Docs/06 §15.1-15.2 — agregados + tarjetas individuales para la comunidad visible de una residencia (Perfil Verificado, agrupado por `room_type_id`). */
 export async function getCommunityVisibility(
   admin: SupabaseClient,
@@ -230,11 +282,7 @@ export async function getCommunityVisibility(
     // H04: un menor nunca muestra perfil individual (docs/10 §9.2), aunque
     // la fila tenga el maestro en true (datos viejos o cargados a mano). La
     // edad sale de `birth_date` (sin fecha = menor), no del flag `is_minor`.
-    const canShowProfile =
-      row.status === "active" &&
-      row.student_profiles &&
-      !isMinorByBirthDate(row.student_profiles.birth_date) &&
-      settings?.is_individual_profile_visible;
+    const canShowProfile = showsIndividualProfile(row.status, row.student_profiles);
     if (!canShowProfile || !row.student_profiles || !settings) {
       return { residentStayId: row.id, kind: "placeholder", roomTypeId, roomTypeName, roomId };
     }

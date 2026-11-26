@@ -3,7 +3,6 @@ import { AudiencePanel, StudentMini, FamilyMini, ResidenceMini } from "@/compone
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/ui/Reveal";
 import { StaggerIn } from "@/components/ui/StaggerIn";
 import { GuideCard } from "@/components/guides/GuideCard";
@@ -17,47 +16,39 @@ import { EsturedSeal } from "@/components/brand/EsturedSeal";
 import { getCatalogResidences } from "@/lib/residences/catalog";
 import { sortRecommended } from "@/lib/residences/searchFilters";
 import { getCurrentExchangeRate } from "@/lib/exchange/rate";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSlugsWithVisibleProfiles } from "@/lib/residents/communityVisibility";
 
 const steps = [
   {
-    slogan: "Buscá sin viajar",
-    title: "Buscás tu residencia",
-    description: "Filtrá por universidad, barrio y precio. Mirá reglas, servicios, disponibilidad y quiénes viven ahí.",
+    title: "Buscá y compará",
+    description: "Filtrá por universidad, barrio y precio. Conocé la comunidad.",
     img: "/landing/proceso-1-busqueda.webp",
     imgMobile: "/landing/proceso-1-busqueda-movil.webp",
     alt: "Búsqueda de EstuRed con filtros y tarjetas de residencias verificadas",
   },
   {
-    slogan: "Solicitá gratis",
-    title: "Enviás tu solicitud",
-    description: "Elegís el tipo de habitación y enviás tu solicitud sin costo. Tu familia puede acompañarte.",
+    title: "Enviá tu solicitud de reserva",
+    description: "Antes de enviarla ves cuánto y a quién pagás, y el reglamento completo. Enviarla es gratis.",
     img: "/landing/proceso-2-solicitud.webp",
     imgMobile: "/landing/proceso-2-solicitud-movil.webp",
-    alt: "Ficha de residencia con tarifas por tipo de habitación y selector para solicitar",
+    alt: "Ficha de residencia con tarifas por tipo de habitación",
   },
   {
-    slogan: "Vos decidís",
-    title: "La residencia te responde",
-    description: "Acepta tu solicitud o te propone un ajuste. Seguís cada paso y decidís si avanzás.",
-    img: "/landing/proceso-3-respuesta.webp",
-    imgMobile: "/landing/proceso-3-respuesta-movil.webp",
-    alt: "Seguimiento de la solicitud con los pasos completados",
-  },
-  {
-    slogan: "Pago directo",
-    title: "Abonás tu reserva",
-    description: "Pagás directo a la residencia lo acordado. Ella confirma que lo recibió.",
+    title: "Esperá la respuesta y pagá",
+    description:
+      "La residencia tiene 48 horas para responder. Si te acepta, le pagás a ella lo acordado. Cuando confirma tu pago, abonás a EstuRed el 5% de tu estadía inicial.",
     img: "/landing/proceso-4-pago.webp",
     imgMobile: "/landing/proceso-4-pago-movil.webp",
     alt: "Detalle de qué pagás y a quién: a la residencia y el fee EstuRed",
   },
   {
-    slogan: "Comprobante verificable",
-    title: "Confirmás tu reserva",
-    description: "Abonás el fee EstuRed (5%) y obtenés tu Comprobante de Reserva Confirmada.",
+    title: "Recibí tu comprobante de reserva",
+    description:
+      "Cuando validamos tu pago, tu reserva queda confirmada. Las condiciones y los pagos de la reserva quedan registrados en tu cuenta.",
     img: "/landing/proceso-5-comprobante.webp",
     imgMobile: "/landing/proceso-5-comprobante-movil.webp",
-    alt: "Comprobante de Reserva Confirmada con número verificable",
+    alt: "Comprobante de Reserva Confirmada",
   },
 ];
 
@@ -69,46 +60,39 @@ const audiences: Array<
     miniKey: "student",
     icon: "backpack",
     who: "Estudiantes",
-    promise: "Sabé con quién y cómo vas a vivir, antes de mudarte.",
+    promise: "Sabé cómo vas a vivir, antes de mudarte.",
     perks: [
-      { icon: "groups", title: "Conocé a tus futuros compañeros", text: "Perfiles que cada residente decide mostrar." },
-      { icon: "rule", title: "Reglas y servicios, sin sorpresas", text: "Lo principal en la ficha y el reglamento completo." },
-      { icon: "verified", title: "Verificada en persona", text: "Visitamos cada residencia antes de publicarla." },
+      { icon: "rule", title: "Reglamento completo", text: "Lo leés antes de enviar tu solicitud de reserva." },
+      { icon: "directions_walk", title: "Cerca de tu facultad", text: "Ves qué universidades quedan cerca." },
     ],
     href: "/for-students",
-    cta: "Ver cómo funciona para vos",
-    note: "Explorar es gratis",
+    cta: "Ver cómo funciona",
   },
   {
     tone: "family",
     miniKey: "family",
     icon: "family_restroom",
     who: "Familias",
-    promise: "Acompañá sin viajar. Ser parte, con tranquilidad.",
+    promise: "Acompañá aunque estés lejos.",
     perks: [
-      { icon: "home_pin", title: "Todo a distancia", text: "Sin viajar a Buenos Aires." },
       { icon: "add_comment", title: "Proponé opciones", text: "Vos sugerís, tu estudiante decide." },
-      { icon: "verified_user", title: "Comprobante que cualquiera puede verificar", text: "Queda todo registrado." },
+      { icon: "receipt_long", title: "Ves el comprobante", text: "Y seguís cada paso de la solicitud." },
     ],
     href: "/for-students#para-familias",
     cta: "Ver cómo acompañar",
-    note: "Toda solicitud queda sujeta a confirmación de la residencia",
   },
   {
     tone: "residence",
     miniKey: "residence",
     icon: "apartment",
     who: "Residencias",
-    promise: "¡Menos consultas, mejores reservas!",
-    badge: "Perfil Verificado gratuito",
+    promise: "Menos mensajes repetidos, mejor gestión.",
     perks: [
-      { icon: "inbox", title: "Menos preguntas de siempre", text: "La ficha responde por vos." },
-      { icon: "how_to_reg", title: "Vos decidís a quién aceptar", text: "Con el perfil a la vista." },
-      { icon: "dashboard", title: "Herramientas para ordenar tu gestión", text: "Habitaciones, plazas y solicitudes en un lugar." },
+      { icon: "how_to_reg", title: "Conocé a quien quiere reservar", text: "Ves su perfil antes de responder." },
+      { icon: "dashboard", title: "Todo en un panel", text: "Solicitudes, residentes y renovaciones." },
     ],
     href: "/for-residences",
     cta: "Sumá tu residencia, es gratis",
-    note: "Primero verificamos tu residencia en persona",
   },
 ];
 
@@ -122,28 +106,18 @@ const faqs = [
   },
   {
     q: "¿Cuánto cuesta usar EstuRed?",
-    a: "Solicitar es gratis. Si la reserva avanza, pagás a la residencia y, aparte, a EstuRed un 5% de la estadía inicial, sin depósito.",
+    a: "Enviar tu solicitud de reserva es gratis. Si la reserva avanza, pagás a la residencia y, aparte, a EstuRed un 5% de tu estadía inicial.",
     more: "Son dos pagos separados. El monto exacto lo ves antes de pagar.",
   },
   {
     q: "¿Qué significa que una residencia esté verificada?",
-    a: "Que EstuRed la visitó en persona y chequeó que existe, quién la gestiona y que lo publicado es real.",
-    more: "Solo las residencias verificadas aparecen en el catálogo.",
+    a: "La visitamos en persona. Controlamos la identidad del responsable, la dirección y que las fotos coincidan.",
+    more: "Solo las verificadas aparecen en el catálogo. Verificamos residencias, no estudiantes.",
   },
   {
-    q: "Si una residencia figura con lugar, ¿ya tengo mi lugar?",
-    a: "Todavía no. La disponibilidad la informa cada residencia; tu lugar queda reservado cuando la reserva se confirma.",
-    more: "Puede cambiar. Enviás tu solicitud, la residencia revisa tu perfil y confirma si hay lugar.",
-  },
-  {
-    q: "¿EstuRed verifica a los estudiantes?",
-    a: "No. EstuRed verifica residencias; cada residencia evalúa las solicitudes que recibe.",
-    more: "Lo hace por su cuenta, pensando en la convivencia.",
-  },
-  {
-    q: "¿Qué recibo cuando se confirma mi reserva?",
-    a: "Un Comprobante de Reserva Confirmada de EstuRed, con un código que cualquiera puede verificar.",
-    more: "Sirve para mostrarles a vos y a tu familia que la reserva quedó registrada.",
+    q: "¿Cuándo queda reservado mi lugar?",
+    a: "Primero la residencia confirma que recibió tu pago. Después abonás el fee. Cuando lo validamos, tu reserva queda confirmada.",
+    more: "Enviar tu solicitud de reserva no te asegura el lugar.",
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",
@@ -162,6 +136,10 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
   const [rate, rawCatalog] = await Promise.all([getCurrentExchangeRate(), getCatalogResidences()]);
   const catalog = sortRecommended(rawCatalog); // DR24
   const featured = catalog.slice(0, 4);
+  const admin = getSupabaseAdmin();
+  const withCommunity = admin
+    ? await getSlugsWithVisibleProfiles(admin, featured.map((r) => r.slug))
+    : new Set<string>();
 
   return (
     <>
@@ -180,6 +158,18 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
       {/* Hero (propuesta B: buscador mock + cinta de residencias reales) */}
       <HomeHero residences={catalog} intro={schema} />
 
+      {/* Paso a paso (DR68): lo primero bajo el carrusel */}
+      <div className="bg-paper">
+        <section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
+          <SectionHeader
+            align="left"
+            title="Reservá en 4 pasos, sin viajar a Buenos Aires"
+            description="No hace falta ir a verlas: ya las visitamos nosotros."
+          />
+          <HowItWorksSteps steps={steps} />
+        </section>
+      </div>
+
       {/* Por qué EstuRed (fusionada con «La diferencia», DR22) */}
       <WhyEstuRed />
 
@@ -190,8 +180,14 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
           <div className="[&>div]:mb-0">
             <SectionHeader
               align="left"
-              title="Residencias verificadas en CABA"
-              description="Precios y reglas a la vista. La disponibilidad la informa cada residencia."
+              {...(withCommunity.size > 0
+                ? {
+                    eyebrow: "Residencias verificadas en CABA",
+                    title: "Conocé la comunidad antes de elegir",
+                    description:
+                      "Con tu cuenta, podés ver los perfiles de quienes ya están en la resi, qué estudian, sus intereses y preferencias.",
+                  }
+                : { title: "Residencias verificadas en CABA" })}
             />
           </div>
           <Reveal className="shrink-0">
@@ -203,7 +199,11 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
             <StaggerIn role="region" aria-label="Residencias del catálogo" tabIndex={0} className="relative -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
               {featured.map((residence) => (
                 <div key={residence.slug} className="w-[78%] shrink-0 snap-start sm:w-auto">
-                  <ResidenceCardCompact residence={residence} arsPerUsd={rate.arsPerUsd} />
+                  <ResidenceCardCompact
+                    residence={residence}
+                    arsPerUsd={rate.arsPerUsd}
+                    showCommunity={withCommunity.has(residence.slug)}
+                  />
                 </div>
               ))}
             </StaggerIn>
@@ -223,30 +223,12 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
       </section>
 </div>
 
-      {/* Cómo funciona */}
-      <div className="bg-paper">
-<section id="el-proceso" className="mx-auto max-w-6xl scroll-mt-20 overflow-x-clip px-4 py-16 sm:px-6 sm:py-24">
-        <SectionHeader
-          align="left"
-          title="De la búsqueda a tu reserva confirmada, sin viajar a Buenos Aires"
-          description="Cinco pasos desde donde estés. Cada uno queda registrado."
-        />
-        <p className="-mt-4 mb-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-soft-100 px-3 py-1.5 text-[13px] font-bold text-amber-soft-700">
-            <Icon name="home_pin" className="text-lg" /> Todo a distancia
-          </span>
-        </p>
-        <HowItWorksSteps steps={steps} />
-      </section>
-</div>
-
       {/* Audiencias */}
       <div className="surface-glow surface-grain">
 <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader
           align="left"
-          title="Cada uno con su lugar en el proceso"
-          description="Quien estudia elige. La familia acompaña. La residencia recibe solicitudes completas."
+          title="¿Desde qué lado llegás?"
         />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-y-0">
           {audiences.map(({ miniKey, ...a }, i) => (
@@ -269,7 +251,7 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
             eyebrow="Centro de Guías"
             align="left"
             title="Antes de decidir, informate"
-            description="Guías simples para elegir residencia y prepararte para mudarte a Buenos Aires."
+            description="Para elegir residencia y mudarte a Buenos Aires."
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {featuredGuides.map((g) => (
@@ -319,8 +301,8 @@ export async function HomeLanding({ schema = true }: { schema?: boolean }) {
             La convivencia también se elige.
           </p>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-            Ya podés buscar, comparar y enviar tu solicitud a las primeras
-            residencias verificadas de Buenos Aires.
+            Ya podés buscar, comparar y enviar tu solicitud de reserva a las
+            primeras residencias verificadas de Buenos Aires.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Button href="/search" size="lg">

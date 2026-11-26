@@ -85,7 +85,7 @@ export function availabilityHelpText(mode: AvailabilityMode, roomTypeName?: stri
     case "real_by_place":
       return "Disponibilidad asegurada.";
     case "by_room_type_to_confirm":
-      return "Disponibilidad informada por la residencia. Requiere confirmación al solicitar.";
+      return "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva.";
     case "full":
       return "Residencia completa. Podés sumarte a la lista de espera.";
     case "not_updated":

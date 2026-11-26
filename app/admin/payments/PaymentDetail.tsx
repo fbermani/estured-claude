@@ -528,7 +528,7 @@ function ValidationCard({
                   <p className="mt-1">Comprobante: {withoutReceipt ? "sin comprobante (excepción)" : "cargado"}</p>
                 </div>
                 <p className="mt-3 text-sm font-medium" style={{ color: cmd.onSurface }}>
-                  Al confirmar se <strong>confirma la reserva</strong>, se <strong>emite el comprobante verificable</strong> y se{" "}
+                  Al confirmar se <strong>confirma la reserva</strong>, se <strong>emite el comprobante de reserva</strong> y se{" "}
                   <strong>dispara la factura</strong>. No se puede deshacer desde acá.
                 </p>
 

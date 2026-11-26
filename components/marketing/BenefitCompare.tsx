@@ -2,8 +2,8 @@ import { Icon } from "@/components/ui/Icon";
 import { TONE, type BentoItem } from "@/components/marketing/BenefitBento";
 
 /**
- * Comparativo «Lo que suele pasar → Con EstuRed» (/for-students · Beneficios). Tabla real: en escritorio tres columnas
- * (beneficio, lo que suele pasar, con EstuRed); en móvil cada fila se apila y la etiqueta «Lo que suele pasar:» vuelve
+ * Comparativo «A ciegas → Con EstuRed» (/for-students · Beneficios). Tabla real: en escritorio tres columnas
+ * (beneficio, a ciegas, con EstuRed); en móvil cada fila se apila y la etiqueta «A ciegas:» vuelve
  * dentro de la celda. Reusa los ítems de `BenefitBento` (sin mini-pruebas visuales). Server Component, sin movimiento.
  * Los roles ARIA explícitos mantienen la semántica de tabla aunque en móvil los elementos pasen a `display:block`.
  */
@@ -22,20 +22,20 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
           <th
             scope="col"
             role="columnheader"
-            className="w-[32%] px-[22px] pb-3 text-left text-[12.5px] font-bold text-ink-faint"
+            className="w-[32%] rounded-t-card bg-ink px-[22px] py-3.5 text-left text-[15px] font-bold text-paper"
           >
             <span className="flex items-center gap-1.5">
-              <Icon name="remove" className="text-[17px] text-orange-700" />
-              Lo que suele pasar
+              <Icon name="visibility_off" className="text-[19px]" />
+              A ciegas
             </span>
           </th>
           <th
             scope="col"
             role="columnheader"
-            className="rounded-t-card border border-b-0 border-line bg-paper px-[22px] pb-3 pt-4 text-left text-[12.5px] font-bold text-forest-700"
+            className="rounded-t-card bg-forest px-[22px] py-3.5 text-left text-[15px] font-bold text-paper"
           >
             <span className="flex items-center gap-1.5">
-              <Icon name="check_circle" className="text-[17px] [font-variation-settings:'FILL'_1]" />
+              <Icon name="check_circle" className="text-[19px] [font-variation-settings:'FILL'_1]" />
               Con EstuRed
             </span>
           </th>
@@ -70,7 +70,7 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
                 <span className="flex items-start gap-2">
                   <Icon name="remove" className="mt-px text-[19px] text-orange-700" />
                   <span>
-                    <span className="font-bold text-ink-soft md:hidden">Lo que suele pasar: </span>
+                    <span className="font-bold text-ink-soft md:hidden">A ciegas: </span>
                     {it.before}
                   </span>
                 </span>
