@@ -13,6 +13,12 @@ const BENEFITS = [
   { title: "Salidas con tiempo", text: "no el día que se van" },
 ] as const;
 
+/** Solo con la convocatoria abierta (DR71 d: van en la lista, no como líneas sueltas antes del botón). */
+const FOUNDER_BENEFITS = [
+  { title: "Insignia «Residencia fundadora»", text: "y más arriba al abrir" },
+  { title: "Plan Premium bonificado", text: "el primer año" },
+] as const;
+
 /** Línea de cupo del encabezado según el estado REAL (0, 1–2, 3 a 9 con medidor, 10 y cerrado). Nunca escasez fabricada. */
 function Urgency({ state, closure }: { state: FounderState; closure: FounderClosure }) {
   if (closure.kind === "closed") {
@@ -61,7 +67,7 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
           Residencias fundadoras
         </span>
         <h1 id="pre-fund-title" className="font-display text-[clamp(28px,7vw,40px)] leading-[1.05] tracking-[-0.03em]">
-          Menos mensajes repetidos, mejor gestión. <span className="text-gold">Y gratis.</span>
+          Menos mensajes repetidos, mejor gestión. <span className="mt-1 block text-gold">Sin costo para tu residencia.</span>
         </h1>
         <p id="pre-fund-text" className="max-w-[52ch] text-white/90">
           Estamos sumando las primeras residencias de Buenos Aires antes de abrir. Te visitamos y armamos tu perfil con vos.
@@ -70,15 +76,34 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
       </div>
 
       <div className="grid gap-4 px-5 pb-6 pt-5 sm:px-9 sm:pb-8 sm:pt-6">
+        <div className="grid gap-2">
+          <Button href="/register/residence" variant="secondary" size="lg" className="w-full text-base shadow-orange">
+            Quiero que me contacten
+            <Icon name="arrow_forward" className="text-xl" />
+          </Button>
+          <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-ink-soft">
+            <span className="inline-flex items-center gap-1">
+              <Icon name="forum" className="text-base" />
+              Te escribimos
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Icon name="home_pin" className="text-base" />
+              Te visitamos
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Icon name="key" className="text-base" />
+              Recibís tu cuenta
+            </span>
+          </p>
+        </div>
+
         <p className="flex items-center gap-2 justify-self-start rounded-field border-[1.5px] border-forest/25 bg-forest-tint px-3 py-2.5 text-sm font-bold text-forest-700">
-          <Icon name="sell" className="text-xl" />
-          <span>
-            Gratis para tu residencia<span className="font-semibold opacity-90">, Perfil Verificado sin costo</span>
-          </span>
+          <Icon name="verified" className="text-xl" />
+          Perfil Verificado sin costo
         </p>
 
         <ul className="border-t border-line">
-          {BENEFITS.map((b) => (
+          {[...BENEFITS, ...(closed ? [] : FOUNDER_BENEFITS)].map((b) => (
             <li key={b.title} className="flex flex-wrap items-baseline gap-x-2 border-b border-line py-2.5 text-[15px]">
               <span aria-hidden="true" className="mr-0.5 inline-block h-0.5 w-3.5 self-center bg-gold" />
               <b className="font-bold text-ink">{b.title}</b>
@@ -97,37 +122,6 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
           </p>
         )}
 
-        {!closed && (
-          <div className="grid gap-1.5 text-center text-sm text-ink-soft">
-            <p className="flex items-center justify-center gap-1.5">
-              <Icon name="workspace_premium" className="text-lg text-butter-fg" />
-              Las fundadoras llevan la insignia «Residencia fundadora» y aparecen más arriba al abrir.
-            </p>
-            <p className="flex items-center justify-center gap-1.5">
-              <Icon name="redeem" className="text-lg text-forest-700" />
-              Y tienen el Plan Premium bonificado.
-            </p>
-          </div>
-        )}
-
-        <Button href="/register/residence" variant="secondary" size="lg" className="w-full text-base shadow-orange">
-          Quiero que me contacten
-          <Icon name="arrow_forward" className="text-xl" />
-        </Button>
-        <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-ink-soft">
-          <span className="inline-flex items-center gap-1">
-            <Icon name="forum" className="text-base" />
-            Te escribimos
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Icon name="home_pin" className="text-base" />
-            Te visitamos
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Icon name="key" className="text-base" />
-            Recibís tu cuenta
-          </span>
-        </p>
         <LegalLinks className="-mb-3" />
       </div>
     </div>

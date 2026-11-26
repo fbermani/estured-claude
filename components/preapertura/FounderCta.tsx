@@ -58,7 +58,7 @@ function FounderLine({ state, closure, side }: { state: FounderState; closure: F
  * reales), beneficios y un botón grande (la única acción primaria de la tarjeta). Nada de escasez fabricada: todo sale de
  * `founderState` / `FOUNDERS_CLOSE_AT`. Con la convocatoria cerrada no se listan beneficios de fundadora.
  *
- * `modal`: compacta, dentro del popup (celular y escritorio angosto). `float`: lateral, al costado del popup, desde 1100 px
+ * `modal`: compacta, dentro del popup (celular y escritorio angosto); etiqueta, pregunta y cupo centrados (DR71 c). `float`: lateral, al costado del popup, desde 1100 px
  * (`PreaperturaDialog asideBeside`).
  *
  * IMPORTANTE: el contenedor del popup es `pointer-events-none` (para que el fondo no capture nada fuera de la caja); la tarjeta
@@ -85,10 +85,10 @@ export function FounderCta({ state, closure, variant }: { state: FounderState; c
       className={`group rounded-card border-2 border-gold bg-forest-ink text-white shadow-float transition duration-200 ease-out-fresh focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)] motion-safe:hover:-translate-y-0.5 ${
         side
           ? "pre-halo pointer-events-auto relative hidden w-[340px] shrink-0 content-start gap-2.5 p-[22px] min-[1100px]:grid"
-          : "pre-found grid gap-2 px-4 py-3.5 min-[1100px]:hidden"
+          : "pre-found grid gap-2 px-4 py-3.5 text-center min-[1100px]:hidden"
       }`}
     >
-      <span className={`flex items-center gap-2 font-bold text-gold ${side ? "text-[15px]" : "pre-found-tag text-[13px]"}`}>
+      <span className={`flex items-center gap-2 font-bold text-gold ${side ? "text-[15px]" : "pre-found-tag justify-center text-[13px]"}`}>
         <Icon name="workspace_premium" className="text-lg" />
         {side ? "Residencias fundadoras" : "Residencias fundadoras · Gratis"}
       </span>

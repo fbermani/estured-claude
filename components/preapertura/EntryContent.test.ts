@@ -20,7 +20,7 @@ describe("popup de entrada de la preapertura (DR67)", () => {
     for (const t of [
       "Acceso anticipado abierto",
       "Muy pronto:",
-      "Encontrá y reservá tu residencia en Buenos Aires,",
+      "Reservá tu residencia en Buenos Aires,",
       "con la seguridad de elegir bien.",
       "enterate primero",
       "Residencias verificadas en persona",
@@ -37,7 +37,7 @@ describe("popup de entrada de la preapertura (DR67)", () => {
 
   it("no muestra el ingreso, el acceso familiar ni el copy anterior", async () => {
     const html = await render();
-    for (const t of ["Ingresá", "Soy familiar", "Sumarte es gratis", "Sumarme gratis", "Sé de los primeros", "Se están sumando"]) {
+    for (const t of ["Ingresá", "Soy familiar", "Sumarte es gratis", "Sumarme gratis", "Sé de los primeros", "Se están sumando", "Encontrá"]) {
       expect(html).not.toContain(t);
     }
   });

@@ -29,8 +29,8 @@ export async function EntryContent({ counter, founders, closure }: { counter: St
         </p>
 
         <h1 id="pre-h1" className="pre-title text-center font-display font-bold text-balance text-ink">
-          <span className="pre-soon block font-sans font-bold tracking-normal text-orange-700">Muy pronto:</span> Encontrá y reservá tu
-          residencia en Buenos Aires, <span className="text-orange">con la seguridad de elegir bien.</span>
+          <span className="pre-soon block font-sans font-bold tracking-normal text-orange-700">Muy pronto:</span> Reservá tu residencia
+          en Buenos Aires, <span className="text-orange">con la seguridad de elegir bien.</span>
         </h1>
         <p id="pre-sub" className="pre-sub mx-auto max-w-[46ch] text-center text-ink-soft">
           <span className="pre-sub-long">Estamos visitando residencias una por una. </span>Sumate y{" "}

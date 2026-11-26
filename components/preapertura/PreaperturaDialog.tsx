@@ -36,8 +36,9 @@ const SIZES = {
  *
  * `aside` se renderiza dentro del diálogo pero fuera de su caja (p. ej. la tarjeta lateral de fundadoras), así queda dentro del
  * orden de tabulación y del árbol accesible. Con `asideBeside`, desde 1100 px la caja y la lateral van en fila, centradas y
- * separadas 20 px (600 + 20 + 340 + márgenes). Con `fullOnMobile`, debajo de 640 px el popup ocupa toda la pantalla, sin manija
- * (con aviso de cookies deja su espacio arriba: `.pre-full` en `preapertura.css`).
+ * separadas 20 px (600 + 20 + 340 + márgenes). Con `fullOnMobile`, debajo de 640 px el popup ocupa casi toda la pantalla, sin manija,
+ * con 10 px de margen y bordes redondeados para que se lea como popup sobre la página (DR71 b). Con aviso de cookies deja su
+ * espacio arriba: `.pre-full` en `preapertura.css`.
  */
 export function PreaperturaDialog({
   labelledBy,
@@ -141,7 +142,7 @@ export function PreaperturaDialog({
       ref={wrapperRef}
       onKeyDown={onKeyDown}
       className={`pointer-events-none fixed inset-0 z-[60] flex justify-center sm:items-center sm:p-12 ${
-        fullOnMobile ? "pre-full items-stretch" : "items-end p-2.5"
+        fullOnMobile ? "pre-full items-stretch p-2.5" : "items-end p-2.5"
       } ${asideBeside ? "min-[1100px]:gap-5" : ""}`}
     >
       <div
@@ -165,8 +166,8 @@ export function PreaperturaDialog({
         )}
         <div
           data-dialog-scroll
-          className={`@container overflow-y-auto overscroll-contain bg-paper shadow-float sm:max-h-[inherit] sm:rounded-card ${
-            fullOnMobile ? "h-full sm:h-auto" : "max-h-[inherit] rounded-card"
+          className={`@container overflow-y-auto overscroll-contain rounded-card bg-paper shadow-float sm:max-h-[inherit] ${
+            fullOnMobile ? "h-full sm:h-auto" : "max-h-[inherit]"
           }`}
         >
           {!fullOnMobile && <div data-dialog-handle aria-hidden="true" className="mx-auto mt-2 h-1.5 w-11 rounded-full bg-field-border/50 sm:hidden" />}

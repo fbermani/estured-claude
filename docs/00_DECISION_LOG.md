@@ -2002,3 +2002,14 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Bloqueado antes de escribir código:** (1) §13.3 dice que el valor final en pesos se fija al pagar; un monto fijo en pesos choca con esa regla. (2) Falta aprobar el texto de «el monto no coincide».
 
+
+### DR71: ajustes del popup de preapertura (2026-11-26)
+
+**Fuente:** decisión del dueño, tras revisar staging. Modifica DR67 (e) y DR68 (f).
+
+| # | Decisión |
+|---|---|
+| DR71 (a) | **Título de la entrada:** «Muy pronto: Reservá tu residencia en Buenos Aires, con la seguridad de elegir bien.». Sin «Encontrá». |
+| DR71 (b) | **Celular:** la entrada vuelve a verse como popup sobre la página blureada, con margen y bordes redondeados. |
+| DR71 (c) | **Tarjeta de fundadoras del popup:** etiqueta, pregunta y cupo centrados. |
+| DR71 (d) | **`/fundadoras`:** título «Menos mensajes repetidos, mejor gestión.» y debajo «Sin costo para tu residencia.». El botón «Quiero que me contacten» va después del encabezado. La insignia y el Plan Premium pasan a la lista de beneficios. |
