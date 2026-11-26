@@ -73,7 +73,7 @@ Sumate gratis y enterate primero ↓
 ```
 - **Riesgo aceptado por el dueño (2026-11-11):** "reservá" en el lema, para que la gente no vea las residencias "seguras" y reserve por fuera. Choca con "solicitud sujeta a confirmación" (guía de voz §4). Mitigación: en el resto del contenido y en los anuncios nunca decir "reserva garantizada", "asegurada" ni "inmediata"; aclarar "solicitud sujeta a confirmación" en piezas de proceso, y llevar la validación legal de "reservá" a la lista del asesor.
 - **CTA:** "Sumate gratis y enterate primero ↓".
-- **Link:** `estured.com/?utm_source=instagram&utm_medium=bio` (en producción lleva a `/preregistro`).
+- **Link (decisión del dueño, 2026-11-26):** `estured.com`, sin UTM. Abre el popup de preapertura. Las altas que llegan por la bio no se miden.
 - **Propuesta 2026-11-25:** sumar un segundo link «Soy residencia» a `/fundadoras`, con su UTM.
 - **Cuenta:** profesional (empresa), categoría de servicios de alojamiento o educación; necesaria para pautar en Meta.
 
