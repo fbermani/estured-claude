@@ -2,6 +2,14 @@
 
 # EstuRed — Próximos pasos
 
+## Apertura con el sello (2026-11-26)
+
+- Hecho: `SealIntro` en `staging` (`4427347`). Verificado en staging al cerrar el popup (dev), en computadora y a 375 px.
+- Abierto: en un celular real no se veía la apertura vieja. Causa sin confirmar; sin Xcode no se prueba Safari de iPhone.
+- Prueba del dueño: cerrar el popup en `estured.vercel.app` desde el celular. Secuencia completa = arreglado. Sello quieto con fundido = «Reducir movimiento» activo. Solo verde = sigue roto: anotar modelo y navegador.
+- Supuesto reversible: con «Reducir movimiento» ahora se ve el sello quieto y un fundido (antes no se veía nada). Sin probar en navegador.
+- Sin verificar: la apertura en el hero de la home. Solo aparece con la preapertura apagada.
+
 ## Vista previa del link (WhatsApp, 2026-11-25)
 
 - [x] Imagen de marca 1200×630 para todo el sitio (`app/opengraph-image.tsx`). La ficha de residencia mantiene la suya.
