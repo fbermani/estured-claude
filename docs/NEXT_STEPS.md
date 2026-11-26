@@ -17,6 +17,7 @@
 - [ ] **Dueño:** cargar las 4 residencias fundadoras en `estured.com/fundadoras/datos` (avisadas antes: reciben un mail). Las propias no.
 - [ ] **Bloque A, familiares:** «Completar mi perfil» es solo de estudiantes (`saveProfile` rechaza familiares). La pantalla del familiar muestra el estado de la invitación.
 - [ ] **Bloque A, celulares bajos:** tras implementar, medir en `staging` que el botón de fundadoras se vea sin desplazarse (375×600).
+- [ ] **Bloque A, computadoras bajas:** con las fichas grandes, compactar el popup con `max-height: 830px` (como en el mockup).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
 - [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
 - [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
