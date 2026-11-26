@@ -2002,7 +2002,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR70 (a) | «Pago recibido» muestra el monto acordado, sin editar. La residencia elige la moneda y confirma. Aplica a solicitudes y renovaciones. |
 | DR70 (b) | Si el monto no coincide, la residencia no confirma y abre un caso de Soporte. |
 
-**Bloqueado antes de escribir código:** falta aprobar el texto de «el monto no coincide». El choque con §13.3 lo resolvió DR72.
+**Estado:** el dueño aprobó la ayuda «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» (2026-11-26). Falta el código. El choque con §13.3 lo resolvió DR72.
 
 **Hueco en renovaciones:** el monto acordado (`expected_amount_usd`/`ars`) se guarda solo para solicitudes (`enableResidencePayment`). La oferta de renovación no define cuánto se paga a la residencia. Hay que decidirlo antes de aplicar DR70 (a) a renovaciones.
 
@@ -2028,5 +2028,33 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR72 (b) | La residencia asume la variación del dólar entre el envío y el cobro. |
 | DR72 (c) | Supuesto reversible (`docs/13` §4): en renovaciones, la cotización queda fija cuando la residencia crea la oferta. Es el comportamiento actual. |
 | DR72 (d) | Supuesto reversible (`docs/13` §4): los pagos posteriores los acuerda cada residencia con cada estudiante (DR63 (b)). Esta regla no los alcanza. |
+| DR72 (e) | El pago de la reserva en pesos queda fijo redondeado a múltiplos de 500 (§13.5). Vale para solicitudes nuevas. Las enviadas conservan su monto. El fee no cambia. |
+| DR72 (f) | Con contacto directo, la tarjeta de pago muestra el monto en USD y ARS y la fecha límite. Nunca un teléfono. Modifica DR63 (c) y (d). |
 
-**Estado:** el código ya calcula así el pago de la reserva (`resolveExpectedAmounts`). Falta aprobar y cambiar el aviso de §13.3 (`ExchangeRateNote`) y sus frases cortas, `/terms` §10 y §16 (versión nueva) y `docs/01`, `02`, `03`, `07`, `08`, `10`, `17`, `20` y `21`.
+**Estado:** el dueño aprobó los textos el 2026-11-26: avisos, frases cortas, `/terms` y condiciones de residencias. Sin aplicar. El código calcula así el pago de la reserva (`resolveExpectedAmounts`), sin el redondeo. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13). Actualizar `docs/01`, `02`, `03`, `07`, `08`, `10`, `17`, `20` y `21`.
+
+### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26, sin implementar)
+
+**Fuente:** decisión del dueño. Modifica DR63 (f).
+
+| # | Decisión |
+|---|---|
+| DR73 (a) | Un caso de Soporte abierto sobre el pago de una reserva frena el vencimiento de 48 horas de esa solicitud. |
+| DR73 (b) | Sin «Ya pagué» ni caso abierto, la solicitud vence en plazo. El estudiante puede abrir un caso en Soporte para intentar resolverlo. |
+
+**Pendiente:** definir qué pasa si el caso se cierra con el plazo vencido. Ajustar el aviso «Abrir un caso no suspende automáticamente…» solo para este caso.
+
+### DR74: alertas de pago de la reserva (2026-11-26, sin implementar)
+
+**Fuente:** decisión del dueño. El pago pendiente es una instancia crítica. Modifica DR63 (d) y (j).
+
+| # | Decisión |
+|---|---|
+| DR74 (a) | Alertas por mail y WhatsApp a las 12, 24, 36 y 42 horas del plazo de 48, mientras no se haga el pago. Avisan lo que puede pasar. |
+| DR74 (b) | A las 42 horas se avisa también a la residencia. Puede contactar al estudiante para que pague, o saber que la solicitud puede vencer. |
+
+**Supuestos reversibles** (`docs/13` §4): las horas cuentan desde que corre el plazo y se reinician si el plazo se reinicia. Reemplazan el recordatorio de 12 horas antes. Se frenan con «Ya pagué», un problema de pago abierto, un caso abierto o «Pago recibido». No llevan montos ni datos de cobro. Con un menor, avisan también al familiar. A las 42 horas la residencia ve el botón de contacto en ambos caminos. No alcanzan a las renovaciones.
+
+**Límites conocidos:** los avisos del estudiante hoy salen solo en la app y por push; el mail es código nuevo. WhatsApp depende de DR67 (a): sin proveedor, plantillas ni consentimiento, y `/terms` dice que no es canal. Hasta entonces: app, push y mail. El cron es horario. Staging no tiene cron ni clave de Resend. Requiere migración.
+
+**Pendiente:** con contacto directo no existe «Ya pagué»; decidir si se suma. Aprobar los textos de las alertas.
