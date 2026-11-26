@@ -163,7 +163,9 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
             {state.message}
           </FormAlert>
         ) : failed && hasFieldErrors ? (
-          <FormAlert title="Revisá los campos marcados." alertRef={alertRef} className="mt-3.5" />
+          <FormAlert title="Revisá los campos marcados." alertRef={alertRef} className="mt-3.5">
+            {state.communityRemoved ? "Ya quitamos tu perfil de la comunidad." : null}
+          </FormAlert>
         ) : failed ? (
           <FormAlert title={state.message ?? "No pudimos guardar tu perfil."} alertRef={alertRef} className="mt-3.5" />
         ) : null}

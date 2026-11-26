@@ -21,6 +21,8 @@ export type ProfileState = Base & {
   status: "idle" | "error" | "success";
   code?: "no_session" | "network";
   redirectTo?: string;
+  /** El retiro de la comunidad ya se guardó aunque el resto del perfil tenga errores: la pantalla lo dice. */
+  communityRemoved?: boolean;
 };
 
 export type FamilyState = Base & {

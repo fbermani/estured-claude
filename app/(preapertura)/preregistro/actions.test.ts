@@ -228,6 +228,8 @@ describe("saveProfile: el retiro de la comunidad nunca se bloquea (DR44, Ley 25.
     const state = await saveProfile({ status: "idle" }, form({ first_name: "Lu" })); // sin `community`
     expect(state.status).toBe("error");
     expect(state).toHaveProperty("fieldErrors.university");
+    // Aunque haya errores, la persona se entera de que el retiro sí se guardó.
+    expect(state.communityRemoved).toBe(true);
     expect(await communityConsentOf(userId)).toBe(false);
     expect((await consentRecords(userId)).map((c) => c.metadata.granted)).toEqual([false]);
     const { data: audit } = await admin.from("audit_logs").select("id").eq("actor_user_id", userId).eq("action", "preapertura_community_disabled");
@@ -239,6 +241,7 @@ describe("saveProfile: el retiro de la comunidad nunca se bloquea (DR44, Ley 25.
     const userId = await publicStudent("sigue");
     const state = await saveProfile({ status: "idle" }, form({ first_name: "Lu", community: "on" }));
     expect(state.status).toBe("error");
+    expect(state.communityRemoved).toBeUndefined();
     expect(await communityConsentOf(userId)).toBe(true);
     expect(await consentRecords(userId)).toHaveLength(0);
   });

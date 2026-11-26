@@ -60,9 +60,9 @@ export function PreaperturaTermsBody() {
         </li>
         <li>Sumarte no tiene costo y no reserva un lugar en ninguna residencia.</li>
         <li>No hay fecha de apertura confirmada. Te avisamos por mail cuando abramos.</li>
-        <li>Tu lugar en la lista indica el orden en que te sumaste; no da prioridad para conseguir un lugar.</li>
+        <li>Tu número de registro no da prioridad para conseguir un lugar.</li>
         <li>Cuando abramos, cada solicitud a una residencia queda sujeta a su confirmación.</li>
-        <li>Las tarjetas marcadas «Ejemplo» son ilustrativas: no son personas reales.</li>
+        <li>Mientras la sección se titule «Así vas a ver a tus posibles compañeros», incluye perfiles ilustrativos: no son personas reales.</li>
         <li>
           <b className="text-ink">Tu búsqueda para residencias:</b> al aceptar estos Términos, tu búsqueda (tipo de habitación, mes de ingreso y
           universidad) se muestra sin tu nombre ni contacto a residencias verificadas. Si una se interesa, confirmás con un clic si le pasamos tu
@@ -74,8 +74,8 @@ export function PreaperturaTermsBody() {
         </li>
         <li>
           <b className="text-ink">Comunidad pública:</b> solo si tildás la casilla. Tu tarjeta (nombre sin apellido, edad, país, carrera, hábitos e
-          intereses) se ve en la web pública, para cualquiera. Nunca tu apellido, contacto ni dónde vivís. La quitás cuando quieras desde «Editar mi
-          perfil» y desaparece.
+          intereses) se ve en la web pública, para cualquiera. Nunca tu apellido, contacto ni dónde vivís. La quitás cuando quieras desde tu perfil y
+          desaparece.
         </li>
         <li>Podés cerrar tu cuenta cuando quieras escribiéndonos.</li>
       </ul>

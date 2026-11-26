@@ -200,7 +200,9 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
     },
     { isMinor },
   );
-  if (!result.ok) return { status: "error", message: result.message, fieldErrors: result.fieldErrors };
+  if (!result.ok) {
+    return { status: "error", message: result.message, fieldErrors: result.fieldErrors, ...(withdrawing ? { communityRemoved: true } : {}) };
+  }
   const v = result.value;
 
   const { error: updateError } = await admin
