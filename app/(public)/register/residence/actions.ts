@@ -69,7 +69,7 @@ export async function requestResidenceSignup(_prev: RequestResidenceState, formD
   const admin = getSupabaseAdmin();
   if (!admin) return failure("El formulario no está disponible en este momento. Probá más tarde.", raw);
 
-  // Cupo de fundadoras ANTES de guardar (así sabemos si esta solicitud ocupa un lugar o si ya estaban los 10 en proceso).
+  // Cupo de fundadoras ANTES de guardar (así sabemos si esta solicitud ocupa un lugar o si ya estaba todo el cupo en proceso).
   const preapertura = isPreaperturaOn();
   const place: FounderPlace | undefined = preapertura ? founderPlace(founderState(await getFounderInputs()), getFounderClosure()) : undefined;
 

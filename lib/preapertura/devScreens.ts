@@ -3,6 +3,8 @@
  * el ESTADO de sesión que necesita; el enlace pasa por `/dev-preapertura/preparar`, que deja ese estado (cuenta de prueba, sesión o
  * sin sesión) y recién entonces redirige: así ninguna pantalla da un redirect sin sentido ni un error por falta de sesión.
  */
+import { FOUNDER_CAPACITY } from "@/lib/preapertura/rules";
+
 export const DEV_STATES = ["anon", "incompleto", "completo", "fam-pend", "fam-vinc"] as const;
 export type DevState = (typeof DEV_STATES)[number];
 
@@ -28,7 +30,7 @@ export const DEV_SCREENS: readonly DevScreen[] = [
   { id: "fundadoras", label: "Fundadoras", state: "anon", path: "/fundadoras" },
   { id: "datos", label: "Fundadoras: formulario de 5 datos", state: "anon", path: "/register/residence" },
   { id: "exito", label: "Solicitud enviada, con lugar de fundadora", state: "anon", path: "/register/residence?dev=cupo", matchKey: "dev" },
-  { id: "exito-lleno", label: "Solicitud enviada, 10 lugares en proceso", state: "anon", path: "/register/residence?dev=lleno", matchKey: "dev" },
+  { id: "exito-lleno", label: `Solicitud enviada, ${FOUNDER_CAPACITY} lugares en proceso`, state: "anon", path: "/register/residence?dev=lleno", matchKey: "dev" },
   { id: "legales", label: "Términos y privacidad", state: "anon", path: "/consentimientos" },
 ];
 

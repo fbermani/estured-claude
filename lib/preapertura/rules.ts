@@ -3,8 +3,8 @@
  * Los números salen siempre de datos reales; si la consulta falla se muestra el texto neutro (nunca un número inventado).
  */
 
-/** Cupo real de Residencias fundadoras (DR46.1). PROHIBIDO bajarlo sin altas reales (escasez fabricada). */
-export const FOUNDER_CAPACITY = 10;
+/** Cupo real de Residencias fundadoras (DR46.1; 15 desde DR67). PROHIBIDO bajarlo sin altas reales (escasez fabricada). */
+export const FOUNDER_CAPACITY = 15;
 
 /** El contador de estudiantes se muestra recién desde 25 registrados (DR43.5): un número chico resta confianza. */
 export const STUDENT_COUNTER_MIN = 25;
@@ -36,7 +36,7 @@ export type FounderState =
   | { kind: "some" }
   /** 3 o más: medidor real. `hasExternal` = al menos una es externa (habilita «Ya hay residencias registrándose»). */
   | { kind: "counted"; taken: number; remaining: number; hasExternal: boolean }
-  /** Los 10 lugares están en proceso (si una no avanza, se libera). */
+  /** Los lugares del cupo están en proceso (si una no avanza, se libera). */
   | { kind: "full" };
 
 /**
@@ -102,7 +102,7 @@ export function founderClosure(raw: string | null | undefined, now: Date = new D
 export type FounderPlace = "cupo" | "lleno" | "cerrado" | "unknown";
 
 /**
- * Se calcula con el estado de ANTES de guardar la solicitud: si ya estaban los 10 lugares en proceso, esta no ocupa uno; si no,
+ * Se calcula con el estado de ANTES de guardar la solicitud: si ya estaba todo el cupo en proceso, esta no ocupa uno; si no,
  * sí lo ocupa mientras avanza la visita (DR46.1). Convocatoria cerrada o cupo sin consultar: nada de promesas.
  */
 export function founderPlace(before: FounderState, closure: FounderClosure): FounderPlace {

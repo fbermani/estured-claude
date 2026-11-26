@@ -2,7 +2,7 @@ import { FOUNDER_CAPACITY } from "@/lib/preapertura/rules";
 
 /**
  * Medidor del cupo REAL de Residencias fundadoras (DR46.1): `taken` de `FOUNDER_CAPACITY` lugares en proceso (se libera si una no
- * avanza). Diez segmentos, el estado nunca depende solo del color: lleva texto y `aria-label` con los números.
+ * avanza). Un segmento por lugar; el estado nunca depende solo del color: lleva texto y `aria-label` con los números.
  */
 export function FounderMeter({ taken, caption }: { taken: number; caption?: React.ReactNode }) {
   const filled = Math.min(FOUNDER_CAPACITY, Math.max(0, Math.floor(taken)));

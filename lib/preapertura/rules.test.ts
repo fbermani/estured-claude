@@ -38,17 +38,17 @@ describe("founderState", () => {
     expect(founderState({ externalSignups: 1, otherInVerification: 0 })).toEqual({ kind: "some" });
     expect(founderState({ externalSignups: 1, otherInVerification: 1 })).toEqual({ kind: "some" });
   });
-  it("desde 3 muestra cuántos lugares quedan, con el cupo real de 10", () => {
-    expect(founderState({ externalSignups: 3, otherInVerification: 1 })).toEqual({ kind: "counted", taken: 4, remaining: 6, hasExternal: true });
-    expect(founderState({ externalSignups: 9, otherInVerification: 0 })).toEqual({ kind: "counted", taken: 9, remaining: 1, hasExternal: true });
+  it("desde 3 muestra cuántos lugares quedan, con el cupo real de 15", () => {
+    expect(founderState({ externalSignups: 3, otherInVerification: 1 })).toEqual({ kind: "counted", taken: 4, remaining: 11, hasExternal: true });
+    expect(founderState({ externalSignups: 14, otherInVerification: 0 })).toEqual({ kind: "counted", taken: 14, remaining: 1, hasExternal: true });
   });
   it("con 3 propias y ninguna externa, el medidor sale pero sin la frase", () => {
-    expect(founderState({ externalSignups: 0, otherInVerification: 3 })).toEqual({ kind: "counted", taken: 3, remaining: 7, hasExternal: false });
+    expect(founderState({ externalSignups: 0, otherInVerification: 3 })).toEqual({ kind: "counted", taken: 3, remaining: 12, hasExternal: false });
   });
-  it("con 10 o más, el cupo está en proceso", () => {
-    expect(FOUNDER_CAPACITY).toBe(10);
-    expect(founderState({ externalSignups: 10, otherInVerification: 0 })).toEqual({ kind: "full" });
-    expect(founderState({ externalSignups: 8, otherInVerification: 5 })).toEqual({ kind: "full" });
+  it("con 15 o más, el cupo está en proceso", () => {
+    expect(FOUNDER_CAPACITY).toBe(15);
+    expect(founderState({ externalSignups: 15, otherInVerification: 0 })).toEqual({ kind: "full" });
+    expect(founderState({ externalSignups: 12, otherInVerification: 5 })).toEqual({ kind: "full" });
   });
 });
 
@@ -71,7 +71,7 @@ describe("founderPlace (qué se le dice a quien deja su solicitud)", () => {
     expect(founderPlace({ kind: "counted", taken: 4, remaining: 6, hasExternal: true }, { kind: "closed" })).toBe("cerrado");
     expect(founderPlace({ kind: "unknown" }, open)).toBe("unknown");
   });
-  it("con lugares libres ocupa uno; con los 10 en proceso, no", () => {
+  it("con lugares libres ocupa uno; con los 15 en proceso, no", () => {
     expect(founderPlace({ kind: "none" }, open)).toBe("cupo");
     expect(founderPlace({ kind: "some" }, open)).toBe("cupo");
     expect(founderPlace({ kind: "counted", taken: 9, remaining: 1, hasExternal: true }, open)).toBe("cupo");

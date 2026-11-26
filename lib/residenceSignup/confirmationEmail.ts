@@ -1,4 +1,4 @@
-import type { FounderPlace } from "@/lib/preapertura/rules";
+import { FOUNDER_CAPACITY, type FounderPlace } from "@/lib/preapertura/rules";
 
 /**
  * Mail de confirmación de la solicitud de alta de una residencia (borrador `registro-residencia-exito.html`, vista «Email»). Módulo PURO
@@ -22,10 +22,10 @@ const BOX = "margin:16px 0;padding:12px 14px;background:#f3faf6;border-radius:12
 
 function founderBox(place: FounderPlace): string {
   if (place === "cupo") {
-    return `<div style="${BOX}"><b>Residencias fundadoras:</b> tu solicitud ocupa uno de los 10 lugares mientras avanzamos. Si la residencia queda verificada, al abrir lleva la insignia «Residencia fundadora» y el Plan Premium bonificado.</div>`;
+    return `<div style="${BOX}"><b>Residencias fundadoras:</b> tu solicitud ocupa uno de los ${FOUNDER_CAPACITY} lugares mientras avanzamos. Si la residencia queda verificada, al abrir lleva la insignia «Residencia fundadora» y el Plan Premium bonificado.</div>`;
   }
   if (place === "lleno") {
-    return `<div style="${BOX}"><b>Residencias fundadoras:</b> hoy los 10 lugares están en proceso. Si alguno se libera, te avisamos.</div>`;
+    return `<div style="${BOX}"><b>Residencias fundadoras:</b> hoy los ${FOUNDER_CAPACITY} lugares están en proceso. Si alguno se libera, te avisamos.</div>`;
   }
   return "";
 }

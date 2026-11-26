@@ -13,7 +13,7 @@ import { NETWORK_MESSAGE } from "@/lib/preapertura/formState";
 import { SIGNUP_ALERT_EMPTY, SIGNUP_ALERT_INVALID, validateSignupFields } from "@/lib/residenceSignup/rules";
 import { requestResidenceSignup, type RequestResidenceState } from "@/app/(public)/register/residence/actions";
 import { CONTACT_EMAIL } from "@/lib/constants/contact";
-import type { FounderPlace } from "@/lib/preapertura/rules";
+import { FOUNDER_CAPACITY, type FounderPlace } from "@/lib/preapertura/rules";
 import { isDevUi } from "@/lib/dev/devUi";
 
 const initialState: RequestResidenceState = { status: "idle" };
@@ -49,7 +49,7 @@ function SuccessPreapertura({ founder, devEmail }: { founder: FounderPlace | und
           <p className="flex items-start gap-3 rounded-field border-l-4 border-gold bg-butter px-4 py-3 text-sm text-butter-fg">
             <Icon name="workspace_premium" className="text-2xl" />
             <span>
-              <b className="block text-ink">Ocupás uno de los 10 lugares de fundadora</b>
+              <b className="block text-ink">Ocupás uno de los {FOUNDER_CAPACITY} lugares de fundadora</b>
               Lo mantenés mientras avanzamos con la visita.
             </span>
           </p>
@@ -58,7 +58,7 @@ function SuccessPreapertura({ founder, devEmail }: { founder: FounderPlace | und
           <p className="flex items-start gap-3 rounded-field border-l-4 border-line-2 bg-cream px-4 py-3 text-sm text-ink-soft">
             <Icon name="hourglass_top" className="text-2xl" />
             <span>
-              <b className="block text-ink">Los 10 lugares de fundadora están en proceso</b>
+              <b className="block text-ink">Los {FOUNDER_CAPACITY} lugares de fundadora están en proceso</b>
               Si alguno se libera, te lo contamos. Tu solicitud sigue su curso igual.
             </span>
           </p>

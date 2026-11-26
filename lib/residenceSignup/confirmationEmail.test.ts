@@ -11,9 +11,9 @@ describe("mail de confirmación de la solicitud de residencia", () => {
     expect(html).not.toContain("Pérez");
     expect(html).toContain("Av. Córdoba 1234, CABA");
   });
-  it("con lugar de fundadora lo dice; con los 10 en proceso no promete; cerrada o sin dato no menciona el cupo", () => {
-    expect(buildResidenceConfirmationEmail({ ...base, place: "cupo" }).html).toContain("ocupa uno de los 10 lugares");
-    expect(buildResidenceConfirmationEmail({ ...base, place: "lleno" }).html).toContain("los 10 lugares están en proceso");
+  it("con lugar de fundadora lo dice; con los 15 en proceso no promete; cerrada o sin dato no menciona el cupo", () => {
+    expect(buildResidenceConfirmationEmail({ ...base, place: "cupo" }).html).toContain("ocupa uno de los 15 lugares");
+    expect(buildResidenceConfirmationEmail({ ...base, place: "lleno" }).html).toContain("los 15 lugares están en proceso");
     expect(buildResidenceConfirmationEmail({ ...base, place: "lleno" }).html).not.toContain("ocupa uno");
     for (const place of ["cerrado", "unknown"] as const) {
       expect(buildResidenceConfirmationEmail({ ...base, place }).html).not.toContain("Residencias fundadoras:");

@@ -4,7 +4,7 @@ import { founderClosure, founderState, studentCounter, type FounderClosure, type
 
 /**
  * Contadores REALES de la preapertura. Degradan sin lanzar: sin env vars de Supabase, sin la migración 0080 aplicada o ante
- * cualquier error devuelven el estado «desconocido» y la UI muestra el texto neutro («Sé de los primeros», «Solo 10 lugares…»).
+ * cualquier error devuelven el estado «desconocido» y la UI muestra el texto neutro («Sé de los primeros», «Solo 15 lugares…»).
  */
 
 /** Estudiantes preinscriptos (cuentas con rol estudiante). `null` si no se pudo consultar. */

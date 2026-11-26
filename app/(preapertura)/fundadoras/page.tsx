@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 /**
  * Pantalla de fundadoras de la preapertura (SPEC pantalla 6, DR46). El CTA «Quiero ser fundadora» de la entrada llega acá; la pantalla
- * de `/for-residences` no se reescribe (DR42). Un popup sobre `/for-residences` blureada, con el cupo real de 10 y, solo si hay fecha
+ * de `/for-residences` no se reescribe (DR42). Un popup sobre `/for-residences` blureada, con el cupo real de 15 y, solo si hay fecha
  * de cierre configurada, la cuenta regresiva. «Quiero que me contacten» lleva al formulario de 5 datos (`/register/residence`).
  */
 export default async function FundadorasPage() {

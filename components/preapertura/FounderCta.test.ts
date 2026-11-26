@@ -55,13 +55,13 @@ describe("FounderCta: el enlace lleva a /fundadoras y se puede clickear", () => 
     expect(tag).toContain("pointer-events-auto");
   });
 
-  it("muestra el cupo real: con 3+ residencias el medidor y «Quedan N de 10»; sin dato, texto fijo y sin medidor", () => {
-    const counted = render("float", { kind: "counted", taken: 4, remaining: 6, hasExternal: true });
+  it("muestra el cupo real: con 3+ residencias el medidor y «Quedan N de 15»; sin dato, texto fijo y sin medidor", () => {
+    const counted = render("float", { kind: "counted", taken: 4, remaining: 11, hasExternal: true });
     expect(counted).toContain("Quedan");
-    expect(counted).toContain("6 de 10");
-    expect(counted).toContain('aria-label="Lugares de fundadora: 4 de 10 en proceso"');
+    expect(counted).toContain("11 de 15");
+    expect(counted).toContain('aria-label="Lugares de fundadora: 4 de 15 en proceso"');
     const unknown = render("float", { kind: "unknown" });
-    expect(unknown).toContain("Solo 10 lugares");
+    expect(unknown).toContain("Solo 15 lugares");
     expect(unknown).not.toContain("en proceso\"");
     expect(unknown).toContain("Quiero ser fundadora");
   });
