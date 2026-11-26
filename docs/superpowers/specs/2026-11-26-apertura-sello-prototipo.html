@@ -159,26 +159,34 @@ h1 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; margin: 0
 /* Reposo (antes de la primera reproducción): se ve el sello final. */
 .stage:not(.ready) .lockup, .stage:not(.ready) .stamp { opacity: 0; }
 
-@media (prefers-reduced-motion: reduce) {
-  .a { animation: none !important; }
-  .lockup, .stamp, .impact { display: none; }
-}
+/* Versión suave (la que ve quien tiene «Reducir movimiento»): mismos pasos, solo fundidos en el lugar. */
+.stage.soft .l-left, .stage.soft .l-right, .stage.soft .rglyph, .stage.soft .bed, .stage.soft .wipe { animation-name: fade-in; }
+.stage.soft .wipe > .wipe-in, .stage.soft .mark { animation: none; }
+.stage.soft .rfly { transform: none; animation: none; }
+.stage.soft .word-out { animation-name: fade-out; }
+.stage.soft .lockup { --t: 2.0 !important; --d: 0.3 !important; }
+.stage.soft .stamp, .stage.soft .impact { display: none; }
+.stage.soft .inked { --t: 2.3 !important; --d: 0.5 !important; }
 
 .beats { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
 .beats li { display: grid; grid-template-columns: 5.2em 1fr; gap: 8px; line-height: 1.45; }
 .beats b { color: var(--paper); font-weight: 600; font-variant-numeric: tabular-nums; }
 .note { color: var(--muted); font-size: 13px; margin: 0; }
+.diag { margin: 0; padding: 12px 14px; border: 1.5px solid var(--amber); border-radius: 10px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.diag b { color: var(--amber); }
 </style>
 
 <div class="wrap">
   <h1>Apertura del sello EstuRed</h1>
   <p class="lede">Prototipo de la animación que aparece al cerrar el popup. Usá «Lento» para ver cada paso y «Celular» para el ancho de un teléfono.</p>
+  <p class="diag" id="diag" aria-live="polite">Revisando este teléfono…</p>
 
   <div class="controls" role="group" aria-label="Controles de la animación">
     <button type="button" class="primary" id="replay">Repetir</button>
     <button type="button" id="slow" aria-pressed="false">Lento (×4)</button>
     <button type="button" id="phone" aria-pressed="false">Celular</button>
     <button type="button" id="rmode" aria-pressed="false">R del logo desde el inicio</button>
+    <button type="button" id="soft" aria-pressed="false">Versión suave</button>
   </div>
 
   <p class="note" id="rnote">Ahora: la palabra arranca con una R tipográfica, que se convierte en la R del logo al viajar.</p>
@@ -258,7 +266,7 @@ h1 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; margin: 0
     <li><b>3,05 s</b><span>Aparece la textura de tinta.</span></li>
     <li><b>3,45 s</b><span>La capa se desvanece. A los 3,95 s se ve la página.</span></li>
   </ol>
-  <p class="note">Con «reducir movimiento» activado en el teléfono, la animación no se muestra.</p>
+  <p class="note">Con «Reducir movimiento» activado en el teléfono se ve la versión suave: los mismos pasos, solo con fundidos.</p>
 </div>
 
 <script>
@@ -313,6 +321,10 @@ h1 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; margin: 0
   const slow = document.getElementById("slow");
   const phone = document.getElementById("phone");
   const rmode = document.getElementById("rmode");
+  const soft = document.getElementById("soft");
+  const setSoft = (on) => { soft.setAttribute("aria-pressed", String(on)); stage.classList.toggle("soft", on); };
+  setSoft(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  soft.addEventListener("click", () => { setSoft(soft.getAttribute("aria-pressed") !== "true"); play(); });
   const rnote = document.getElementById("rnote");
   rmode.addEventListener("click", () => {
     const logo = rmode.getAttribute("aria-pressed") !== "true";
@@ -340,6 +352,29 @@ h1 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; margin: 0
 
   const start = () => requestAnimationFrame(play);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+
+  // Diagnóstico: qué ve este navegador. Lo lee el dueño en su celular.
+  (function diagnose() {
+    const out = document.getElementById("diag");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
+    document.body.appendChild(probe);
+    let anim = null;
+    try { anim = probe.animate([{ transform: "none" }, { transform: "translateX(10px)" }], { duration: 3000 }); } catch (e) { anim = null; }
+    let frames = 0;
+    const t0 = performance.now();
+    (function tick() { frames++; if (performance.now() - t0 < 1000) requestAnimationFrame(tick); })();
+    setTimeout(() => {
+      const ms = anim && anim.currentTime != null ? Math.round(anim.currentTime) : null;
+      const runs = ms != null && ms > 200;
+      out.innerHTML =
+        "<b>Reducir movimiento:</b> " + (reduced ? "activado" : "no") +
+        " · <b>Animaciones:</b> " + (runs ? "corren" : "no corren" + (ms != null ? " (" + ms + " ms de 1000)" : "")) +
+        " · <b>Cuadros por segundo:</b> " + frames;
+      probe.remove();
+    }, 1000);
+  })();
 
   // Solo para revisar cuadro por cuadro: window.seek(segundos).
   window.seek = function (sec) {

@@ -16,9 +16,8 @@
 ## Apertura con el sello (2026-11-26)
 
 - Hecho: `SealIntro` en `staging` (`4427347`). Verificado en staging al cerrar el popup (dev), en computadora y a 375 px.
-- Abierto: en un celular real no se veía la apertura vieja. Causa sin confirmar; sin Xcode no se prueba Safari de iPhone.
-- Prueba del dueño: cerrar el popup en `estured.vercel.app` desde el celular. Secuencia completa = arreglado. Sello quieto con fundido = «Reducir movimiento» activo. Solo verde = sigue roto: anotar modelo y navegador.
-- Supuesto reversible: con «Reducir movimiento» ahora se ve el sello quieto y un fundido (antes no se veía nada). Sin probar en navegador.
+- Causa del fallo en celular (confirmada 2026-11-26): el Redmi Note 13 Pro+ del dueño tiene «Reducir movimiento» activado y la apertura vieja se ocultaba en ese caso. No era un error de animación.
+- Decisión del dueño: con «Reducir movimiento» se ve la «versión suave» (mismos pasos, solo fundidos, nada se mueve). Verificada en una página de prueba con la regla forzada; falta verla en el celular del dueño.
 - Sin verificar: la apertura en el hero de la home. Solo aparece con la preapertura apagada.
 
 ## Vista previa del link (WhatsApp, 2026-11-25)

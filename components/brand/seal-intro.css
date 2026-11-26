@@ -309,17 +309,37 @@
   }
 }
 
-/* Reducir movimiento: sin piezas que se mueven. Se ve el sello quieto y la capa se va con un fundido. */
+/* Reducir movimiento: versión suave. Los mismos pasos, cada pieza aparece con un fundido en su lugar: nada se desplaza, gira
+   ni cambia de tamaño. La R del logo aparece en la casa (sin viaje) y el logo armado se funde con el sello (sin golpe).
+   0,10 R · 0,50 «Estu» y «ed» · 1,00 casa · 1,30 cama · 1,60 R del logo y se apaga la palabra · 2,00–2,30 se apaga el
+   logo · 2,30 sello (sin superponerse con el logo) · 3,45–3,95 se va la capa. */
 @media (prefers-reduced-motion: reduce) {
-  .seal-intro {
-    animation: si-out 0.4s ease-in-out 1.2s both;
+  .si-glyph,
+  .si-left,
+  .si-right,
+  .si-bed,
+  .si-wipe {
+    animation-name: si-fade-in;
   }
-  .si-lockup,
+  .si-wipe-in,
+  .si-mark {
+    animation: none;
+  }
+  .si-rfly {
+    transform: none;
+    animation: none;
+  }
+  .si-word {
+    animation-name: si-fade-out;
+  }
+  .si-lockup {
+    animation: si-fade-out 0.3s ease-in 2s both;
+  }
   .si-stamp,
   .si-impact {
     display: none;
   }
   .si-inked {
-    animation: none;
+    animation: si-fade-in 0.5s ease-out 2.3s both;
   }
 }
