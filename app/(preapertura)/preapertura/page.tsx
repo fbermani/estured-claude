@@ -30,6 +30,8 @@ export default async function PreaperturaEntryPage() {
       size="entry"
       initialFocus='a[href="/preregistro"]'
       aside={<FounderCta state={founders} closure={closure} variant="float" />}
+      asideBeside
+      fullOnMobile
     >
       <EntryContent counter={counter} founders={founders} closure={closure} />
     </PreaperturaStage>

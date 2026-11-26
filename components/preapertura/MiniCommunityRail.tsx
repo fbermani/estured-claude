@@ -13,7 +13,7 @@ export function CommunityCard({ card, index = 0, hidden = false }: { card: RailC
   return (
     <div
       aria-hidden={hidden || undefined}
-      className="grid w-[244px] shrink-0 content-start gap-2 rounded-card border-[1.5px] border-line bg-paper p-3.5 text-ink shadow-card"
+      className="pre-card grid w-[244px] shrink-0 content-start gap-2 rounded-card border-[1.5px] border-line bg-paper p-3.5 text-ink shadow-card"
     >
       <div className="flex items-center gap-3">
         <FlagAvatar initial={card.name[0]?.toUpperCase() ?? "?"} flag={card.flag} flagLabel={card.country} index={index} size="md" />
@@ -47,7 +47,7 @@ export function MiniCommunityRail({ cards, hasExamples }: { cards: RailCard[]; h
   const drift = cards.length >= MIN_CARDS_TO_DRIFT;
   return (
     <div className="pre-rail overflow-hidden" role="group" aria-label={railTitle(hasExamples)} tabIndex={0}>
-      <div className="pre-track py-4 sm:py-3" data-static={drift ? undefined : ""}>
+      <div className="pre-track pt-2.5 pb-3" data-static={drift ? undefined : ""}>
         {cards.map((c, i) => (
           <CommunityCard key={`${c.kind}-${c.name}-${i}`} card={c} index={i} />
         ))}

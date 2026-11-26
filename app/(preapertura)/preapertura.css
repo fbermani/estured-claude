@@ -58,6 +58,116 @@
   animation: pre-glow 2.6s var(--ease-out-fresh) infinite;
 }
 
+/* Banda «en vivo»: un brillo la barre cada tanto (transform). */
+@keyframes pre-sweep {
+  55%, 100% { transform: translateX(420%) skewX(-18deg); }
+}
+.pre-live {
+  padding-block: 13px;
+  font-size: 21px;
+}
+.pre-live::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 35%;
+  background: color-mix(in srgb, var(--color-paper) 22%, transparent);
+  transform: translateX(-140%) skewX(-18deg);
+  pointer-events: none;
+  animation: pre-sweep 3.2s var(--ease-out-fresh) infinite;
+}
+
+/* Tamaño de los íconos: `.material-symbols-outlined` (globals.css) va sin capa y fija 24 px, así que las utilidades `text-*`
+   no le ganan. Estas reglas, también sin capa y con dos clases, sí. */
+.pre-entry .material-symbols-outlined { font-size: 20px; }
+.pre-found .material-symbols-outlined,
+.pre-halo .material-symbols-outlined { font-size: 20px; }
+.pre-found .pre-found-tag .material-symbols-outlined { font-size: 18px; }
+.pre-found .pre-found-list .material-symbols-outlined { font-size: 15px; }
+
+/* Popup de entrada (DR67): medidas del mockup aprobado. Van acá (sin capa) para ganarles a las utilidades base de `Button`. */
+.pre-brand { padding-top: 14px; }
+.pre-title { margin-top: 10px; font-size: 33px; line-height: 1.08; letter-spacing: -0.025em; }
+.pre-soon { margin-bottom: 4px; font-size: 17px; }
+.pre-sub { margin-top: 10px; font-size: 17px; }
+.pre-mark {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--color-butter);
+  box-shadow: inset 0 -3px 0 var(--color-gold);
+  color: var(--color-ink);
+  font-size: 1.12em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pre-bens { margin-top: 14px; gap: 8px; }
+.pre-bens li { padding: 10px 6px; font-size: 14px; }
+.pre-cta-block { margin-top: 14px; }
+.pre-cta { height: auto; min-height: 56px; font-size: 19px; }
+.pre-micro { margin-top: 7px; font-size: 14px; }
+.pre-counter { margin-top: 3px; }
+.pre-found-block { margin-top: 16px; }
+.pre-rail-block { margin-top: 16px; padding-top: 10px; }
+/* Desde 1100 px la tarjeta de fundadoras va al costado: acá no ocupa lugar. */
+@media (min-width: 1100px) {
+  .pre-found-block { display: none; }
+}
+
+/* Escritorio bajo: todo se compacta. */
+@media (min-width: 640px) and (max-height: 830px) {
+  .pre-live { padding-block: 9px; font-size: 18px; }
+  .pre-brand { padding-top: 8px; }
+  .pre-soon { margin-bottom: 0; font-size: 15px; }
+  .pre-title { margin-top: 4px; font-size: 28px; }
+  .pre-sub { margin-top: 6px; font-size: 15px; }
+  .pre-bens { margin-top: 10px; }
+  .pre-bens li { grid-auto-flow: column; align-items: center; justify-content: center; padding: 7px 8px; font-size: 13px; }
+  .pre-cta-block { margin-top: 10px; }
+  .pre-cta { min-height: 48px; }
+  .pre-micro { margin-top: 4px; }
+  .pre-rail-block { margin-top: 10px; padding-top: 8px; }
+  .pre-entry .pre-card { gap: 6px; padding: 11px; }
+}
+
+/* Celular: el popup ocupa la pantalla. */
+@media (max-width: 639px) {
+  /* Con aviso de cookies (fijo arriba) el popup le deja su espacio. */
+  body:has([data-cookie-notice]) .pre-full { padding-top: 82px; }
+  .pre-live { padding-block: 11px; font-size: 18px; }
+  .pre-brand { padding-top: 9px; }
+  .pre-title { margin-top: 6px; font-size: 26px; }
+  .pre-soon { margin-bottom: 2px; font-size: 15px; }
+  .pre-sub { margin-top: 7px; font-size: 15px; }
+  .pre-bens { margin-top: 10px; gap: 6px; }
+  .pre-bens li { gap: 3px; padding: 7px 4px; font-size: 12.5px; }
+  .pre-cta-block { margin-top: 10px; }
+  .pre-cta { min-height: 50px; font-size: 17px; }
+  .pre-micro { margin-top: 4px; }
+  .pre-found-block { margin-top: 10px; }
+}
+
+/* Celular bajo (p. ej. el navegador de Instagram en 360×600): se ocultan la marca, la frase larga y los íconos. Texto ≥ 12 px. */
+@media (max-width: 639px) and (max-height: 700px) {
+  .pre-live { padding-block: 8px; font-size: 16px; }
+  .pre-brand, .pre-sub-long, .pre-bens .pre-bens-icon { display: none; }
+  .pre-title { margin-top: 8px; font-size: 23px; }
+  .pre-soon { font-size: 14px; }
+  .pre-sub { margin-top: 5px; font-size: 14px; }
+  .pre-bens { margin-top: 8px; }
+  .pre-bens li { padding: 6px 3px; font-size: 12px; }
+  .pre-cta-block { margin-top: 8px; }
+  .pre-cta { min-height: 46px; }
+  .pre-micro { margin-top: 3px; font-size: 12px; }
+  .pre-found-block { margin-top: 8px; }
+  .pre-found { gap: 5px; padding: 10px 12px; }
+  .pre-found .pre-found-title { font-size: 19px; }
+  .pre-found .pre-found-tag, .pre-found .pre-found-line { font-size: 12.5px; }
+  .pre-found .pre-found-list { gap: 3px 8px; }
+  .pre-found .pre-found-list li { font-size: 12.5px; }
+  .pre-found .pre-found-button { min-height: 44px; }
+}
+
 /* prefers-reduced-motion: carrusel quieto y desplazable a mano; el anillo no se muestra. */
 @media (prefers-reduced-motion: reduce) {
   .pre-rail {
@@ -68,6 +178,7 @@
     animation: none;
   }
   .pre-dot::after,
+  .pre-live::after,
   .pre-halo::before {
     display: none;
   }
