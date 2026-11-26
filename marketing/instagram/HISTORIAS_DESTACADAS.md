@@ -84,7 +84,7 @@ Antes de producir la 3 y la 4, revisalas contra `/preregistro/familiar` y los T�
 
 | # | Titular | Apoyo | Visual | Sticker |
 |---|---|---|---|---|
-| 1 | Programa de 10 residencias fundadoras | Menos mensajes, mejor gestión | K19 | |
+| 1 | Programa de 15 residencias fundadoras | Menos mensajes, mejor gestión | K19 | |
 | 2 | Tu ficha, con link propio | Perfil Verificado gratis, con fotos, reglas y preguntas | K18 | |
 | 3 | Qué suma ser fundadora | Insignia y lugar destacado al abrir. Premium bonificado el primer año | K19 | |
 | 4 | Pedí que te contactemos | Charlamos y coordinamos una visita | K19 | Link `/fundadoras`: «Quiero ser fundadora» |

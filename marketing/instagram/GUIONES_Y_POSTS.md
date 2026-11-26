@@ -116,12 +116,12 @@ Capturas: códigos K en §7. Toda captura lleva el rótulo «Así va a funcionar
 | 4 | Tu ficha tiene link propio | Compartilo en redes y mensajes, como tu propia página | K18 |
 | 5 | Cada solicitud, ordenada | Con fecha y estado, sin depender de tu memoria | K15 |
 | 6 | Si se libera un lugar, avisás | Tu lista de espera reúne a quienes se anotaron | K17 |
-| 7 | Programa de 10 residencias fundadoras | Perfil Verificado gratis. Plan Premium bonificado el primer año. Pedí que te contactemos | K19 |
+| 7 | Programa de 15 residencias fundadoras | Perfil Verificado gratis. Plan Premium bonificado el primer año. Pedí que te contactemos | K19 |
 
 **Texto del post:**
 > Menos tiempo respondiendo lo mismo. Más tiempo para tu residencia.
 > Tu ficha verificada muestra fotos, servicios, reglas y disponibilidad, con un link para compartir. El Perfil Verificado es gratis.
-> Abrimos un programa de 10 residencias fundadoras. Entrá desde el link en la bio y pedí que te contactemos.
+> Abrimos un programa de 15 residencias fundadoras. Entrá desde el link en la bio y pedí que te contactemos.
 
 ## 5. Resto de los posteos
 
@@ -276,7 +276,7 @@ Una por día. Los stickers se agregan desde Instagram.
 1. Validar mensajes, portadas y orden.
 2. Crear la residencia de ejemplo y conseguir las fotos.
 3. Publicar recién cuando el link de la bio abra el popup en producción.
-4. Confirmar que el programa de fundadoras sigue abierto al publicar P3 y P10. Si cierra, quitá el fijado P3.
+4. Confirmar que el programa de fundadoras sigue abierto al publicar P3 y P10. Si cierra, quitá el fijado P3. La web tiene que mostrar 15 lugares (DR67).
 5. Decidir la voz: sintética o humana.
 6. Decidir el titular del popup: dice «sin ir a ciegas» y el lema dice «con todo a la vista».
 7. Decidir el segundo link de la bio («Soy residencia») y el color de las destacadas.
