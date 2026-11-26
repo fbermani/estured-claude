@@ -10,7 +10,9 @@
 
 ## Rediseño del popup (DR67, 2026-11-25)
 
-- [ ] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
+Mockup **aprobado** el 2026-11-26. Plan del bloque A: `docs/superpowers/plans/2026-11-26-popup-preapertura-bloque-a.md` (pendiente de que el dueño dé el arranque).
+
+- [x] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
 - [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
 - [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (en `staging`; falta publicar).
 - [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), carrusel DR67 (h): 5 perfiles más en `EXAMPLE_PROFILES`; `CommunityCard` sin cinta ni punteado y más grande; título según `hasExamples` en `EntryContent`; ajustar `UrgencyPanel`, `MiLugarContent` y `aria-label`; tests del carrusel, «Gratis. Sin tarjeta.», perfil obligatorio.

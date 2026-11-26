@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EstuRed: propuesta de popup (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2722;--soft:#44524b;--line:#e8e0d2;--line2:#ded4c2;--field:#8f836c;--cream:#fbf6ec;--cream2:#f4ecdc;--paper:#fffdf8;--forest:#1f7d5c;--f700:#0f4d39;--fink:#0c3a2c;--ftint:#e2f1ea;--orange:#c0521d;--o700:#9a4118;--otint:#fde7da;--gold:#e9b84b;--butter:#fbeec3;--butterfg:#7a5f0c;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.4 "Hanken Grotesk",system-ui,sans-serif;color:var(--ink);background:var(--fink);min-height:100vh}
+h1,h2,h3,.d{font-family:"Bricolage Grotesque","Hanken Grotesk",sans-serif;letter-spacing:-.025em}
+.i{display:inline-block;width:1.25em;height:1.25em;font-style:normal;flex:none;vertical-align:middle}
+.i svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+a,button,label.opt{cursor:pointer;color:inherit;text-decoration:none;font:inherit}
+:focus-visible{outline:3px solid var(--fink);outline-offset:2px;box-shadow:0 0 0 2px var(--paper)}
+[hidden]{display:none!important}
+.scr{display:none}
+.scr:is(:target,.t),.scr:has(:is(:target,.t)),body:not(:has(.scr:is(:target,.t),.scr :is(:target,.t))) #popup{display:flex}
+#inapp{display:none}
+#registro:has(#registro-ig:is(:target,.t)) #inapp{display:flex}
+#registro:has(#registro-ig:is(:target,.t)) #google{display:none}
+#registro:has(#registro-familiar:is(:target,.t)) .only-est{display:none}
+#registro:has(#registro-familiar:is(:target,.t)) .f.only-fam{display:grid}
+#registro:has(#registro-familiar:is(:target,.t)) .check.only-fam{display:flex}
+#registro:has(#registro-familiar:is(:target,.t)) .seg label:has(#fam){background:var(--fink);color:#fff}
+#registro:has(#registro-familiar:is(:target,.t)) .seg label:has(#est){background:none;color:var(--ink)}
+.stage{justify-content:center;align-items:center;gap:20px;min-height:100vh;padding:20px}
+.box{background:var(--paper);border-radius:22px;width:100%;max-width:580px;overflow:hidden;box-shadow:0 24px 60px rgb(0 0 0/.35)}
+.pad{padding:0 32px}
+
+/* Banda de acceso anticipado */
+.live{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:12px;background:var(--orange);color:#fff;padding:13px 16px;font-size:21px;font-weight:800}
+.live::after{content:"";position:absolute;top:0;bottom:0;left:0;width:35%;background:rgb(255 255 255/.22);transform:translateX(-140%) skewX(-18deg);animation:sweep 3.2s var(--ease) infinite}
+@keyframes sweep{55%,100%{transform:translateX(420%) skewX(-18deg)}}
+.dot{position:relative;width:12px;height:12px;border-radius:99px;background:#fff;flex:none}
+.dot::after{content:"";position:absolute;inset:0;border-radius:99px;background:#fff;animation:ring 1.6s var(--ease) infinite}
+@keyframes ring{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(3);opacity:0}}
+
+.brand{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 0 0;font-size:21px;font-weight:800;color:var(--ink)}
+.brand span{color:var(--soft)}
+.soon{display:block;font-size:17px;color:var(--o700);margin-bottom:4px;font-family:"Hanken Grotesk",sans-serif;font-weight:700;letter-spacing:0}
+h1{font-size:33px;line-height:1.08;text-align:center;margin-top:10px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--orange)}
+.sub{text-align:center;font-size:17px;color:var(--soft);margin:10px auto 0;max-width:46ch}
+mark{background:var(--butter);color:var(--ink);font-weight:700;font-size:1.12em;padding:1px 6px;border-radius:6px;box-shadow:inset 0 -3px 0 var(--gold);white-space:nowrap}
+.bens{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;list-style:none}
+.bens li{display:grid;justify-items:center;gap:5px;text-align:center;background:var(--ftint);border-radius:12px;padding:10px 6px;font-size:14px;font-weight:700;line-height:1.2;color:var(--f700)}
+.cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border:0;border-radius:99px;background:var(--orange);color:#fff;font-size:19px;font-weight:700;margin-top:14px;transition:transform .2s var(--ease)}
+.cta:hover{transform:translateY(-2px)}
+.micro{text-align:center;font-size:14px;color:var(--soft);margin-top:7px}
+
+/* Fundadoras */
+.found{position:relative;display:grid;gap:10px;background:var(--fink);color:#fff;border:2px solid var(--gold);border-radius:22px;padding:22px}
+.found .tag{display:flex;align-items:center;gap:8px;color:var(--gold);font-weight:700;font-size:15px}
+.found h2{font-size:30px;line-height:1.05}
+.found ul{list-style:none;display:grid;gap:9px}
+.found li{display:flex;gap:9px;font-size:15px;line-height:1.3}
+.found li .i{color:var(--gold);font-size:20px}
+.gold{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:99px;background:var(--gold);color:var(--fink);font-weight:700;font-size:17px;border:0}
+.meter{display:grid;grid-template-columns:repeat(15,1fr);gap:3px}
+.meter i{height:9px;border-radius:99px;border:1.5px solid var(--gold)}
+.meter i.on{background:var(--gold)}
+.left b{color:var(--gold)}
+.mini{grid-template-columns:1fr 1fr;gap:6px 10px}
+.found .mini li{align-items:center;font-size:13.5px;gap:6px;white-space:nowrap}
+.found .mini .i{font-size:15px}
+.legal{display:flex;justify-content:center;gap:24px;background:var(--cream);padding:0 0 6px}
+.legal a{display:inline-flex;align-items:center;min-height:36px;font-size:13px;font-weight:700;color:var(--soft);text-decoration:underline}
+.counter{display:none;text-align:center;font-size:14px;color:var(--soft);margin-top:3px}
+#popup:has(#popup-contador:is(:target,.t)) .counter{display:block}
+.side{display:none;width:350px;flex:none}
+.side::before{content:"";position:absolute;inset:-9px;border-radius:30px;border:3px solid var(--gold);opacity:0;animation:glow 2.6s var(--ease) infinite;pointer-events:none}
+@keyframes glow{0%{opacity:.8;transform:scale(.98)}75%,100%{opacity:0;transform:scale(1.05)}}
+.compact{margin:16px 0 0;padding:14px 16px;gap:8px}
+.compact h2{font-size:22px}
+.compact .tag{font-size:13px}
+.compact .left{font-size:14px}
+.compact .gold{min-height:46px;font-size:16px}
+.compact .meter i{height:7px}
+
+/* Carrusel */
+.rail{margin-top:16px;background:var(--cream);border-top:1px solid var(--line);padding:10px 0 14px;overflow:hidden}
+.rail h3{display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:15px}
+.chip{background:var(--butter);color:var(--butterfg);font:700 12px "Hanken Grotesk",sans-serif;border-radius:12px;padding:4px 8px}
+.track{display:flex;gap:10px;width:max-content;padding:10px 20px 0;animation:drift 80s linear infinite}
+@keyframes drift{to{transform:translateX(-50%)}}
+.card{flex:none;width:244px;display:grid;gap:8px;align-content:start;background:var(--paper);border:1.5px solid var(--line);border-radius:22px;padding:14px;font-size:13px;color:var(--soft);box-shadow:0 6px 18px rgb(12 58 44/.09)}
+.who{display:flex;align-items:center;gap:12px}
+.who b{display:block;color:var(--ink);font:800 17px "Bricolage Grotesque","Hanken Grotesk",sans-serif}
+.av{position:relative;display:grid;place-items:center;width:48px;height:48px;border-radius:99px;font-size:19px;font-weight:700;flex:none}
+.av em{position:absolute;right:-6px;bottom:-4px;display:grid;place-items:center;width:27px;height:27px;border-radius:99px;background:var(--paper);box-shadow:0 1px 3px rgb(0 0 0/.18);font-style:normal;font-size:17px}
+.t0{background:var(--ftint);color:var(--f700)}.t1{background:var(--otint);color:var(--o700)}.t2{background:#d7efe2;color:var(--f700)}.t3{background:var(--cream2);color:var(--soft)}
+.career{font-size:14px;font-weight:700}
+.tags{display:flex;gap:6px}
+.tags span{white-space:nowrap;border:1px solid var(--line);background:var(--cream2);border-radius:99px;padding:4px 9px;font-size:12px;font-weight:700}
+
+/* Registro y gracias */
+.form{padding:20px 32px 28px;display:grid;gap:12px}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:700;color:var(--soft);min-height:32px}
+.form h1,.thanks h1{margin-top:0;font-size:30px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--cream2);border-radius:99px;padding:4px}
+.seg label{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:99px;font-weight:700;font-size:15px}
+.seg input,.chips input{position:absolute;opacity:0}
+.seg label:has(:checked){background:var(--fink);color:#fff}
+.seg label:has(:focus-visible),.chips label:has(:focus-visible){outline:3px solid var(--forest);outline-offset:2px}
+.google{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border:1.5px solid var(--field);border-radius:99px;background:var(--paper);font-weight:700;width:100%}
+.g{width:20px;height:20px}
+.inapp{display:flex;gap:10px;align-items:center;background:var(--cream2);border-radius:12px;padding:12px;font-size:14px}
+.inapp a{font-weight:700;color:var(--f700);text-decoration:underline}
+.or{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--soft)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line2)}
+.f{display:grid;gap:4px;font-weight:700;font-size:14px}
+.f select,.f input{min-height:48px;border:1.5px solid var(--field);border-radius:12px;background:var(--paper);padding:0 12px;font:400 16px "Hanken Grotesk",sans-serif;width:100%}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.chips label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;border:1.5px solid var(--field);border-radius:99px;font-weight:700}
+.chips label:has(:checked){border-color:var(--forest);background:var(--ftint);color:var(--f700)}
+.phone{display:none;gap:6px}
+.form:has(#wa:checked) .phone{display:grid}
+.hint{font-size:13px;color:var(--soft)}
+.form .only-fam{display:none}
+.form:has(#fam:checked) .only-est{display:none}
+.form:has(#fam:checked) .f.only-fam{display:grid}
+.form:has(#fam:checked) .check.only-fam{display:flex}
+.check{display:flex;gap:10px;font-size:14px;align-items:flex-start}
+.check input{width:22px;height:22px;flex:none;accent-color:var(--forest)}
+.aside{display:none}
+.thanks{text-align:center;padding:0 32px 28px;display:grid;gap:14px}
+.ticket{background:var(--fink);color:#fff;margin:0 -32px;padding:26px 20px;display:grid;justify-items:center;gap:6px}
+.num{font-size:112px;line-height:.95;color:var(--gold);font-weight:800;animation:pop .7s var(--ease) both}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+.steps{list-style:none;display:grid;gap:8px;text-align:left}
+.steps li{display:flex;gap:12px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:15px}
+.steps .i{color:var(--f700)}
+.outline{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border:1.5px solid var(--forest);border-radius:99px;font-weight:700;color:var(--f700)}
+.link{font-weight:700;color:var(--f700);text-decoration:underline;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.msg{background:var(--ftint);border-radius:22px;padding:18px;text-align:left;display:grid;gap:8px;font-size:15px}
+
+@media (min-width:1000px){
+  .side{display:grid}
+  .compact{display:none}
+  .box.wide{max-width:980px;display:grid;grid-template-columns:.9fr 1.1fr}
+  .wide .aside{display:grid;align-content:center;gap:18px;background:var(--fink);color:#fff;padding:36px}
+  .wide .aside h2{font-size:32px;line-height:1.08}
+  .wide .aside li{display:flex;gap:10px;font-weight:600}
+  .wide .aside ul{list-style:none;display:grid;gap:12px}
+  .wide .aside .i{color:var(--gold)}
+}
+@media (min-width:641px) and (max-height:830px){
+  .stage{padding:10px}
+  .live{font-size:18px;padding:9px}
+  .brand{padding-top:8px;font-size:18px}
+  .soon{font-size:15px;margin-bottom:0}
+  h1{font-size:28px;margin-top:4px}
+  .sub{font-size:15px;margin-top:6px}
+  .bens{margin-top:10px}
+  .bens li{grid-auto-flow:column;align-items:center;justify-content:center;padding:7px 8px;font-size:13px}
+  .cta{min-height:48px;margin-top:10px}
+  .micro{margin-top:4px}
+  .rail{margin-top:10px;padding:8px 0 6px}
+  .card{padding:11px;gap:6px}
+}
+@media (max-width:640px){
+  .stage{padding:0;align-items:stretch}
+  .box{border-radius:0;min-height:100vh}
+  .pad{padding:0 16px}
+  .live{font-size:18px;padding:11px}
+  .brand{padding-top:9px;font-size:18px}
+  h1{font-size:26px;margin-top:6px}
+  .soon{font-size:15px;margin-bottom:2px}
+  .sub{font-size:15px;margin-top:7px}
+  .bens{margin-top:10px;gap:6px}
+  .bens li{font-size:12.5px;padding:7px 4px;gap:3px}
+  .cta{min-height:50px;font-size:17px;margin-top:10px}
+  .micro{margin-top:4px}
+  .compact{margin-top:10px}
+  .form{padding:14px 16px 24px}
+  .thanks{padding:0 16px 24px}
+  .ticket{margin:0 -16px}
+}
+@media (max-width:640px) and (max-height:700px){
+  .live{font-size:16px;padding:8px}
+  .brand{display:none}
+  h1{font-size:23px;margin-top:8px}
+  .soon{font-size:14px}
+  .sub{font-size:14px;margin-top:5px}
+  .sub .long{display:none}
+  .bens{margin-top:8px}
+  .bens li{font-size:11.5px;padding:6px 3px}
+  .bens .i{display:none}
+  .cta{min-height:46px;margin-top:8px}
+  .micro{font-size:12px;margin-top:3px}
+  .compact{margin-top:8px;padding:10px 12px;gap:5px}
+  .compact h2{font-size:19px}
+  .compact .tag,.compact .left{font-size:12.5px}
+  .found .mini{gap:3px 8px}
+  .found .mini li{font-size:12.5px}
+  .compact .gold{min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.side::before,.live::after,.dot::after{display:none}}
+</style>
+</head>
+<body>
+
+<!-- 1. POPUP -->
+<main class="scr stage" id="popup">
+  <div class="box">
+    <p class="live"><span class="dot" aria-hidden="true"></span>Acceso anticipado abierto</p>
+    <div class="pad">
+      <p class="brand d"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 10v10h14V10M9 20v-5h6v5"/></svg></i><b>Estu<span>Red</span></b></p>
+      <h1><span class="soon">Muy pronto:</span>Encontrá y reservá tu residencia en Buenos Aires, <em>con la seguridad de elegir bien.</em></h1>
+      <p class="sub"><span class="long">Estamos visitando residencias una por una.</span> Sumate y <mark>enterate primero</mark> cuáles quedaron verificadas.</p>
+      <ul class="bens">
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6zM8.500 12l2.500 2.500 4.500-5"/></svg></i>Residencias verificadas en persona</li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h4"/></svg></i>Reglas y costos claros</li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11a3.500 3.500 0 1 0 0-7 3.500 3.500 0 0 0 0 7zM2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6M16 4.500a3.500 3.500 0 0 1 0 6.500M18 14.500c2.200.8 3.500 2.700 3.500 5.500"/></svg></i>Conocé la comunidad antes de elegir</li>
+      </ul>
+      <a class="cta" href="#registro">Quiero enterarme primero <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></a>
+      <p class="micro">Gratis. Sin tarjeta.</p>
+      <span id="popup-contador"></span><p class="counter"><b>26</b> estudiantes ya se sumaron</p>
+      <section class="found compact">
+        <p class="tag"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14a5.500 5.500 0 1 0 0-11 5.500 5.500 0 0 0 0 11zM9 13.500 8 21l4-2 4 2-1-7.500"/></svg></i>Residencias fundadoras · Gratis</p>
+        <h2>¿Tenés una residencia?</h2>
+        <!-- El medidor sale de altas reales; acá se muestra el estado con 4. -->
+        <p class="left">Quedan <b>11 de 15</b> lugares</p>
+        <div class="meter" role="img" aria-label="4 de 15 lugares ocupados"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <ul class="mini">
+          <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6zM8.500 12l2.500 2.500 4.500-5"/></svg></i>Perfil verificado</li>
+          <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14a5.500 5.500 0 1 0 0-11 5.500 5.500 0 0 0 0 11zM9 13.500 8 21l4-2 4 2-1-7.500"/></svg></i>Insignia fundadora</li>
+          <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></i>Más arriba al abrir</li>
+          <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7C9 7 7 3 9.500 3S12 7 12 7s0-4 2.500-4S15 7 12 7"/></svg></i>Premium 1.er año</li>
+        </ul>
+        <button class="gold">Quiero ser fundadora <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></button>
+      </section>
+    </div>
+    <section class="rail" aria-label="Así vas a ver a tus posibles compañeros">
+      <h3>Así vas a ver a tus posibles compañeros</h3>
+      <div class="track"><div class="card"><div class="who"><span class="av t0">M<em>🇺🇾</em></span><p><b>Martina</b>19 años, de Uruguay</p></div><p class="career">Medicina</p><div class="tags"><span>Madrugo</span><span>Lectura</span></div></div><div class="card"><div class="who"><span class="av t1">J<em>🇦🇷</em></span><p><b>Joaquín</b>21 años, de Argentina</p></div><p class="career">Ingeniería en Sistemas</p><div class="tags"><span>Hago deporte</span><span>Música</span></div></div><div class="card"><div class="who"><span class="av t2">V<em>🇵🇪</em></span><p><b>Valeria</b>20 años, de Perú</p></div><p class="career">Arquitectura</p><div class="tags"><span>Me gusta cocinar</span><span>Arte</span></div></div><div class="card"><div class="who"><span class="av t3">T<em>🇵🇾</em></span><p><b>Tomás</b>18 años, de Paraguay</p></div><p class="career">Derecho</p><div class="tags"><span>Prefiero la calma</span><span>Cine</span></div></div><div class="card"><div class="who"><span class="av t0">A<em>🇨🇴</em></span><p><b>Agustina</b>22 años, de Colombia</p></div><p class="career">Psicología</p><div class="tags"><span>Muy sociable</span><span>Idiomas</span></div></div><div class="card"><div class="who"><span class="av t1">B<em>🇧🇷</em></span><p><b>Bruno</b>20 años, de Brasil</p></div><p class="career">Diseño Gráfico</p><div class="tags"><span>Arte</span><span>Música</span></div></div><div class="card"><div class="who"><span class="av t2">C<em>🇨🇱</em></span><p><b>Camila</b>19 años, de Chile</p></div><p class="career">Economía</p><div class="tags"><span>Madrugo</span><span>Hago deporte</span></div></div><div class="card"><div class="who"><span class="av t3">D<em>🇧🇴</em></span><p><b>Diego</b>23 años, de Bolivia</p></div><p class="career">Odontología</p><div class="tags"><span>Me gusta cocinar</span><span>Cine</span></div></div><div class="card"><div class="who"><span class="av t0">S<em>🇪🇨</em></span><p><b>Sofía</b>18 años, de Ecuador</p></div><p class="career">Veterinaria</p><div class="tags"><span>Lectura</span><span>Idiomas</span></div></div><div class="card"><div class="who"><span class="av t1">M<em>🇦🇷</em></span><p><b>Mateo</b>21 años, de Argentina</p></div><p class="career">Contador Público</p><div class="tags"><span>Muy sociable</span><span>Hago deporte</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t0">M<em>🇺🇾</em></span><p><b>Martina</b>19 años, de Uruguay</p></div><p class="career">Medicina</p><div class="tags"><span>Madrugo</span><span>Lectura</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t1">J<em>🇦🇷</em></span><p><b>Joaquín</b>21 años, de Argentina</p></div><p class="career">Ingeniería en Sistemas</p><div class="tags"><span>Hago deporte</span><span>Música</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t2">V<em>🇵🇪</em></span><p><b>Valeria</b>20 años, de Perú</p></div><p class="career">Arquitectura</p><div class="tags"><span>Me gusta cocinar</span><span>Arte</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t3">T<em>🇵🇾</em></span><p><b>Tomás</b>18 años, de Paraguay</p></div><p class="career">Derecho</p><div class="tags"><span>Prefiero la calma</span><span>Cine</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t0">A<em>🇨🇴</em></span><p><b>Agustina</b>22 años, de Colombia</p></div><p class="career">Psicología</p><div class="tags"><span>Muy sociable</span><span>Idiomas</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t1">B<em>🇧🇷</em></span><p><b>Bruno</b>20 años, de Brasil</p></div><p class="career">Diseño Gráfico</p><div class="tags"><span>Arte</span><span>Música</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t2">C<em>🇨🇱</em></span><p><b>Camila</b>19 años, de Chile</p></div><p class="career">Economía</p><div class="tags"><span>Madrugo</span><span>Hago deporte</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t3">D<em>🇧🇴</em></span><p><b>Diego</b>23 años, de Bolivia</p></div><p class="career">Odontología</p><div class="tags"><span>Me gusta cocinar</span><span>Cine</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t0">S<em>🇪🇨</em></span><p><b>Sofía</b>18 años, de Ecuador</p></div><p class="career">Veterinaria</p><div class="tags"><span>Lectura</span><span>Idiomas</span></div></div><div class="card" aria-hidden="true"><div class="who"><span class="av t1">M<em>🇦🇷</em></span><p><b>Mateo</b>21 años, de Argentina</p></div><p class="career">Contador Público</p><div class="tags"><span>Muy sociable</span><span>Hago deporte</span></div></div></div>
+    </section>
+    <nav class="legal" aria-label="Legales"><a href="#popup">Términos</a><a href="#popup">Privacidad</a></nav>
+  </div>
+  <aside class="found side">
+    <p class="tag"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14a5.500 5.500 0 1 0 0-11 5.500 5.500 0 0 0 0 11zM9 13.500 8 21l4-2 4 2-1-7.500"/></svg></i>Residencias fundadoras</p>
+    <h2>¿Tenés una residencia en Buenos Aires?</h2>
+    <p class="left">Quedan <b>11 de 15</b> lugares. Gratis para tu residencia.</p>
+    <ul>
+      <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11zM9 11l3-2.500 3 2.500v2H9z"/></svg></i>Te visitamos y armamos tu perfil con vos</li>
+      <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6zM8.500 12l2.500 2.500 4.500-5"/></svg></i>Perfil Verificado sin costo</li>
+      <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14a5.500 5.500 0 1 0 0-11 5.500 5.500 0 0 0 0 11zM9 13.500 8 21l4-2 4 2-1-7.500"/></svg></i>Insignia «Residencia fundadora»</li>
+      <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></i>Aparecés más arriba al abrir</li>
+      <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7C9 7 7 3 9.500 3S12 7 12 7s0-4 2.500-4S15 7 12 7"/></svg></i>Plan Premium bonificado el primer año</li>
+    </ul>
+    <div class="meter" role="img" aria-label="4 de 15 lugares ocupados"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <button class="gold">Quiero ser fundadora <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></button>
+  </aside>
+</main>
+
+<!-- 2. REGISTRO (variantes: #registro-ig y #registro-familiar) -->
+<main class="scr stage" id="registro">
+  <div class="box wide">
+    <aside class="aside">
+      <h2>Mientras otros buscan a ciegas, <span style="color:#ef8551">vos te enterás primero.</span></h2>
+      <ul>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6zM8.500 12l2.500 2.500 4.500-5"/></svg></i>Residencias verificadas en persona</li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h4"/></svg></i>Reglas y costos claros</li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11a3.500 3.500 0 1 0 0-7 3.500 3.500 0 0 0 0 7zM2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6M16 4.500a3.500 3.500 0 0 1 0 6.500M18 14.500c2.200.8 3.500 2.700 3.500 5.500"/></svg></i>Conocé la comunidad antes de elegir</li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3h8l10 10-8 8L3 11zM7.500 7.500h.01"/></svg></i>Gratis. Sin tarjeta.</li>
+      </ul>
+    </aside>
+    <span id="registro-ig"></span><span id="registro-familiar"></span>
+    <form class="form" action="#gracias">
+      <a class="back" href="#popup"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg></i>Volver</a>
+      <h1 style="text-align:left">Sumate en un minuto</h1>
+      <fieldset class="seg" style="border:0">
+        <label><input type="radio" name="rol" id="est" checked>Soy estudiante</label>
+        <label><input type="radio" name="rol" id="fam"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 7a2.500 2.500 0 1 0 0-5 2.500 2.500 0 0 0 0 5zM17 7a2.500 2.500 0 1 0 0-5 2.500 2.500 0 0 0 0 5zM3 21V11h8v10M13 21V11h8v10"/></svg></i>Soy familiar</label>
+      </fieldset>
+      <button type="button" class="google" id="google">
+        <svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.500 42.600 14.600 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+      <div class="inapp" id="inapp"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14h-5M9 19H4V5M12 21v-9M8.500 15.500 12 12l3.500 3.500"/></svg></i><p>Google no funciona dentro de Instagram. <a href="#registro-ig">Abrí en tu navegador</a> o seguí con tu mail.</p></div>
+      <p class="or">o con tu mail</p>
+      <label class="f">Email<input type="email" placeholder="tu@email.com" autocomplete="email"></label>
+      <label class="f only-fam">Email de tu hijo/a<input type="email" placeholder="hijo@email.com"></label>
+      <label class="f only-est">Fecha de nacimiento<input type="date" autocomplete="bday"></label>
+      <fieldset style="border:0">
+        <legend class="f">¿Por dónde te avisamos?</legend>
+        <div class="chips">
+          <label><input type="radio" name="canal" id="mail"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 6l9 7 9-7"/></svg></i>Mail</label>
+          <label><input type="radio" name="canal" id="wa"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4z"/></svg></i>WhatsApp</label>
+        </div>
+      </fieldset>
+      <div class="phone"><label class="f">Tu WhatsApp<input type="tel" placeholder="+54 9 11 1234 5678" autocomplete="tel"></label>
+        <p class="hint">Al elegir WhatsApp aceptás que te escribamos. Respondé BAJA para no recibir más.</p></div>
+      <label class="check only-fam"><input type="checkbox"><span>Declaro que soy mayor de 18 años.</span></label>
+      <label class="check"><input type="checkbox"><span>Acepto los Términos y la Privacidad<span class="only-est">, incluido mostrar mi búsqueda sin nombre ni contacto a residencias verificadas</span>.</span></label>
+      <a class="cta" style="margin-top:0" href="#gracias">Sumarme <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></a>
+    </form>
+  </div>
+</main>
+
+<!-- 3. REGISTRO LISTO -->
+<main class="scr stage" id="gracias">
+  <div class="box">
+    <p class="live"><span class="dot" aria-hidden="true"></span>¡Listo! Ya estás adentro</p>
+    <div class="thanks">
+      <div class="ticket"><p>Tu número de registro</p><p class="num d">11</p><p style="font-size:14px">Te mandamos la bienvenida por WhatsApp.</p></div>
+      <h1>¿Y ahora?</h1>
+      <a class="cta" style="margin-top:0" href="#perfil">Completar mi perfil <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></a>
+      <ol class="steps">
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v13H9l-5 4z"/></svg></i><span><b>Revisá tu WhatsApp.</b> Ahí te van a llegar las novedades.</span></li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4zM12 17a3.500 3.500 0 1 0 0-7 3.500 3.500 0 0 0 0 7z"/></svg></i><span><b>Seguinos en Instagram.</b> Mostramos las visitas.</span></li>
+        <li><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16V10a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></svg></i><span><b>Esperá el aviso.</b> Te escribimos apenas abramos.</span></li>
+      </ol>
+      <a class="outline" href="https://instagram.com/estured.residencias" target="_blank" rel="noopener"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4zM12 17a3.500 3.500 0 1 0 0-7 3.500 3.500 0 0 0 0 7z"/></svg></i>Seguir @estured.residencias</a>
+    </div>
+  </div>
+</main>
+
+<!-- 3b. PERFIL OBLIGATORIO -->
+<main class="scr stage" id="perfil">
+  <div class="box">
+    <form class="form" action="#mensaje">
+      <h1 style="text-align:left">Completá tu perfil</h1>
+      <p class="hint">Lo necesitamos para mostrarte residencias que te sirvan.</p>
+      <label class="f">Nombre<input autocomplete="given-name"></label>
+      <label class="f">País<select><option value=''>Elegí una opción</option><option>Argentina</option><option>Uruguay</option><option>Perú</option></select></label>
+      <label class="f">Universidad<select><option value=''>Elegí una opción</option><option>UBA</option><option>UADE</option><option>UCA</option></select></label>
+      <label class="f">Carrera<select><option value=''>Elegí una opción</option><option>Medicina</option><option>Derecho</option><option>Arquitectura</option></select></label>
+      <label class="f">Mes de ingreso<select><option value=''>Elegí una opción</option><option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option><option>Todavía no sé</option></select></label>
+      <label class="f">Tipo de habitación<select><option value=''>Elegí una opción</option><option>Individual</option><option>Compartida</option><option>Me da igual</option></select></label>
+      <p class="hint">Hábitos, intereses y aparecer en la comunidad son opcionales.</p>
+      <a class="cta" style="margin-top:0" href="#mensaje">Guardar mi perfil <i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></i></a>
+    </form>
+  </div>
+</main>
+
+<!-- 4. MENSAJE DE BIENVENIDA -->
+<main class="scr stage" id="mensaje">
+  <div class="box">
+    <div class="form">
+      <a class="back" href="#gracias"><i class="i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg></i>Volver</a>
+      <h1 style="text-align:left">Mensaje de bienvenida</h1>
+      <p style="color:var(--soft);font-size:14px">Mismo texto por mail y por WhatsApp.</p>
+      <div class="msg">
+        <p><b>¡Ya sos parte de EstuRed! 🎉</b></p>
+        <p>Tu número de registro es el <b>11</b>.</p>
+        <p>Estamos visitando residencias en Buenos Aires. Te vas a enterar primero cuáles quedaron verificadas.</p>
+        <p>1. Guardá este mensaje.<br>2. Seguinos: instagram.com/estured.residencias<br>3. Esperá nuestro aviso de apertura.</p>
+        <p style="font-size:13px;color:var(--soft)">Para no recibir más mensajes, respondé BAJA.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+
+<script>
+/* Respaldo para visores donde :target no funciona; en un navegador común alcanza con el CSS. */
+function go(){document.querySelectorAll(".t").forEach(e=>e.classList.remove("t"));const e=document.getElementById(location.hash.slice(1));if(e)e.classList.add("t");scrollTo(0,0)}
+addEventListener("hashchange",go);go();
+</script>
+</body>
+</html>
