@@ -75,7 +75,7 @@ Sumate gratis y enterate primero ↓
 - **CTA:** "Sumate gratis y enterate primero ↓".
 - **Link (decisión del dueño, 2026-11-26):** `estured.com`, sin UTM. Abre el popup de preapertura. Las altas que llegan por la bio no se miden.
 - **Propuesta 2026-11-25:** sumar un segundo link «Soy residencia» a `/fundadoras`, con su UTM.
-- **Cuenta:** profesional (empresa), categoría de servicios de alojamiento o educación; necesaria para pautar en Meta.
+- **Cuenta:** profesional (empresa), necesaria para pautar en Meta. Categoría: «Producto/servicio» (decisión del dueño, 2026-11-26).
 
 ## 3. Historias destacadas (cerrada)
 Historia por historia: `HISTORIAS_DESTACADAS.md`.
