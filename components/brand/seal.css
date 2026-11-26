@@ -25,32 +25,8 @@
   animation-delay: var(--seal-delay, 0s);
 }
 
-/* Onda de impacto detrás del sello cuando toca el «papel». */
-@keyframes seal-impact {
-  0%,
-  40% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  46% {
-    opacity: 0.55;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.6);
-  }
-}
-.seal-impact {
-  animation: seal-impact 1s ease-out both;
-  animation-delay: var(--seal-delay, 0s);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .seal-stamp,
-  .seal-impact {
+  .seal-stamp {
     animation: none;
-  }
-  .seal-impact {
-    display: none;
   }
 }

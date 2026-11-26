@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
-import { EsturedSeal } from "@/components/brand/EsturedSeal";
-import "@/components/marketing/hero-motion.css";
+import { SealIntro } from "@/components/brand/SealIntro";
 import { BlurredPreview } from "@/components/preapertura/BlurredPreview";
 import { PreaperturaDialog } from "@/components/preapertura/PreaperturaDialog";
 import { isDevUi } from "@/lib/dev/devUi";
@@ -85,14 +84,7 @@ export function PreaperturaStage({
 
   return (
     <div className="bg-cream">
-      {introRun > 0 && (
-        <div key={introRun} aria-hidden="true" className="hero-intro hero-intro-fixed bg-gradient-to-br from-forest-ink via-forest-700 to-forest-600">
-          <span className="relative grid place-items-center" style={{ "--seal-delay": "0.15s" } as CSSProperties}>
-            <i className="seal-impact absolute size-[300px] rounded-full border-2 border-paper/60 sm:size-[360px]" />
-            <EsturedSeal size={260} tone="cream" stamp className="size-[220px] sm:size-[260px]" />
-          </span>
-        </div>
-      )}
+      {introRun > 0 && <SealIntro key={introRun} fixed />}
       <BlurredPreview revealed={revealed} label={previewLabel}>{preview}</BlurredPreview>
       {revealed ? (
         <button

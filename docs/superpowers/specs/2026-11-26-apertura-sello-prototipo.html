@@ -1,0 +1,351 @@
+<title>Apertura del sello EstuRed</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;600&display=swap">
+<style>
+/* Layout: escenario a pantalla completa (como la capa real) + barra de controles debajo. Una sola estética: el verde del hero. */
+:root {
+  --forest-ink: #10231b;
+  --forest-700: #1f4a39;
+  --forest-600: #2c5f4a;
+  --paper: #fffdf8;
+  --amber: #f2c46b;
+  --muted: #c9d8cf;
+  --line: rgb(255 253 248 / 0.18);
+  --display: "Bricolage Grotesque", "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  color-scheme: dark;
+}
+body {
+  background: var(--forest-ink);
+  color: var(--paper);
+  font-family: var(--body);
+  font-size: 15px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 32px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 16px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; line-height: 1.5; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls button {
+  min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line);
+  background: transparent; color: var(--paper); font: 600 14px var(--body); cursor: pointer;
+}
+.controls button[aria-pressed="true"] { background: var(--paper); color: var(--forest-ink); border-color: var(--paper); }
+.controls button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.controls .primary { background: var(--amber); color: var(--forest-ink); border-color: var(--amber); }
+
+.frame { display: grid; justify-items: center; }
+.device { width: 100%; transition: width .3s ease; }
+.device.phone { width: 375px; max-width: 100%; }
+
+/* ===================== ESCENARIO ===================== */
+.stage {
+  --k: 1; /* multiplicador de tiempo (1 = real, 4 = lento) */
+  --F: clamp(30px, calc((100cqw - 40px) / 6.1), 80px);
+  --rs: 1.22; /* la R en la palabra es un poco más grande que en el logo */   /* cuerpo de la palabra */
+  --seal: min(260px, 64cqw);                              /* lado del sello */
+  container-type: inline-size;
+  position: relative; overflow: hidden; border-radius: 14px;
+  height: min(620px, 78vh); min-height: 420px;
+  background: linear-gradient(135deg, var(--forest-ink), var(--forest-700) 55%, var(--forest-600));
+}
+.device.phone .stage { height: 640px; }
+/* La "página" que queda detrás de la capa. */
+.behind {
+  position: absolute; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center; padding: 24px;
+}
+.behind p { margin: 0; }
+.behind .h { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 6cqw, 40px); line-height: 1.1; text-wrap: balance; }
+.behind .h span { color: var(--amber); }
+.behind .s { color: var(--muted); }
+
+.intro { position: absolute; inset: 0; display: grid; place-items: center; background: inherit; }
+.intro > * { grid-area: 1 / 1; }
+
+/* Todo lo animado usa --t (inicio) y --d (duración) en segundos, multiplicados por --k. */
+.a {
+  animation-duration: calc(var(--d) * 1s * var(--k));
+  animation-delay: calc(var(--t) * 1s * var(--k));
+  animation-fill-mode: both;
+  animation-play-state: paused;
+}
+.stage.run .a { animation-play-state: running; }
+
+/* Lockup: [logo] [Estu R ed], alineado por la línea de base. */
+.lockup { display: flex; align-items: flex-end; gap: calc(var(--F) * 0.28); font-size: var(--F); }
+.mark { position: relative; width: 1.42em; aspect-ratio: 338 / 346; flex: none; transform-origin: 50% 50%; }
+.mark svg, .rfly svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mark path, .rfly path { fill: var(--paper); fill-rule: evenodd; }
+.word {
+  font-family: var(--display); font-weight: 600; font-size: 1em; line-height: 1; letter-spacing: -0.02em;
+  display: flex; align-items: baseline; white-space: nowrap; padding-bottom: 0.06em;
+}
+.word span { display: inline-block; }
+.slot { width: 1.04em; position: relative; }
+/* Variante «R tipográfica»: la palabra usa una R real; al viajar se funde con la R del logo. */
+.rglyph { display: none; }
+.r-font .slot { width: auto; }
+.r-font .rglyph {
+  display: inline-block;
+  animation:
+    r-pop calc(0.42s * var(--k)) calc(0.1s * var(--k)) both,
+    glyph-fly calc(0.55s * var(--k)) cubic-bezier(0.65, 0, 0.35, 1) calc(1.6s * var(--k)) both;
+  animation-play-state: paused;
+}
+.stage.run.r-font .rglyph { animation-play-state: running; }
+@keyframes glyph-fly { 0%, 15% { opacity: 1; } 60% { opacity: 0; } 100% { opacity: 0; transform: translate(var(--gx, 0px), var(--gy, 0px)) scale(0.8); } }
+.r-font .rpop { animation-name: r-late; }
+@keyframes r-late { 0%, 22% { opacity: 0; } 70%, 100% { opacity: 1; } }
+
+/* 1. La R aparece (dentro de la palabra). */
+.rfly { position: absolute; transform-origin: 34.6% 99.4%; transform: translate(var(--rx, 0px), var(--ry, 0px)) scale(var(--rs)); }
+.rpop { position: absolute; inset: 0; transform-origin: 62% 70%; animation-name: r-pop; --t: 0.1; --d: 0.42; }
+.r-font .rpop { --t: 1.6; --d: 0.55; }
+@keyframes r-pop { from { opacity: 0; transform: scale(0.55); } 70% { opacity: 1; transform: scale(1.06); } to { opacity: 1; transform: none; } }
+
+/* 2. «Estu» se escribe hacia la izquierda; «ed», hacia la derecha. */
+.l-left { animation-name: write-left; }
+.l-right { animation-name: write-right; }
+@keyframes write-left { from { opacity: 0; transform: translateX(0.45em) scale(0.85); } to { opacity: 1; transform: none; } }
+@keyframes write-right { from { opacity: 0; transform: translateX(-0.45em) scale(0.85); } to { opacity: 1; transform: none; } }
+
+/* 3. Se dibujan la casa (barrido de izquierda a derecha, con contra-desplazamiento) y la cama. */
+.wipe { position: absolute; inset: -6%; overflow: hidden; animation-name: wipe-out; }
+.wipe > .wipe-in { position: absolute; inset: 0; animation: inherit; animation-name: wipe-in; }
+.wipe > .wipe-in > svg { inset: 6%; width: 88%; height: 88%; }
+@keyframes wipe-out { from { transform: translateX(-101%); } to { transform: none; } }
+@keyframes wipe-in { from { transform: translateX(101%); } to { transform: none; } }
+.bed { animation-name: bed-in; }
+@keyframes bed-in { from { opacity: 0; transform: translateX(-18%); } to { opacity: 1; transform: none; } }
+
+/* 4. La R viaja a la casa; la palabra se apaga. */
+.rfly { animation-name: r-home; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+@keyframes r-home { to { transform: translate(0, 0) scale(1); } }
+.word-out { animation-name: word-out; animation-timing-function: ease-in; }
+@keyframes word-out { to { opacity: 0; transform: scale(0.94); } }
+
+/* 5. El logo va al centro (con el giro del sello) y el sello cae sobre él. */
+.mark { animation-name: mark-center; animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1); }
+@keyframes mark-center { to { transform: translate(var(--mx, 0px), var(--my, 0px)) rotate(-10deg) scale(var(--ms, 1)); } }
+
+.seal-box { position: relative; width: var(--seal); aspect-ratio: 1; pointer-events: none; }
+.seal-box svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--paper); }
+.stamp { animation-name: seal-stamp; animation-timing-function: cubic-bezier(0.2, 0.8, 0.25, 1); }
+@keyframes seal-stamp {
+  0% { opacity: 0; transform: scale(1.9) rotate(-22deg); }
+  42% { opacity: 1; transform: scale(0.88) rotate(2deg); }
+  60% { transform: scale(1.05) rotate(-1deg); }
+  80% { transform: scale(0.99); }
+  100% { opacity: 1; transform: none; }
+}
+.impact { position: absolute; inset: -14%; border-radius: 50%; border: 2px solid rgb(255 253 248 / 0.6); animation-name: impact; }
+@keyframes impact { 0% { opacity: 0; transform: scale(0.7); } 6% { opacity: 0.55; } 100% { opacity: 0; transform: scale(1.6); } }
+
+/* 6. Tinta: el sello final (con textura) reemplaza a las piezas limpias. */
+.inked { animation-name: fade-in; }
+.pieces-out { animation-name: fade-out; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Salida: la capa se desvanece y queda la página. */
+.intro.a { animation-name: intro-out; animation-timing-function: ease-in-out; }
+@keyframes intro-out { from { opacity: 1; visibility: visible; } to { opacity: 0; visibility: hidden; } }
+
+/* Reposo (antes de la primera reproducción): se ve el sello final. */
+.stage:not(.ready) .lockup, .stage:not(.ready) .stamp { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .a { animation: none !important; }
+  .lockup, .stamp, .impact { display: none; }
+}
+
+.beats { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
+.beats li { display: grid; grid-template-columns: 5.2em 1fr; gap: 8px; line-height: 1.45; }
+.beats b { color: var(--paper); font-weight: 600; font-variant-numeric: tabular-nums; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+</style>
+
+<div class="wrap">
+  <h1>Apertura del sello EstuRed</h1>
+  <p class="lede">Prototipo de la animación que aparece al cerrar el popup. Usá «Lento» para ver cada paso y «Celular» para el ancho de un teléfono.</p>
+
+  <div class="controls" role="group" aria-label="Controles de la animación">
+    <button type="button" class="primary" id="replay">Repetir</button>
+    <button type="button" id="slow" aria-pressed="false">Lento (×4)</button>
+    <button type="button" id="phone" aria-pressed="false">Celular</button>
+    <button type="button" id="rmode" aria-pressed="false">R del logo desde el inicio</button>
+  </div>
+
+  <p class="note" id="rnote">Ahora: la palabra arranca con una R tipográfica, que se convierte en la R del logo al viajar.</p>
+
+  <div class="frame">
+    <div class="device" id="device">
+      <div class="stage r-font" id="stage">
+        <div class="behind" aria-hidden="true">
+          <p class="h">Elegí tu residencia a distancia, <span>sin adivinar.</span></p>
+          <p class="s">Acá aparece la home real.</p>
+        </div>
+
+        <div class="intro a" id="intro" style="--t:3.45;--d:0.5" aria-hidden="true">
+          <!-- Sello: el que cae (limpio, sin logo) y el final (con tinta y logo). -->
+          <div class="seal-box" id="sealBox">
+            <i class="impact a" style="--t:2.62;--d:1"></i>
+            <svg class="stamp a" style="--t:2.3;--d:0.85" viewBox="0 0 200 200"><defs><path id="topA" d="M 36 100 A 64 64 0 0 1 164 100"/><path id="botA" d="M 25 100 A 75 75 0 0 0 175 100"/></defs>
+<g fill="currentColor" transform="rotate(-10 100 100)">
+<circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5"/>
+<circle cx="100" cy="100" r="87" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="100" cy="100" r="79" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text style="font-family:var(--display)" font-weight="800" font-size="15" letter-spacing="5" text-anchor="middle"><textPath href="#topA" startOffset="50%">ESTURED</textPath></text>
+<text style="font-family:var(--display)" font-weight="800" font-size="11" letter-spacing="2.2" text-anchor="middle"><textPath href="#botA" startOffset="50%">BUENOS AIRES</textPath></text>
+<path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(2 -9)"/><path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(140 -9)"/>
+<rect x="52" y="104" width="96" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="3.4"/>
+<text x="100" y="125" style="font-family:var(--display)" font-weight="800" font-size="19" text-anchor="middle" textLength="84" lengthAdjust="spacingAndGlyphs">VERIFICADA</text>
+</g></svg>
+            <svg class="inked a" style="--t:3.05;--d:0.25" viewBox="0 0 200 200">
+              <defs>
+                <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp" />
+                  <feDisplacementMap in="SourceGraphic" in2="warp" scale="3" result="wobbly" />
+                  <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" result="grain" />
+                  <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.9" result="holes" />
+                  <feComposite in="wobbly" in2="holes" operator="in" />
+                </filter>
+              </defs>
+              <g filter="url(#ink)"><defs><path id="topB" d="M 36 100 A 64 64 0 0 1 164 100"/><path id="botB" d="M 25 100 A 75 75 0 0 0 175 100"/></defs>
+<g fill="currentColor" transform="rotate(-10 100 100)">
+<circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5"/>
+<circle cx="100" cy="100" r="87" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="100" cy="100" r="79" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text style="font-family:var(--display)" font-weight="800" font-size="15" letter-spacing="5" text-anchor="middle"><textPath href="#topB" startOffset="50%">ESTURED</textPath></text>
+<text style="font-family:var(--display)" font-weight="800" font-size="11" letter-spacing="2.2" text-anchor="middle"><textPath href="#botB" startOffset="50%">BUENOS AIRES</textPath></text>
+<path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(2 -9)"/><path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(140 -9)"/>
+<svg x="75" y="42" width="50" height="51.2" viewBox="84 72 338 346"><path d="M374.29 414.85C372.77 414.09 371.15 412.59 358.75 400.50C353.73 395.61 346.76 388.86 343.25 385.50C335.79 378.36 324.26 367.21 317.00 360.12C310.57 353.85 297.96 341.83 293.64 337.88C289.15 333.76 287.94 332.46 287.17 330.93C285.45 327.53 285.64 322.17 287.60 318.82C289.09 316.28 290.02 315.64 296.00 312.99C303.77 309.55 310.03 303.35 313.74 295.42C314.99 292.76 316.75 287.40 316.75 286.28C316.75 285.92 316.87 285.23 317.02 284.75C317.54 283.10 317.76 276.80 317.36 275.05C317.16 274.18 317.00 273.07 317.00 272.59C317.00 270.61 315.52 265.90 313.65 261.90C309.17 252.29 299.24 245.08 287.62 242.97C286.29 242.72 277.18 242.62 248.75 242.51L211.62 242.38L209.94 241.72C203.94 239.39 201.11 233.19 203.12 226.83C204.21 223.37 206.51 220.69 209.68 219.18L211.38 218.38L248.50 218.38C291.80 218.38 289.73 218.27 298.62 220.92C315.83 226.04 330.20 238.65 336.62 254.25C337.92 257.40 340.00 264.23 340.00 265.33C340.00 265.77 340.12 266.52 340.26 267.00C340.41 267.48 340.63 268.72 340.75 269.75C340.87 270.78 341.10 272.41 341.25 273.38C341.61 275.61 341.35 283.83 340.86 285.83C340.66 286.63 340.50 287.58 340.50 287.93C340.50 291.32 337.59 300.83 334.87 306.30C333.47 309.14 330.34 314.20 329.50 315.00C329.42 315.07 328.56 316.14 327.58 317.38C325.80 319.63 320.95 324.52 319.19 325.85C317.54 327.10 317.69 327.37 322.44 331.89C324.74 334.08 329.83 339.03 333.75 342.89C341.26 350.29 347.37 356.21 350.50 359.12C351.53 360.09 355.02 363.46 358.26 366.62C361.50 369.79 366.50 374.62 369.36 377.38C374.94 382.74 384.02 391.56 390.83 398.25C396.71 404.02 398.10 405.99 398.42 409.02C398.61 410.85 398.03 412.62 396.77 414.04L395.82 415.11L392.60 415.28C390.83 415.38 386.28 415.47 382.49 415.48L375.60 415.50L374.29 414.85ZM97.99 398.92C93.74 397.83 91.03 395.16 89.85 390.88C89.31 388.93 89.33 192.43 89.87 189.86C90.99 184.51 92.09 183.35 103.17 175.93C107.82 172.81 113.42 169.04 115.62 167.55C117.83 166.06 121.76 163.40 124.38 161.64C126.99 159.87 129.97 157.84 131.00 157.13C132.03 156.41 134.62 154.67 136.75 153.25C142.35 149.53 145.98 147.09 149.25 144.87C150.83 143.79 154.66 141.21 157.75 139.12C160.84 137.04 164.39 134.63 165.62 133.78C166.86 132.93 170.12 130.74 172.88 128.92C175.62 127.11 178.49 125.16 179.25 124.60C181.36 123.04 212.03 102.61 226.50 93.13C228.77 91.64 233.89 88.26 237.88 85.62C246.89 79.64 248.68 78.61 251.44 77.85C256.62 76.42 260.30 77.63 268.42 83.42C269.54 84.22 271.45 85.51 272.67 86.29C273.88 87.07 276.68 88.93 278.88 90.43C281.07 91.92 283.72 93.72 284.75 94.42C285.78 95.12 291.86 99.15 298.25 103.38C310.45 111.45 315.05 114.52 317.12 115.97C317.81 116.46 320.40 118.21 322.88 119.88C325.35 121.55 329.96 124.65 333.12 126.79C338.03 130.10 349.05 137.52 354.12 140.93C354.95 141.49 356.30 142.39 357.12 142.93C361.39 145.73 378.14 157.03 382.63 160.12C384.74 161.58 386.18 162.55 390.62 165.50C394.40 168.00 403.03 173.84 405.75 175.72C406.78 176.44 409.03 177.94 410.75 179.05C415.80 182.34 417.94 184.86 419.07 188.84C419.77 191.34 419.89 203.16 419.82 267.86L419.77 319.85L419.22 321.36C418.53 323.23 417.63 324.59 416.21 325.88C413.95 327.95 412.79 328.48 408.94 329.18C408.56 329.25 407.32 329.18 406.19 329.02C402.12 328.45 399.03 326.19 397.28 322.53L396.38 320.62L396.33 260.19C396.29 196.67 396.33 198.80 395.21 197.20C394.95 196.83 391.95 194.68 388.56 192.43C385.16 190.17 382.09 188.14 381.75 187.91C380.94 187.37 378.91 186.00 373.25 182.12C370.71 180.38 364.97 176.54 360.50 173.57C349.99 166.60 350.21 166.75 347.88 165.11C346.77 164.34 345.31 163.36 344.62 162.92C343.18 162.01 328.17 151.96 321.05 147.14C318.39 145.35 315.78 143.59 315.24 143.25C314.70 142.91 313.44 142.06 312.44 141.36C307.28 137.76 299.55 132.51 293.62 128.58C292.11 127.58 289.52 125.82 287.88 124.68C284.62 122.42 278.40 118.23 275.90 116.62C275.05 116.08 273.74 115.18 272.99 114.63C272.24 114.08 270.93 113.18 270.07 112.63C268.57 111.65 261.51 106.94 257.76 104.41C255.65 102.98 254.78 102.84 253.46 103.69C251.20 105.16 238.75 113.53 236.25 115.27C235.91 115.50 233.32 117.23 230.50 119.10C227.68 120.97 225.09 122.69 224.75 122.92C224.41 123.15 222.78 124.24 221.12 125.34C219.47 126.43 216.21 128.63 213.88 130.21C203.74 137.08 200.77 139.08 176.12 155.62C171.45 158.76 163.18 164.32 157.75 167.96C146.74 175.36 141.53 178.83 125.91 189.19C114.81 196.56 113.44 197.61 113.16 198.99C113.07 199.44 113.00 238.94 113.00 286.75C113.00 369.19 113.02 373.72 113.44 374.23L113.88 374.76L188.88 374.82L263.88 374.88L265.49 375.72C267.60 376.82 268.50 377.55 270.03 379.44C272.28 382.21 273.30 386.64 272.32 389.41C272.03 390.22 271.72 391.24 271.63 391.69C271.29 393.34 269.15 396.02 267.00 397.49C264.16 399.43 272.27 399.25 181.43 399.37L100.12 399.47L97.99 398.92Z" fill-rule="evenodd"/><path d="M134.66 357.04C134.29 356.63 134.25 355.58 134.27 346.86C134.30 332.10 134.43 330.00 135.45 327.95C136.44 325.92 138.22 324.24 140.50 323.15L142.12 322.38L194.38 322.38C243.38 322.39 246.77 322.42 249.00 322.83C260.08 324.91 267.30 331.28 269.59 341.00C270.53 344.98 270.84 356.16 270.03 356.97L269.50 357.50L202.29 357.50C137.49 357.50 135.06 357.48 134.66 357.04ZM144.87 310.99C140.35 310.10 135.65 304.98 134.53 299.76C134.14 297.97 134.18 292.90 134.60 291.35C135.67 287.33 138.78 283.52 142.49 281.68L144.11 280.88L153.86 280.65C164.72 280.39 166.32 280.51 168.88 281.76C170.92 282.75 173.24 284.90 174.76 287.20C179.82 294.92 176.76 305.83 168.38 309.90L166.38 310.87L162.12 311.03C156.30 311.26 146.09 311.24 144.87 310.99Z" fill-rule="evenodd"/></svg>
+<rect x="52" y="104" width="96" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="3.4"/>
+<text x="100" y="125" style="font-family:var(--display)" font-weight="800" font-size="19" text-anchor="middle" textLength="84" lengthAdjust="spacingAndGlyphs">VERIFICADA</text>
+</g></g>
+            </svg>
+          </div>
+
+          <div class="lockup pieces-out a" id="lockup" style="--t:3.05;--d:0.25">
+            <div class="mark a" id="mark" style="--t:2.0;--d:0.5">
+              <div class="wipe a" style="--t:1.0;--d:0.55"><div class="wipe-in"><svg viewBox="84 72 338 346"><path d="M97.99 398.92C93.74 397.83 91.03 395.16 89.85 390.88C89.31 388.93 89.33 192.43 89.87 189.86C90.99 184.51 92.09 183.35 103.17 175.93C107.82 172.81 113.42 169.04 115.62 167.55C117.83 166.06 121.76 163.40 124.38 161.64C126.99 159.87 129.97 157.84 131.00 157.13C132.03 156.41 134.62 154.67 136.75 153.25C142.35 149.53 145.98 147.09 149.25 144.87C150.83 143.79 154.66 141.21 157.75 139.12C160.84 137.04 164.39 134.63 165.62 133.78C166.86 132.93 170.12 130.74 172.88 128.92C175.62 127.11 178.49 125.16 179.25 124.60C181.36 123.04 212.03 102.61 226.50 93.13C228.77 91.64 233.89 88.26 237.88 85.62C246.89 79.64 248.68 78.61 251.44 77.85C256.62 76.42 260.30 77.63 268.42 83.42C269.54 84.22 271.45 85.51 272.67 86.29C273.88 87.07 276.68 88.93 278.88 90.43C281.07 91.92 283.72 93.72 284.75 94.42C285.78 95.12 291.86 99.15 298.25 103.38C310.45 111.45 315.05 114.52 317.12 115.97C317.81 116.46 320.40 118.21 322.88 119.88C325.35 121.55 329.96 124.65 333.12 126.79C338.03 130.10 349.05 137.52 354.12 140.93C354.95 141.49 356.30 142.39 357.12 142.93C361.39 145.73 378.14 157.03 382.63 160.12C384.74 161.58 386.18 162.55 390.62 165.50C394.40 168.00 403.03 173.84 405.75 175.72C406.78 176.44 409.03 177.94 410.75 179.05C415.80 182.34 417.94 184.86 419.07 188.84C419.77 191.34 419.89 203.16 419.82 267.86L419.77 319.85L419.22 321.36C418.53 323.23 417.63 324.59 416.21 325.88C413.95 327.95 412.79 328.48 408.94 329.18C408.56 329.25 407.32 329.18 406.19 329.02C402.12 328.45 399.03 326.19 397.28 322.53L396.38 320.62L396.33 260.19C396.29 196.67 396.33 198.80 395.21 197.20C394.95 196.83 391.95 194.68 388.56 192.43C385.16 190.17 382.09 188.14 381.75 187.91C380.94 187.37 378.91 186.00 373.25 182.12C370.71 180.38 364.97 176.54 360.50 173.57C349.99 166.60 350.21 166.75 347.88 165.11C346.77 164.34 345.31 163.36 344.62 162.92C343.18 162.01 328.17 151.96 321.05 147.14C318.39 145.35 315.78 143.59 315.24 143.25C314.70 142.91 313.44 142.06 312.44 141.36C307.28 137.76 299.55 132.51 293.62 128.58C292.11 127.58 289.52 125.82 287.88 124.68C284.62 122.42 278.40 118.23 275.90 116.62C275.05 116.08 273.74 115.18 272.99 114.63C272.24 114.08 270.93 113.18 270.07 112.63C268.57 111.65 261.51 106.94 257.76 104.41C255.65 102.98 254.78 102.84 253.46 103.69C251.20 105.16 238.75 113.53 236.25 115.27C235.91 115.50 233.32 117.23 230.50 119.10C227.68 120.97 225.09 122.69 224.75 122.92C224.41 123.15 222.78 124.24 221.12 125.34C219.47 126.43 216.21 128.63 213.88 130.21C203.74 137.08 200.77 139.08 176.12 155.62C171.45 158.76 163.18 164.32 157.75 167.96C146.74 175.36 141.53 178.83 125.91 189.19C114.81 196.56 113.44 197.61 113.16 198.99C113.07 199.44 113.00 238.94 113.00 286.75C113.00 369.19 113.02 373.72 113.44 374.23L113.88 374.76L188.88 374.82L263.88 374.88L265.49 375.72C267.60 376.82 268.50 377.55 270.03 379.44C272.28 382.21 273.30 386.64 272.32 389.41C272.03 390.22 271.72 391.24 271.63 391.69C271.29 393.34 269.15 396.02 267.00 397.49C264.16 399.43 272.27 399.25 181.43 399.37L100.12 399.47L97.99 398.92Z"/></svg></div></div>
+              <svg class="bed a" style="--t:1.3;--d:0.4" viewBox="84 72 338 346"><path d="M134.66 357.04C134.29 356.63 134.25 355.58 134.27 346.86C134.30 332.10 134.43 330.00 135.45 327.95C136.44 325.92 138.22 324.24 140.50 323.15L142.12 322.38L194.38 322.38C243.38 322.39 246.77 322.42 249.00 322.83C260.08 324.91 267.30 331.28 269.59 341.00C270.53 344.98 270.84 356.16 270.03 356.97L269.50 357.50L202.29 357.50C137.49 357.50 135.06 357.48 134.66 357.04ZM144.87 310.99C140.35 310.10 135.65 304.98 134.53 299.76C134.14 297.97 134.18 292.90 134.60 291.35C135.67 287.33 138.78 283.52 142.49 281.68L144.11 280.88L153.86 280.65C164.72 280.39 166.32 280.51 168.88 281.76C170.92 282.75 173.24 284.90 174.76 287.20C179.82 294.92 176.76 305.83 168.38 309.90L166.38 310.87L162.12 311.03C156.30 311.26 146.09 311.24 144.87 310.99Z"/></svg>
+              <div class="rfly a" id="rfly" style="--t:1.6;--d:0.55;inset:0">
+                <div class="rpop a"><svg viewBox="84 72 338 346"><path d="M374.29 414.85C372.77 414.09 371.15 412.59 358.75 400.50C353.73 395.61 346.76 388.86 343.25 385.50C335.79 378.36 324.26 367.21 317.00 360.12C310.57 353.85 297.96 341.83 293.64 337.88C289.15 333.76 287.94 332.46 287.17 330.93C285.45 327.53 285.64 322.17 287.60 318.82C289.09 316.28 290.02 315.64 296.00 312.99C303.77 309.55 310.03 303.35 313.74 295.42C314.99 292.76 316.75 287.40 316.75 286.28C316.75 285.92 316.87 285.23 317.02 284.75C317.54 283.10 317.76 276.80 317.36 275.05C317.16 274.18 317.00 273.07 317.00 272.59C317.00 270.61 315.52 265.90 313.65 261.90C309.17 252.29 299.24 245.08 287.62 242.97C286.29 242.72 277.18 242.62 248.75 242.51L211.62 242.38L209.94 241.72C203.94 239.39 201.11 233.19 203.12 226.83C204.21 223.37 206.51 220.69 209.68 219.18L211.38 218.38L248.50 218.38C291.80 218.38 289.73 218.27 298.62 220.92C315.83 226.04 330.20 238.65 336.62 254.25C337.92 257.40 340.00 264.23 340.00 265.33C340.00 265.77 340.12 266.52 340.26 267.00C340.41 267.48 340.63 268.72 340.75 269.75C340.87 270.78 341.10 272.41 341.25 273.38C341.61 275.61 341.35 283.83 340.86 285.83C340.66 286.63 340.50 287.58 340.50 287.93C340.50 291.32 337.59 300.83 334.87 306.30C333.47 309.14 330.34 314.20 329.50 315.00C329.42 315.07 328.56 316.14 327.58 317.38C325.80 319.63 320.95 324.52 319.19 325.85C317.54 327.10 317.69 327.37 322.44 331.89C324.74 334.08 329.83 339.03 333.75 342.89C341.26 350.29 347.37 356.21 350.50 359.12C351.53 360.09 355.02 363.46 358.26 366.62C361.50 369.79 366.50 374.62 369.36 377.38C374.94 382.74 384.02 391.56 390.83 398.25C396.71 404.02 398.10 405.99 398.42 409.02C398.61 410.85 398.03 412.62 396.77 414.04L395.82 415.11L392.60 415.28C390.83 415.38 386.28 415.47 382.49 415.48L375.60 415.50L374.29 414.85Z"/></svg></div>
+              </div>
+            </div>
+            <div class="word word-out a" style="--t:1.6;--d:0.3">
+              <span><span class="a l-left" style="--t:0.74;--d:0.28">E</span><span class="a l-left" style="--t:0.66;--d:0.28">s</span><span class="a l-left" style="--t:0.58;--d:0.28">t</span><span class="a l-left" style="--t:0.5;--d:0.28">u</span></span><span class="slot" id="slot"><span class="rglyph" id="rglyph">R</span></span><span><span class="a l-right" style="--t:0.5;--d:0.28">e</span><span class="a l-right" style="--t:0.58;--d:0.28">d</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ol class="beats">
+    <li><b>0,1 s</b><span>Aparece la R del logo.</span></li>
+    <li><b>0,5 s</b><span>«Estu» se escribe hacia la izquierda y «ed» hacia la derecha.</span></li>
+    <li><b>1,0 s</b><span>Se dibujan la casa y la cama, a la izquierda de la palabra.</span></li>
+    <li><b>1,6 s</b><span>La R viaja a la casa y completa el logo. La palabra se apaga.</span></li>
+    <li><b>2,0 s</b><span>El logo va al centro, con el giro del sello.</span></li>
+    <li><b>2,3 s</b><span>El sello cae sobre el logo y marca el golpe.</span></li>
+    <li><b>3,05 s</b><span>Aparece la textura de tinta.</span></li>
+    <li><b>3,45 s</b><span>La capa se desvanece. A los 3,95 s se ve la página.</span></li>
+  </ol>
+  <p class="note">Con «reducir movimiento» activado en el teléfono, la animación no se muestra.</p>
+</div>
+
+<script>
+(function () {
+  const stage = document.getElementById("stage");
+  const device = document.getElementById("device");
+  const mark = document.getElementById("mark");
+  const slot = document.getElementById("slot");
+  const sealBox = document.getElementById("sealBox");
+  const lockup = document.getElementById("lockup");
+
+  // Mide dónde va la R dentro de la palabra y adónde tiene que ir el logo para quedar en el centro del sello.
+  function measure() {
+    stage.style.removeProperty("--rx"); stage.style.removeProperty("--ry");
+    const F = parseFloat(getComputedStyle(lockup).fontSize);
+    const m = mark.getBoundingClientRect();
+    const s = slot.getBoundingClientRect();
+    // La R ocupa x 0,346–0,932 y y 0,42–0,994 del cuadro del logo.
+    const rLeft = m.left + 0.346 * m.width;
+    const rBottom = m.top + 0.994 * m.height;
+    const baseline = s.bottom - 0.06 * F;   // la palabra tiene padding-bottom .06em
+    const rx = s.left + 0.03 * F - rLeft;
+    const ry = baseline + 0.04 * F - rBottom;
+    stage.style.setProperty("--rx", rx + "px");
+    stage.style.setProperty("--ry", ry + "px");
+    // Variante tipográfica: la R real viaja al centro de la R del logo.
+    const g = document.getElementById("rglyph").getBoundingClientRect();
+    if (g.width) {
+      const hx = m.left + 0.639 * m.width, hy = m.top + 0.707 * m.height;
+      stage.style.setProperty("--gx", (hx - (g.left + g.width / 2)) + "px");
+      stage.style.setProperty("--gy", (hy - (g.top + g.height / 2)) + "px");
+    }
+    // Logo del sello: 50/200 del lado, centrado en (94,4; 68,1) tras el giro de -10°.
+    const b = sealBox.getBoundingClientRect();
+    const tx = b.left + b.width * 0.472 - (m.left + m.width / 2);
+    const ty = b.top + b.height * 0.3405 - (m.top + m.height / 2);
+    stage.style.setProperty("--mx", tx + "px");
+    stage.style.setProperty("--my", ty + "px");
+    stage.style.setProperty("--ms", (b.width * 0.25) / m.width);
+  }
+
+  function play() {
+    stage.classList.remove("run");
+    stage.querySelectorAll(".a").forEach((el) => { el.style.animation = "none"; });
+    void stage.offsetWidth;
+    stage.querySelectorAll(".a").forEach((el) => { el.style.animation = ""; });
+    measure();
+    stage.classList.add("ready", "run");
+  }
+
+  const replay = document.getElementById("replay");
+  const slow = document.getElementById("slow");
+  const phone = document.getElementById("phone");
+  const rmode = document.getElementById("rmode");
+  const rnote = document.getElementById("rnote");
+  rmode.addEventListener("click", () => {
+    const logo = rmode.getAttribute("aria-pressed") !== "true";
+    rmode.setAttribute("aria-pressed", String(logo));
+    stage.classList.toggle("r-font", !logo);
+    rnote.textContent = logo
+      ? "Ahora: la palabra arranca con la R del logo, como en la idea original."
+      : "Ahora: la palabra arranca con una R tipográfica, que se convierte en la R del logo al viajar.";
+    play();
+  });
+  replay.addEventListener("click", play);
+  slow.addEventListener("click", () => {
+    const on = slow.getAttribute("aria-pressed") !== "true";
+    slow.setAttribute("aria-pressed", String(on));
+    stage.style.setProperty("--k", on ? "4" : "1");
+    play();
+  });
+  phone.addEventListener("click", () => {
+    const on = phone.getAttribute("aria-pressed") !== "true";
+    phone.setAttribute("aria-pressed", String(on));
+    device.classList.toggle("phone", on);
+    setTimeout(play, 320);
+  });
+  window.addEventListener("resize", () => { if (!stage.classList.contains("run")) measure(); });
+
+  const start = () => requestAnimationFrame(play);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+
+  // Solo para revisar cuadro por cuadro: window.seek(segundos).
+  window.seek = function (sec) {
+    play();
+    const k = parseFloat(getComputedStyle(stage).getPropertyValue("--k")) || 1;
+    stage.getAnimations({ subtree: true }).forEach((a) => { a.pause(); a.currentTime = sec * 1000 * k; });
+  };
+})();
+</script>

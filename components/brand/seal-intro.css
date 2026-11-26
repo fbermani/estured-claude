@@ -1,0 +1,325 @@
+/* Apertura con el sello de EstuRed (`SealIntro`). Solo CSS, solo transform y opacity. Prototipo aprobado:
+   docs/superpowers/specs/2026-11-26-apertura-sello-prototipo.html.
+
+   0,10 s  aparece la R (tipográfica)                     1,60 s  la R viaja a la casa y se funde con la R del logo
+   0,50 s  «Estu» se escribe hacia la izquierda; «ed»,     2,00 s  el logo va al centro, con el giro del sello
+           hacia la derecha                               2,30 s  cae el sello (2,62 s: onda del golpe)
+   1,00 s  se dibuja la casa (1,30 s: la cama)             3,05 s  textura de tinta     3,45–3,95 s  se va la capa
+
+   Las posiciones están medidas en em con la palabra en Bricolage 600 y tamaño óptico fijo (opsz 96): así no dependen del
+   ancho de pantalla. Si cambia la tipografía o el peso, hay que volver a medirlas con el prototipo. */
+
+.seal-intro {
+  --si-seal: 220px; /* lado del sello */
+  --si-f: 44px; /* cuerpo de la palabra */
+  --si-ms: 0.8803; /* escala del logo armado al entrar al sello: 0,25 × sello / (1,42 × cuerpo) */
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  animation: si-out 0.5s ease-in-out 3.45s both;
+}
+@media (min-width: 640px) {
+  .seal-intro {
+    --si-seal: 260px;
+    --si-f: 72px;
+    --si-ms: 0.6358;
+  }
+}
+/* Pantalla completa: la usa la preapertura (solo dev) al cerrar el popup; no depende del scroll ni del hero. */
+.seal-intro-fixed {
+  position: fixed;
+  z-index: 70;
+}
+.seal-intro > * {
+  grid-area: 1 / 1;
+}
+
+/* Sello: el que cae (limpio, sin logo) y el final (con tinta y logo). */
+.si-seal {
+  position: relative;
+  width: var(--si-seal);
+  height: var(--si-seal);
+}
+.si-seal > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.si-stamp {
+  animation: si-stamp 0.85s cubic-bezier(0.2, 0.8, 0.25, 1) 2.3s both;
+}
+.si-impact {
+  position: absolute;
+  inset: -14%;
+  border-radius: 9999px;
+  animation: si-impact 1s ease-out 2.62s both;
+}
+.si-inked {
+  animation: si-fade-in 0.25s ease-out 3.05s both;
+}
+
+/* Lockup: [logo] [Estu R ed], alineado abajo. Mide 5,175 × 1,4535 em. */
+.si-lockup {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.28em;
+  font-size: var(--si-f);
+  animation: si-fade-out 0.25s ease-in 3.05s both;
+}
+.si-mark {
+  position: relative;
+  width: 1.42em;
+  aspect-ratio: 338 / 346;
+  flex: none;
+  animation: si-mark-center 0.5s cubic-bezier(0.5, 0, 0.2, 1) 2s both;
+}
+.si-mark svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.si-wipe {
+  position: absolute;
+  inset: -6%;
+  overflow: hidden;
+  animation: si-wipe-out 0.55s ease 1s both;
+}
+.si-wipe-in {
+  position: absolute;
+  inset: 0;
+  animation: si-wipe-in 0.55s ease 1s both;
+}
+/* El barrido es 6 % más grande por lado: el dibujo vuelve a la medida del logo (6/112 y 100/112). */
+.si-mark .si-wipe-in > svg {
+  inset: 5.357%;
+  width: 89.286%;
+  height: 89.286%;
+}
+.si-bed {
+  animation: si-bed-in 0.4s ease 1.3s both;
+}
+/* R del logo: arranca sobre la R de la palabra (un poco más grande) y viaja a la casa; aparece durante el viaje. */
+.si-rfly {
+  position: absolute;
+  inset: 0;
+  transform-origin: 34.6% 99.4%;
+  transform: translate(3.0845em, -0.0711em) scale(1.22);
+  animation: si-r-home 0.55s cubic-bezier(0.65, 0, 0.35, 1) 1.6s both;
+}
+.si-rpop {
+  position: absolute;
+  inset: 0;
+  animation: si-r-late 0.55s linear 1.6s both;
+}
+
+.si-word {
+  display: flex;
+  align-items: baseline;
+  padding-bottom: 0.06em;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  font-variation-settings: "opsz" 96;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  animation: si-word-out 0.3s ease-in 1.6s both;
+}
+.si-word span {
+  display: inline-block;
+}
+.si-left {
+  animation: si-write-left 0.28s ease both;
+}
+.si-right {
+  animation: si-write-right 0.28s ease both;
+}
+/* R tipográfica: aparece primero y, al viajar, se apaga mientras se enciende la R del logo (fill forwards: antes no pisa el pop). */
+.si-glyph {
+  animation:
+    si-pop 0.42s ease 0.1s both,
+    si-glyph-fly 0.55s cubic-bezier(0.65, 0, 0.35, 1) 1.6s forwards;
+}
+
+@keyframes si-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes si-write-left {
+  from {
+    opacity: 0;
+    transform: translateX(0.45em) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes si-write-right {
+  from {
+    opacity: 0;
+    transform: translateX(-0.45em) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes si-wipe-out {
+  from {
+    transform: translateX(-101%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes si-wipe-in {
+  from {
+    transform: translateX(101%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes si-bed-in {
+  from {
+    opacity: 0;
+    transform: translateX(-18%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Del centro de la R tipográfica al centro de la R del logo. */
+@keyframes si-glyph-fly {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-2.928em, 0.134em) scale(0.8);
+  }
+}
+@keyframes si-r-home {
+  to {
+    transform: none;
+  }
+}
+@keyframes si-r-late {
+  0%,
+  22% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes si-word-out {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+/* Del centro del lockup al logo del sello: (−0,028; −0,1595) × sello desde el centro, con el giro de −10° del sello. */
+@keyframes si-mark-center {
+  to {
+    transform: translate(calc(-0.028 * var(--si-seal) + 1.8776em), calc(-0.1595 * var(--si-seal))) rotate(-10deg)
+      scale(var(--si-ms));
+  }
+}
+@keyframes si-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.9) rotate(-22deg);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(0.88) rotate(2deg);
+  }
+  60% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  80% {
+    transform: scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes si-impact {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  6% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+@keyframes si-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes si-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes si-out {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Reducir movimiento: sin piezas que se mueven. Se ve el sello quieto y la capa se va con un fundido. */
+@media (prefers-reduced-motion: reduce) {
+  .seal-intro {
+    animation: si-out 0.4s ease-in-out 1.2s both;
+  }
+  .si-lockup,
+  .si-stamp,
+  .si-impact {
+    display: none;
+  }
+  .si-inked {
+    animation: none;
+  }
+}

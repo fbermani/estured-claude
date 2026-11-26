@@ -137,38 +137,7 @@
   animation-fill-mode: backwards;
 }
 
-/* Apertura con el sello: cubre el hero ~1,5 s y se desvanece mientras aparece el contenido (que ya está en el DOM). */
-@keyframes hero-intro-out {
-  0%,
-  72% {
-    opacity: 1;
-    visibility: visible;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-.hero-intro {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  animation: hero-intro-out 2.1s ease-in-out both;
-}
-
-/* Variante fija a pantalla completa: la usa la preapertura (solo dev) al cerrar el popup; no depende del scroll ni del hero. */
-.hero-intro-fixed {
-  position: fixed;
-  z-index: 70;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .hero-intro {
-    display: none;
-  }
   .trust-item,
   .trust-icon {
     animation: none;

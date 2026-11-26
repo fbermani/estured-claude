@@ -14,6 +14,8 @@ import "./seal.css";
  *
  * Decorativo: `aria-hidden`. El significado ya está en el texto de al lado («Residencia Verificada»).
  * `stamp`: el sello «cae» con un golpe (una vez, solo transform/opacity; con prefers-reduced-motion queda quieto).
+ * `ink={false}` y `mark={false}`: solo para la apertura (`SealIntro`). Sin textura (no se anima un filtro) y sin logo, porque ahí
+ * el logo llega armado por separado.
  */
 export function EsturedSeal({
   size = 120,
@@ -21,6 +23,8 @@ export function EsturedSeal({
   tone = "forest",
   stamp = false,
   onLight = false,
+  ink = true,
+  mark = true,
   className = "",
 }: {
   size?: number;
@@ -28,6 +32,8 @@ export function EsturedSeal({
   tone?: "forest" | "cream";
   stamp?: boolean;
   onLight?: boolean;
+  ink?: boolean;
+  mark?: boolean;
   className?: string;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
@@ -64,7 +70,7 @@ export function EsturedSeal({
         <path id={bottomId} d="M 25 100 A 75 75 0 0 0 175 100" />
       </defs>
 
-      <g filter={`url(#${filterId})`} fill="currentColor" transform="rotate(-10 100 100)">
+      <g filter={ink ? `url(#${filterId})` : undefined} fill="currentColor" transform="rotate(-10 100 100)">
         <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" strokeWidth={full ? 5 : 8} />
         <circle cx="100" cy="100" r={full ? 87 : 84} fill="none" stroke="currentColor" strokeWidth={full ? 1.6 : 3} />
 
@@ -96,11 +102,13 @@ export function EsturedSeal({
             <path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(2 -9)" />
             <path d="M 25 100 l 2.6 5.4 5.9 .8 -4.3 4.1 1 5.8 -5.2 -2.8 -5.2 2.8 1 -5.8 -4.3 -4.1 5.9 -.8z" transform="translate(140 -9)" />
 
-            <svg x="75" y="42" width="50" height="51.2" viewBox={MARK_VIEWBOX}>
-              {MARK_PATHS.map((p) => (
-                <path key={p.fill} d={p.d} fill="currentColor" fillRule="evenodd" />
-              ))}
-            </svg>
+            {mark && (
+              <svg x="75" y="42" width="50" height="51.2" viewBox={MARK_VIEWBOX}>
+                {MARK_PATHS.map((p) => (
+                  <path key={p.fill} d={p.d} fill="currentColor" fillRule="evenodd" />
+                ))}
+              </svg>
+            )}
             <rect x="52" y="104" width="96" height="28" rx="3" fill={onLight ? "currentColor" : "none"} stroke="currentColor" strokeWidth="3.4" />
             <text
               x="100"
