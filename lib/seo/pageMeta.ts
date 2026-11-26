@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/ogImage";
 
 /**
  * Metadata SEO común de una página pública: canonical, Open Graph y Twitter.
@@ -20,8 +21,8 @@ export function pageMetadata(opts: {
     title,
     description,
     alternates: { canonical: path },
-    openGraph: { type: "website", siteName: "EstuRed", locale: "es_AR", url: path, title: ogTitle, description },
-    twitter: { card: "summary", title: ogTitle, description },
+    openGraph: { type: "website", siteName: "EstuRed", locale: "es_AR", url: path, title: ogTitle, description, images: [DEFAULT_OG_IMAGE] },
+    twitter: { card: "summary_large_image", title: ogTitle, description },
     ...(noindex ? { robots: { index: false, follow: true } } : {}),
   };
 }

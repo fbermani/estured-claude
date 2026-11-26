@@ -2,6 +2,12 @@
 
 # EstuRed — Próximos pasos
 
+## Vista previa del link (WhatsApp, 2026-11-25)
+
+- [x] Imagen de marca 1200×630 para todo el sitio (`app/opengraph-image.tsx`). La ficha de residencia mantiene la suya. En `staging`.
+- [ ] **Dueño:** aprobar la imagen y publicar en `main` (`docs/PLAN_SALIDA_PRODUCCION.md`, «Publicar cambios»).
+- [ ] Después de publicar: probar en WhatsApp con `https://estured.com/?v=2`.
+
 ## Rediseño del popup (DR67, 2026-11-25)
 
 - [ ] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.

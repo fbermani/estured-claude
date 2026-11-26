@@ -13,6 +13,7 @@ import { Inline } from "@/components/guides/Inline";
 import { ReadingProgress } from "@/components/guides/ReadingProgress";
 import { getAllGuides, getGuideBySlug, getRelatedGuides, toSummary } from "@/lib/guides/load";
 import { AUDIENCE_META, CATEGORY_META } from "@/lib/guides/taxonomy";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/ogImage";
 import { SITE_URL } from "@/lib/siteUrl";
 
 export function generateStaticParams() {
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: path,
       title: guide.seo.title,
       description: guide.seo.description,
-      ...(guide.heroImage ? { images: [{ url: guide.heroImage.src }] } : {}),
+      images: [guide.heroImage ? { url: guide.heroImage.src } : DEFAULT_OG_IMAGE],
     },
   };
 }

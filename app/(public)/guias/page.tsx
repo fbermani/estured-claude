@@ -5,6 +5,7 @@ import { StartHere } from "@/components/guides/StartHere";
 import { normalizeSearch } from "@/lib/guides/search";
 import { getAllGuides, toSummary } from "@/lib/guides/load";
 import { CATEGORY_META } from "@/lib/guides/taxonomy";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/ogImage";
 
 const DESCRIPTION =
   "Guías para elegir una residencia estudiantil, mudarte a Buenos Aires, convivir mejor y acompañar a quien estudia. Recursos gratuitos para estudiantes, familias y residencias.";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
     url: "/guias",
     title: "Centro de Guías | EstuRed",
     description: DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
