@@ -7,6 +7,8 @@
 Última actualización: 2026-11-08. Estado: **implementado y commiteado (Fases 1–3); prod pendiente de deploy** (checklist en `docs/NEXT_STEPS.md`). Protocolo `docs/13` §5: doc primero.
 Decisiones: `docs/00_DECISION_LOG.md` DR42–DR47 (mandan ante cualquier contradicción). Referencia visual aprobada (v4): `design-proposals/preapertura-2026-11/` (9 HTML + `SPEC.md` + `CAMBIOS_SUGERIDOS.md`).
 
+> **DR67 (2026-11-25, sin implementar):** cambia el popup, el paso 1 (sin contraseña, con Google y canal) y el número de registro (desde 11). Ante contradicción con §3 rige `docs/00` DR67.
+
 ## 1. Objetivo y principios
 
 - Captar estudiantes (y familiares) antes de abrir, y que esos registros atraigan a residencias **fundadoras** sin prospección en frío.

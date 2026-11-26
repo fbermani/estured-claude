@@ -23,7 +23,7 @@ function defaultDuration(minimumStayMonths: number | null): number {
  * todavía) — la residencia es quien fija el precio final y el fee real
  * se paga recién cuando llega su oferta (`renewal_offers`). Cobrar o
  * prometer un monto acá violaría "nunca prometer disponibilidad ni
- * garantías" (CLAUDE.md regla 4) sobre algo que todavía no existe. El
+ * garantías" (CLAUDE.md regla 3) sobre algo que todavía no existe. El
  * total mostrado es una estimación a tarifa actual, marcada como tal.
  * Reusa `requestRenewalAction` sin tocar la lógica de servidor.
  */

@@ -832,7 +832,7 @@ Reglas de producto en `docs/04` §12bis. Aquí solo lo que afecta privacidad, vi
 
 Cada usuario debe tener al menos un canal de notificación activo. Canales técnicos soportados: **email (obligatorio como respaldo)** e **in-app**.
 
-**WhatsApp no es un canal de notificación del sistema.** No hay integración con la API de WhatsApp Business. El único uso de WhatsApp es un botón que la residencia acciona manualmente para abrir una conversación con un mensaje pre-formateado generado por EstuRed. EstuRed no envía notificaciones automáticas por WhatsApp ni tiene acceso a esa conversación.
+**WhatsApp (DR67, 2026-11-25):** canal opcional para las comunicaciones de EstuRed, con consentimiento explícito. Requiere actualizar Privacidad y la versión de consentimiento antes del primer envío. **Contacto residencia–estudiante:** sigue siendo un botón que la residencia acciona manualmente para abrir una conversación con un mensaje pre-formateado generado por EstuRed. EstuRed no tiene acceso a esa conversación.
 
 ### 22.2 Eventos obligatorios
 
@@ -987,7 +987,7 @@ Deben existir backups y plan de recuperación.
 17. No permitir que una propuesta de solicitud del familiar llegue a la residencia sin aprobación explícita del estudiante.
 18. No permitir más de una propuesta de ajuste de condiciones por solicitud.
 19. No calcular el fee EstuRed sobre el snapshot original si existe un snapshot final aceptado.
-20. No integrar la API de WhatsApp Business; el contacto es siempre un botón manual con mensaje pre-formateado.
+20. No enviar WhatsApp sin consentimiento explícito (DR67). El contacto residencia–estudiante sigue con botón manual.
 21. No otorgar acceso a Gestión Operativa sin que exista el feature flag habilitado explícitamente para esa residencia.
 
 ---

@@ -15,7 +15,6 @@ Reglas de negocio vigentes (no las contradigas sin proponerlo explícitamente co
 - EstuRed es plataforma intermediaria: la propuesta de la familia, la solicitud, la negociación, el pago a la residencia, el fee de EstuRed, la reserva y el comprobante son entidades separadas.
 - Fee del 5% al estudiante, nunca sobre el depósito; el pago a la residencia y el fee a EstuRed van por separado.
 - Sin promesas de disponibilidad ni garantías ("solicitud sujeta a confirmación"); se dice «Soporte», no «mediación».
-- WhatsApp solo como botón manual, nunca la API de WhatsApp Business.
 - Las decisiones D1–D11 y DR1–DR19 de `docs/00` están tomadas: si creés que una es un error, proponé la alternativa una sola vez, sin reabrir todo el debate.
 
 ## Cómo trabajás

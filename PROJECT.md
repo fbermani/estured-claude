@@ -121,5 +121,5 @@ Casi todas las decisiones están **documentadas, no inferidas** (rareza de este 
 8. **`next-env.d.ts` es generado** por Next y está en `.gitignore` y en los ignores de ESLint. No editarlo ni "arreglar" su lint.
 9. **Button `secondary` es ámbar, no salvia** (cambio del ciclo 2 para contraste sobre fondos petróleo). El nombre puede sugerir "color secundario de marca" (salvia); no lo es.
 10. **`Input.tsx` exporta tres componentes** (`Input`, `Textarea`, `Select`) desde un solo archivo. Buscar `Select` en `Select.tsx` no encontrará nada.
-11. **Prohibiciones duras de producto** (no negociables sin el dueño): no integrar la API de WhatsApp Business bajo ninguna circunstancia; no fusionar propuesta/solicitud/negociación/pago/fee/reserva/factura/comprobante; no confirmar reservas sin fee pagado.
+11. **Prohibiciones duras de producto** (no negociables sin el dueño): no fusionar propuesta/solicitud/negociación/pago/fee/reserva/factura/comprobante; no confirmar reservas sin fee pagado.
 12. **Pendientes del Ciclo 3 en manos del dueño:** crear repo GitHub remoto (no hay `git remote`) y aprovisionar Supabase + `.env.local` (no existe aún). Hasta entonces, el form de waitlist responde con un error amigable.

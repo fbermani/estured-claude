@@ -1,7 +1,7 @@
 # 00_DECISION_LOG.md
 # EstuRed — Registro de decisiones consolidadas
 
-Última actualización: 2026-11-14 (DR48: la residencia abre documentos de residentes y solicitantes con pago habilitado, con registro; DR42–DR47: preapertura, ver `docs/23_PREAPERTURA.md`; DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
+Última actualización: 2026-11-25 (DR67: WhatsApp, Google, registro sin contraseña, número desde 11 y popup). Anterior: 2026-11-14 (DR48: la residencia abre documentos de residentes y solicitantes con pago habilitado, con registro; DR42–DR47: preapertura, ver `docs/23_PREAPERTURA.md`; DR41: aviso por lote y decisión del estudiante en la lista de espera; DR40: lista de espera con mes y vencimiento automático; DR39: relevamiento lote 3; DR38: documentación de la estadía configurable por residencia; DR37: ficha más corta y con la comunidad al frente; DR36: el dueño borra sus fotos; DR35: checklist de llegada con esenciales; DR33–DR34 config de residencia; DR30: ficha y solicitud en modal; DR29: Fase 2 de Guías, llegada y checklist; DR28: Centro de Guías público en /guias; DR27 costos sin «sin depósito» y comprobante en la home; DR22–DR26 y anteriores en §31)
 
 Este documento es la fuente de verdad del proyecto EstuRed.
 Registra todas las decisiones de producto, negocio, operación, experiencia y arquitectura técnica.
@@ -826,6 +826,8 @@ Si se comprueba conducta discriminatoria comprobada, la residencia o el estudian
 
 ## 26. Contacto con estudiante vía WhatsApp — DECISIÓN NUEVA
 
+> **Reemplazado en parte por DR67 (2026-11-25):** se elimina la prohibición de la API de WhatsApp Business. El contacto residencia–estudiante descripto acá sigue igual.
+
 ### 26.1. Decisión confirmada
 
 EstuRed **no integra la API de WhatsApp Business** en el MVP.
@@ -1502,6 +1504,8 @@ Decisión del dueño (pedido con referencia de la galería «Ver todas» de Airb
 
 ### DR26: Google SSO fuera del MVP (2026-11-01)
 
+> **Reemplazado por DR67 (2026-11-25).** Las condiciones de rol y consentimientos previos siguen vigentes.
+
 Decisión del dueño. El registro e ingreso siguen con email y contraseña (mínimo 8 caracteres, sin endurecer). Google SSO queda como idea futura: exigiría un callback que asigne el rol (estudiante/familiar) y registre los consentimientos de términos y privacidad antes de crear la cuenta; las residencias y el staff siguen entrando solo por invitación. Se retoma después del lanzamiento si la fricción del registro lo justifica.
 
 > **Nota (2026-11-08, DR43):** la preapertura contempla una variante **con** y otra **sin** botón «Continuar con Google»; el diseño muestra el botón «si existe». DR26 sigue vigente: no hay OAuth en el código y no se implementa salvo decisión expresa del dueño (pendiente). Si se implementara, aplican las condiciones de arriba (rol y consentimientos antes de crear la cuenta; con Google la fecha de nacimiento 18+ se pide aparte).
@@ -1933,3 +1937,20 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 **Reversión.** (a): subir el tope es cambiar `MAX_PAYMENT_REOPENS` en `lib/payments/reopenCap.ts` (no hay CHECK de máximo en la base). Quitar el escalado es borrar la pasada `runSuperadminEscalation` de los dos jobs. (b): el valor `alternative` ya guardado queda como texto inocuo si se quita el selector. La migración 0110 es aditiva e idempotente y trae su `REVERTIR`.
 
 **Archivos que reflejan DR66:** `docs/04` §5.8, §8.8 y §8.10; `docs/06` §8.x (`preferred_payment_method`), §12.1 y §13.2; `docs/07` §16.8, §16.10 y §17.9b; `docs/08` §4.5/§6.5 y §6.7; `docs/NEXT_STEPS.md`; `docs/PLAN_SALIDA_PRODUCCION.md`; `db/migrations/0110_payment_reopen_cap_and_escalation.sql`.
+
+### DR67: WhatsApp, Google, registro sin contraseña, número de registro y popup de preapertura (2026-11-25, sin implementar)
+
+**Fuente:** decisiones del dueño del 2026-11-25. Protocolo `docs/13` §5: doc primero, código después. Reemplaza DR26. Modifica DR43 (paso 1 y número) y `docs/23` §3.
+
+| # | Decisión |
+|---|---|
+| DR67 (a) | **Se elimina la prohibición de la API de WhatsApp Business.** EstuRed puede usar WhatsApp para sus comunicaciones: bienvenida, número de registro, instrucciones y novedades. La persona elige mail o WhatsApp. Envío solo con consentimiento explícito. Sin proveedor configurado, el sistema degrada sin romper. El contacto residencia–estudiante no cambia (botón manual `wa.me`). Prevalece sobre las menciones contrarias en `docs/02`–`21`. |
+| DR67 (b) | **Registro con Google.** Se suma «Continuar con Google» para estudiantes y familiares. La cuenta de preapertura se crea recién tras pedir fecha de nacimiento (18+), casillero de términos y canal. Residencias y staff siguen solo por invitación. En navegadores internos (Instagram, Facebook) Google bloquea el acceso: ahí se ofrece email o abrir en el navegador. |
+| DR67 (c) | **Paso 1 sin contraseña.** Email obligatorio. El servidor genera una contraseña interna aleatoria. La persona define la suya con un enlace. El popup ya no muestra «¿Ya te sumaste? Ingresá». El aviso «Ya hay una cuenta con ese email» ofrece mandar un enlace. |
+| DR67 (d) | **Número de registro.** Aparece solo después de registrarse. Empieza en 11 y nadie recibe del 1 al 10. Se guarda fijo en cada fila (secuencia), no se recalcula. Texto: «Tu número de registro». Se quitan «persona en sumarse», «Es solo el orden en que te sumaste» y el «#N si terminás ahora» del paso 1. El contador público de estudiantes sigue siendo real. Supuesto reversible: solo los estudiantes reciben número. |
+| DR67 (e) | **Popup.** Título: «Muy pronto: encontrá y reservá tu residencia en Buenos Aires, con la seguridad de elegir bien.». «Enterate primero» destacado. «Acceso anticipado abierto» más visible, animado solo con `transform` y `opacity`. «Soy familiar» pasa al paso 1. En celular, la tarjeta de fundadoras se ve sin desplazarse y el carrusel baja. **Propuesta pendiente de aprobar con el mockup:** tres beneficios en vez de «Sumarte es gratis», botón «Quiero enterarme primero», «1 minuto · Gratis», y tarjeta de fundadoras con los beneficios de DR46. |
+
+**Pendientes del dueño:** número de WhatsApp y cuenta de Meta; plantillas; cliente OAuth de Google (dev y prod).
+**Pendiente antes de enviar WhatsApp:** Privacidad (teléfono, Meta como encargado), `lib/legal/termsText.ts` (hoy dice que WhatsApp no es canal), `docs/21` y versión de consentimiento.
+**Reversión:** DR67 es solo documental hasta implementarse.
+

@@ -58,12 +58,11 @@ npm test           # vitest run (unitarios + integración contra estured-dev)
 ## Reglas del proyecto (no negociables sin el dueño)
 
 1. **No inventar reglas de negocio, estados, permisos ni flujos.** Si no está en `docs/`, preguntar (ambigüedad bloqueante) o proponer supuesto reversible documentado (`docs/13 §4`).
-2. **Nunca** integrar la API de WhatsApp Business (solo botón manual pre-formateado, futuro).
-3. **Nunca** fusionar propuesta del familiar / solicitud / negociación / pago a residencia / fee / reserva / factura fiscal / comprobante — entidades separadas siempre.
-4. **Nunca** prometer disponibilidad ni garantías en el copy ("solicitud sujeta a confirmación"); decir "Soporte", no "mediación". EstuRed es plataforma intermediaria.
-5. **Validación server-side para toda mutación**; secretos solo en `.env.local` (gitignored); `SUPABASE_SERVICE_ROLE_KEY` jamás en cliente (el `import "server-only"` de `lib/supabase/admin.ts` lo garantiza — no quitarlo).
-6. **Archivos sensibles** (ver PROJECT.md §5): `types/domain.ts`, `StatusTag.tsx`, `app/globals.css` (tokens), `db/migrations/*`, `docs/*`. Cambios visuales superficiales son seguros en: pages públicas (copy), mocks editoriales, `Card`/`Badge`/`SectionHeader`/`EmptyState`/`Footer`.
-7. Trabajar en **fases pequeñas y verificables**; al cerrar un bloque: `typecheck` + `lint` + `build` en verde y `MEMORY.md` actualizado.
+2. **Nunca** fusionar propuesta del familiar / solicitud / negociación / pago a residencia / fee / reserva / factura fiscal / comprobante — entidades separadas siempre.
+3. **Nunca** prometer disponibilidad ni garantías en el copy ("solicitud sujeta a confirmación"); decir "Soporte", no "mediación". EstuRed es plataforma intermediaria.
+4. **Validación server-side para toda mutación**; secretos solo en `.env.local` (gitignored); `SUPABASE_SERVICE_ROLE_KEY` jamás en cliente (el `import "server-only"` de `lib/supabase/admin.ts` lo garantiza — no quitarlo).
+5. **Archivos sensibles** (ver PROJECT.md §5): `types/domain.ts`, `StatusTag.tsx`, `app/globals.css` (tokens), `db/migrations/*`, `docs/*`. Cambios visuales superficiales son seguros en: pages públicas (copy), mocks editoriales, `Card`/`Badge`/`SectionHeader`/`EmptyState`/`Footer`.
+6. Trabajar en **fases pequeñas y verificables**; al cerrar un bloque: `typecheck` + `lint` + `build` en verde y `MEMORY.md` actualizado.
 
 ## Referencias
 

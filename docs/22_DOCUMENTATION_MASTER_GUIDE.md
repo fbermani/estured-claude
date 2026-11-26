@@ -70,7 +70,6 @@ Reglas críticas:
 - Respetá las rutas /students, /residence (con soporte
   multi-residencia) y /admin.
 - Respetá roles, permisos, privacidad y auditoría.
-- No integres la API de WhatsApp Business bajo ninguna circunstancia.
 - Si hay contradicción entre documentos, aplicá la jerarquía de
   13_CLAUDE_PROJECT_INSTRUCTIONS.md sección 2, y si no se resuelve,
   preguntá antes de asumir.

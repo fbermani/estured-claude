@@ -1066,7 +1066,7 @@ VAPID_SUBJECT=
 SENTRY_DSN=
 ```
 
-No hardcodear secretos. **No incluir variables de WhatsApp Business API — no aplica a este producto.**
+No hardcodear secretos. Las variables de la API de WhatsApp Business se agregan al implementar DR67.
 
 ---
 
@@ -1258,7 +1258,7 @@ Métricas de visibilidad; penalizaciones; soporte y resolución de conflictos; Q
 12. No hardcodear proveedor de pagos: usar `PaymentProvider` con MercadoPago y PayU.
 13. No hardcodear fuente de tipo de cambio: usar `ExchangeRateProvider` con monedapi.ar.
 14. No hardcodear proveedor de facturación: usar `FiscalInvoiceProvider` con TusFacturas.app.
-15. No integrar la API de WhatsApp Business bajo ninguna circunstancia en el MVP.
+15. La API de WhatsApp Business se permite para las comunicaciones de EstuRed, con consentimiento (DR67).
 16. No construir app nativa.
 17. No construir Señales de Convivencia en MVP.
 18. No crear ranking público.

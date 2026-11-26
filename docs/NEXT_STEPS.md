@@ -2,6 +2,15 @@
 
 # EstuRed — Próximos pasos
 
+## Rediseño del popup (DR67, 2026-11-25)
+
+- [ ] El dueño aprueba el mockup `design-proposals/preapertura-popup-2026-11-25/pantalla.html`.
+- [ ] **Bloque A (popup y número):** `EntryContent`, `EarlyAccessPill`, `FounderCta`, `Step1Form`, `UrgencyPanel`, `MiLugarContent`. Número fijo desde 11 (migración).
+- [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
+- [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
+- [ ] **Antes de enviar WhatsApp:** Privacidad, `lib/legal/termsText.ts`, `docs/21`, versión de consentimiento.
+- [ ] **Dueño:** cliente OAuth de Google (dev y prod), número de WhatsApp, confirmar que existe `@estured.residencias`.
+
 ## Seguridad — kit de 25 controles (2026-11-25)
 
 Hecho en `0b87bde`. Estado y pendientes: `docs/audits/PLAN_SEGURIDAD_2026-11-12.md` y `docs/PLAN_SALIDA_PRODUCCION.md`. Falta la pasada A/B (`docs/audits/FICHA_ACCESO_CRUZADO_2026-11-25.md`).

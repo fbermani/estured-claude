@@ -494,7 +494,6 @@ Solo lo vigente y no cubierto arriba. Cada ítem se verificó contra el código 
 **K1. Variables y entorno**
 - [ ] `.env.example` coincide con la tabla de E (hoy lo hace). Incluye `GEOCODER_USER_AGENT` (geocodificación de direcciones con Nominatim, DF6; sin clave, máx. 1 req/s). No existen variables de MercadoPago, PayU, TusFacturas ni `QR_SECRET`: el fee se cobra por transferencia manual.
 - [ ] Un proyecto Supabase por ambiente (dev, prod). Los datos demo y seeds jamás entran a producción.
-- [ ] Sin integración de la API de WhatsApp Business: solo el botón `wa.me` pre-formateado.
 
 **K2. QA antes de abrir (beta privada)**
 - [ ] Flujo central completo al menos 3 veces en staging: búsqueda, solicitud, contacto, pago a residencia, «Pago recibido», fee, reserva confirmada, comprobante.

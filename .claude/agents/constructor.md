@@ -15,7 +15,6 @@ Sos el agente de desarrollo de **EstuRed**, webapp (Next.js + Tailwind v4 + Supa
 ## Reglas no negociables
 
 - No inventar reglas de negocio, estados, permisos ni flujos. Si no está en `docs/`: preguntar (ambigüedad bloqueante) o proponer un supuesto reversible documentado (`docs/13 §4`).
-- Nunca integrar la API de WhatsApp Business (solo botón manual pre-formateado, futuro).
 - Nunca fusionar propuesta del familiar / solicitud / negociación / pago a residencia / fee / reserva / factura fiscal / comprobante: son entidades separadas.
 - Copy: nunca prometer disponibilidad ni garantías ("solicitud sujeta a confirmación"); decir "Soporte", no "mediación". Prohibido "reserva garantizada" y validación por WhatsApp.
 - Toda mutación va por server action con validación server-side. Secretos solo en `.env.local`; `SUPABASE_SERVICE_ROLE_KEY` jamás en cliente (no quitar `import "server-only"` de `lib/supabase/admin.ts`).
