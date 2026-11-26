@@ -10,6 +10,14 @@
 
 `checkStaleAvailability` marca `not_updated` (día 30) y `hidden_from_search_at` (día 45) sin notificar, aunque `docs/07` §14.3 dice «notificar». Desde DR69 el día 45 corta las solicitudes. Fix: recordatorio antes del día 30 y antes del día 45.
 
+## [ABIERTO — bajo] Activar desde la lista de espera no revisa pausas (2026-11-26)
+
+`activateFromWaitlist` bloquea completo y día 45 (DR69), pero no `paused_by_residence` ni `paused_by_admin`, aunque `docs/04` §10.2 los bloquea. Fix: usar `loadRequestableRoomType`.
+
+## [ABIERTO — bajo] Capturas de la home con texto viejo (DR68, 2026-11-26)
+
+`public/landing/proceso-*.webp` todavía dicen «al solicitar». La captura de la ficha completa para `/for-residences` también falta.
+
 ## [ABIERTO — decisión del dueño] Pesos: valor al pagar vs. monto fijo (DR70, 2026-11-26)
 
 `docs/00` §13.3, `ExchangeRateNote` y `/terms` dicen que el valor final en pesos se fija al pagar. El snapshot, las instrucciones de pago y DR70 usan el monto fijado al enviar la solicitud. Definir una sola regla.

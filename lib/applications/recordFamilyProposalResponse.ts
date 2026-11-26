@@ -5,7 +5,7 @@ import { notifyFamilyProposalOutcome } from "@/lib/family/familyMilestones";
 import { createAuditLog } from "@/lib/audit";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
-import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { loadRequestableRoomType } from "@/lib/availability/loadRequestableRoomType";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { MAX_APPLICATION_TEXT, MAX_REJECTION_REASON } from "@/lib/applications/inputLimits";
 import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
@@ -133,21 +133,9 @@ export async function recordFamilyProposalResponse(
   });
   if (!overlap.ok) return { ok: false, error: overlap.error };
 
-  const { data: roomType } = await admin
-    .from("room_types")
-    .select("id, monthly_price_usd, is_active, profile_availability(status)")
-    .eq("id", proposal.room_type_id)
-    .eq("residence_id", proposal.residence_id)
-    .maybeSingle();
-  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
-  // un objeto singular en el embed, no un array.
-  const availability = roomType?.profile_availability as unknown as { status: string } | null;
-  if (!roomType || !roomType.is_active) {
-    return { ok: false, error: "Ese tipo de habitación ya no está disponible." };
-  }
-  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
-  if (blockedMessage) {
-    return { ok: false, error: blockedMessage };
+  const requestable = await loadRequestableRoomType(admin, proposal.residence_id, proposal.room_type_id);
+  if (!requestable.ok) {
+    return { ok: false, error: requestable.error };
   }
 
   // Reclamo atómico antes de crear la solicitud: dos aprobaciones simultáneas ya no generan dos solicitudes.
@@ -168,7 +156,7 @@ export async function recordFamilyProposalResponse(
     studentProfileId: studentProfile.id,
     residenceId: proposal.residence_id,
     roomTypeId: proposal.room_type_id,
-    roomType: { monthly_price_usd: Number(roomType.monthly_price_usd) },
+    roomType: { monthly_price_usd: requestable.roomType.monthlyPriceUsd },
     desiredStartDate: proposal.desired_start_date,
     durationMonths: proposal.initial_duration_months,
     academicObjective,

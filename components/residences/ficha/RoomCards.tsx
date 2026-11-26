@@ -10,7 +10,7 @@ import { BrandBackdrop } from "@/components/residences/ficha/BrandBackdrop";
 import { modeOpensSheet, type RequestPanelMode } from "@/lib/residences/requestPanelMode";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import { formatDateOnly } from "@/lib/dates/formatDateOnly";
-import { isTypeRequestable, typeAvailabilityMode } from "@/lib/availability/typeAvailability";
+import { STALE_ROOM_MESSAGE, isTypeRequestable, typeAvailabilityMode } from "@/lib/availability/typeAvailability";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
 
@@ -55,7 +55,7 @@ export function RoomCards({
   const { roomTypeId, setRoomTypeId, openSheet } = useReservationSelection();
   const opensModal = modeOpensSheet(mode);
   const loginHrefFor = (typeId: string) => `/login?next=${encodeURIComponent(`/residencias/${slug}?room=${typeId}&solicitar=1`)}`;
-  const selectedId = roomTypes.find((rt) => rt.id === roomTypeId && isTypeRequestable(rt.state))?.id ?? null;
+  const selectedId = roomTypes.find((rt) => rt.id === roomTypeId && isTypeRequestable(rt.state, rt.staleBlocked))?.id ?? null;
   const carousel = roomTypes.length > ROOM_GRID_MAX;
 
   const trackRef = useRef<HTMLUListElement>(null);
@@ -113,7 +113,7 @@ export function RoomCards({
         }
       >
         {roomTypes.map((rt) => {
-          const requestable = isTypeRequestable(rt.state);
+          const requestable = isTypeRequestable(rt.state, rt.staleBlocked);
           const isSelected = rt.id === selectedId;
           const availMode = typeAvailabilityMode(rt.state);
           const dim = rt.state === "full";
@@ -179,6 +179,8 @@ export function RoomCards({
                   ))}
                 </ul>
               )}
+
+              {rt.staleBlocked && <p className="mt-auto text-[13px] leading-snug text-ink-soft">{STALE_ROOM_MESSAGE}</p>}
 
               {requestable && opensModal ? (
                 <Button

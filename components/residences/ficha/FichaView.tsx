@@ -49,7 +49,7 @@ import { applyPromotion, normalizeDepositMode } from "@/lib/applications/reserva
 import { loadFamilyViewer, loadStudentViewer, type LinkedStudent, type StudentViewer } from "@/app/(public)/residencias/[slug]/loadViewerContext";
 import { findUniversitiesByName, haversineDistanceKm, withoutOtherUniversity } from "@/lib/data/buenosAiresUniversities";
 import { roomTypeSubtitle } from "@/lib/residences/fichaConditions";
-import { isTypeRequestable } from "@/lib/availability/typeAvailability";
+import { isStaleBlocked, isTypeRequestable } from "@/lib/availability/typeAvailability";
 import { resolveRequestPanelMode, type RequestPanelMode } from "@/lib/residences/requestPanelMode";
 import { PreviewRequestContent } from "@/components/residences/ficha/PreviewRequestContent";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
@@ -245,6 +245,7 @@ export async function FichaView({
       : {}),
     ...(rt.bathroom_type === "privado" || rt.bathroom_type === "compartido" ? { bathroom: rt.bathroom_type } : {}),
     state: typeAvailabilityState(rt.profile_availability?.status),
+    staleBlocked: isStaleBlocked(typeAvailabilityState(rt.profile_availability?.status), !!rt.profile_availability?.hidden_from_search_at),
     // Por género solo si el tipo se ofrece en más de uno (con uno solo, el género ya figura en la línea del tipo).
     ...(() => {
       const offers = genderOffers(rt.profile_availability?.status, rt.genderRows);
@@ -295,9 +296,9 @@ export async function FichaView({
   const ownTypeIds = new Set(studentViewer?.ownReservationTypeIds ?? []);
   const waitlistTypeIds = fichaTypes.filter((t) => t.state === "full" && !ownTypeIds.has(t.id)).map((t) => t.id);
   const waitlistRoomTypes = roomTypes
-    .filter((rt) => !ownTypeIds.has(rt.id))
+    .filter((rt) => !ownTypeIds.has(rt.id) && !fichaTypes.find((t) => t.id === rt.id)?.staleBlocked)
     .map((rt) => ({ id: rt.id, name: rt.name, state: fichaTypes.find((t) => t.id === rt.id)?.state }));
-  const anyRequestable = fichaTypes.some((t) => isTypeRequestable(t.state));
+  const anyRequestable = fichaTypes.some((t) => isTypeRequestable(t.state, t.staleBlocked));
   // Vuelta del login con `?solicitar=1`: abre la hoja que corresponde (solicitud con el tipo elegido, o lista de espera).
   const preselectedType = fichaTypes.find((t) => t.id === preselectedRoomTypeId);
   const initialSheet: "request" | "waitlist" | null =
@@ -306,7 +307,7 @@ export async function FichaView({
       : mode === "family"
         ? "request"
         : mode === "student"
-          ? preselectedType && isTypeRequestable(preselectedType.state)
+          ? preselectedType && isTypeRequestable(preselectedType.state, preselectedType.staleBlocked)
             ? "request"
             : (preselectedType ? waitlistTypeIds.includes(preselectedType.id) : !anyRequestable) && waitlistTypeIds.length > 0
               ? "waitlist"
@@ -724,9 +725,9 @@ export async function FichaView({
               requestContent={
                 mode === "guest" ? (
                   preview ? (
-                    <PreviewRequestContent types={fichaTypes.filter((t) => isTypeRequestable(t.state))} />
+                    <PreviewRequestContent types={fichaTypes.filter((t) => isTypeRequestable(t.state, t.staleBlocked))} />
                   ) : (
-                    <GuestRequestContent slug={slug} types={fichaTypes.filter((t) => isTypeRequestable(t.state))} />
+                    <GuestRequestContent slug={slug} types={fichaTypes.filter((t) => isTypeRequestable(t.state, t.staleBlocked))} />
                   )
                 ) : mode === "family" ? (
                   <ProposeForm

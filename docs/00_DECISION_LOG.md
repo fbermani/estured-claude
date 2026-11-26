@@ -1986,7 +1986,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 |---|---|
 | DR69 (a) | **Días 30 a 45** (`not_updated`): la habitación admite solicitudes, con advertencia visible. |
 | DR69 (b) | **Desde el día 45** (`hidden_from_search_at` con valor): ese tipo de habitación no admite solicitudes nuevas, tampoco con el link directo. Se valida en el servidor. |
-| DR69 (c) | **Alcance:** solicitud del estudiante, propuesta del familiar y envío de una propuesta aceptada. Lo ya enviado no cambia. No habilita lista de espera. |
+| DR69 (c) | **Alcance:** solicitud del estudiante, propuesta del familiar, envío de una propuesta aceptada y activación desde la lista de espera. Lo ya enviado no cambia. No habilita lista de espera. |
 | DR69 (d) | **Reactivación:** la residencia actualiza su disponibilidad y el tipo vuelve a recibir solicitudes. |
 
 **Pendiente:** el job no avisa a la residencia, aunque `docs/07` §14.3 dice «notificar». Hoy solo hay aviso en su panel (`GAPS.md`).

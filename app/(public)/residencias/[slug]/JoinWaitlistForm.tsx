@@ -43,7 +43,7 @@ export function JoinWaitlistForm({
   const chosenType = roomTypes.find((rt) => rt.id === chosen) ?? null;
   // Otros tipos con disponibilidad informada (no «completos» ni pausados): la espera no los menciona como lugar prometido.
   const informedOthers = roomTypes.filter((rt) => rt.id !== chosen && rt.state === "available").map((rt) => rt.name);
-  const othersText = informedOthers.length > 0 ? ` Tienen disponibilidad informada: ${informedOthers.join(", ")}. Podés solicitarlos sin esperar.` : "";
+  const othersText = informedOthers.length > 0 ? ` Tienen disponibilidad informada: ${informedOthers.join(", ")}. Podés enviar tu solicitud de reserva sin esperar.` : "";
   let scopeMessage: string;
   if (chosenType) {
     scopeMessage =

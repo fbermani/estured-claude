@@ -23,7 +23,7 @@ async function buildFichaData(admin: SupabaseClient, residence: ResidenceRow) {
     admin
       .from("room_types")
       .select(
-        "id, name, monthly_price_usd, capacity_per_room, gender_policy, bathroom_type, profile_availability(status, available_count)",
+        "id, name, monthly_price_usd, capacity_per_room, gender_policy, bathroom_type, profile_availability(status, available_count, hidden_from_search_at)",
       )
       .eq("residence_id", residence.id)
       .eq("is_active", true),
@@ -114,7 +114,11 @@ async function buildFichaData(admin: SupabaseClient, residence: ResidenceRow) {
     vacancy: vacancyByType[rt.id as string] ?? null,
     genderSummary: new Set(genders).size > 1 ? summarizeTypeGenders(genders) : null,
     gender_policy: new Set(genders).size === 1 ? (policyFromGender(genders[0]) ?? rt.gender_policy) : rt.gender_policy,
-    profile_availability: rt.profile_availability as unknown as { status: string; available_count: number | null } | null,
+    profile_availability: rt.profile_availability as unknown as {
+      status: string;
+      available_count: number | null;
+      hidden_from_search_at: string | null;
+    } | null,
     genderRows: genderAvailability.byType.get(rt.id as string) ?? [],
   }));
 

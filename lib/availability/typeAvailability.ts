@@ -41,16 +41,30 @@ export function isTypePaused(state: TypeAvailabilityState): boolean {
 }
 
 /**
- * ¿Se puede enviar una solicitud (o propuesta) para este tipo? Lo bloquean `full` y las pausas
- * (de la residencia o de EstuRed). Con "sin disponibilidad actualizada" se permite (docs/04),
- * sujeta a confirmación de la residencia.
+ * DR69: un tipo sin actualizar que ya salió de las búsquedas (`hidden_from_search_at`, día 45) no admite solicitudes.
+ * La marca solo cuenta con "not_updated": al actualizar, la residencia la limpia.
  */
-export function isTypeRequestable(state: TypeAvailabilityState): boolean {
-  return state !== "full" && !isTypePaused(state);
+export function isStaleBlocked(state: TypeAvailabilityState, hiddenFromSearch = false): boolean {
+  return state === "not_updated" && hiddenFromSearch;
 }
 
+/**
+ * ¿Se puede enviar una solicitud (o propuesta) para este tipo? Lo bloquean `full`, las pausas
+ * (de la residencia o de EstuRed) y el día 45 sin actualizar (DR69). Entre los días 30 y 45 se permite,
+ * sujeta a confirmación de la residencia (docs/04 §10.4).
+ */
+export function isTypeRequestable(state: TypeAvailabilityState, hiddenFromSearch = false): boolean {
+  return state !== "full" && !isTypePaused(state) && !isStaleBlocked(state, hiddenFromSearch);
+}
+
+/** Texto de la ficha cuando el día 45 bloquea (DR69). */
+export const STALE_NOTICE = "La residencia no actualizó su disponibilidad. Por ahora no recibe solicitudes de reserva.";
+/** Error por tipo de habitación cuando el día 45 bloquea (DR69). */
+export const STALE_ROOM_MESSAGE = "La residencia no actualizó la disponibilidad de esta habitación. Probá otro tipo.";
+
 /** Mensaje de error (server actions) cuando el tipo no admite solicitudes; `null` si se puede. */
-export function requestBlockedMessage(state: TypeAvailabilityState): string | null {
+export function requestBlockedMessage(state: TypeAvailabilityState, hiddenFromSearch = false): string | null {
+  if (isStaleBlocked(state, hiddenFromSearch)) return STALE_ROOM_MESSAGE;
   if (state === "full") return "Esa habitación ya no tiene lugar. Probá otro tipo.";
   if (state === "paused_by_residence") return "La residencia pausó las solicitudes para este tipo de habitación. Probá otro tipo.";
   if (state === "paused_by_admin") return "La disponibilidad de este tipo de habitación está pausada por EstuRed. Probá otro tipo.";

@@ -327,6 +327,33 @@ describe.skipIf(!hasCreds)("disponibilidad y lista de espera (integración)", ()
     await admin.from("profile_availability").update({ status: "full" }).eq("room_type_id", roomTypeId);
   });
 
+  it("activateFromWaitlist: DR69, con 45 días sin actualizar no crea la solicitud", async () => {
+    const joined = await joinWaitlist(admin, {
+      actorUserId: studentUserId,
+      residenceId,
+      roomTypeId,
+      desiredStartDate: null,
+      desiredDurationMonths: null,
+    });
+    expect(joined.ok).toBe(true);
+    if (!joined.ok) return;
+    await admin
+      .from("profile_availability")
+      .update({ status: "not_updated", hidden_from_search_at: new Date().toISOString() })
+      .eq("room_type_id", roomTypeId);
+
+    const activated = await activateFromWaitlist(admin, {
+      waitlistEntryId: joined.waitlistEntryId,
+      actorUserId: studentUserId,
+      desiredStartDate: "2026-09-01",
+      durationMonths: 6,
+    });
+    expect(activated).toEqual({ ok: false, error: "La residencia no actualizó la disponibilidad de esta habitación. Probá otro tipo." });
+
+    await admin.from("waitlist_entries").delete().eq("id", joined.waitlistEntryId);
+    await admin.from("profile_availability").update({ status: "full", hidden_from_search_at: null }).eq("room_type_id", roomTypeId);
+  });
+
   it("updateAvailability: la residencia actualiza y limpia hidden_from_search_at", async () => {
     await admin
       .from("profile_availability")

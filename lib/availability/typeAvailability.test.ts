@@ -40,6 +40,20 @@ describe("isTypeRequestable / canOfferBedSelection", () => {
     expect(requestBlockedMessage("paused_by_admin")).toContain("EstuRed");
   });
 
+  it("DR69: desde el día 45 (oculto de las búsquedas) un tipo sin actualizar no admite solicitudes", () => {
+    expect(isTypeRequestable("not_updated", true)).toBe(false);
+    expect(requestBlockedMessage("not_updated", true)).toBe(
+      "La residencia no actualizó la disponibilidad de esta habitación. Probá otro tipo.",
+    );
+  });
+
+  it("DR69: la marca de oculto no afecta a un tipo actualizado ni tapa el motivo de completo o pausa", () => {
+    expect(isTypeRequestable("available", true)).toBe(true);
+    expect(requestBlockedMessage("available", true)).toBeNull();
+    expect(requestBlockedMessage("full", true)).toContain("no tiene lugar");
+    expect(requestBlockedMessage("paused_by_residence", true)).toContain("pausó");
+  });
+
   it("un tipo pausado nunca ofrece elegir cama", () => {
     expect(canOfferBedSelection("paused_by_residence")).toBe(false);
     expect(canOfferBedSelection("paused_by_admin")).toBe(false);

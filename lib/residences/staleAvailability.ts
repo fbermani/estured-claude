@@ -51,12 +51,7 @@ export function staleAvailabilityMessage(stale: StaleAvailability | undefined): 
   if (!stale) return null;
   const types = (n: number) => `${n} ${n === 1 ? "tipo de habitación" : "tipos de habitación"}`;
   if (stale.hidden > 0) {
-    const base = `${types(stale.hidden)} ${stale.hidden === 1 ? "está oculto" : "están ocultos"} de las búsquedas por falta de actualización.`;
-    const extra =
-      stale.notUpdated > 0
-        ? ` Otros ${stale.notUpdated} llevan más de 30 días sin actualizarse y van por el mismo camino.`
-        : "";
-    return `${base}${extra} Actualizá tu disponibilidad para que vuelvan a verse.`;
+    return "Hay habitaciones sin actualizar hace más de 45 días. No se ven en las búsquedas ni reciben solicitudes de reserva. Actualizá tu disponibilidad.";
   }
   if (stale.notUpdated > 0) {
     return `${types(stale.notUpdated)} ${stale.notUpdated === 1 ? "lleva" : "llevan"} más de 30 días sin actualizar. Si no lo actualizás, ${stale.notUpdated === 1 ? "deja" : "dejan"} de aparecer en las búsquedas.`;

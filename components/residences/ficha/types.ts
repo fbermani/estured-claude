@@ -20,6 +20,8 @@ export type FichaRoomType = {
   genderLabel?: string;
   bathroom?: "privado" | "compartido";
   state: TypeAvailabilityState;
+  /** DR69: 45 días sin actualizar; el tipo no admite solicitudes nuevas. */
+  staleBlocked?: boolean;
   /**
    * Disponibilidad por género (migración 0075), solo cuando el tipo se ofrece en más de un género. Cada género con su propio estado;
    * el copy sale de `StatusTag`. La solicitud sigue siendo por tipo.

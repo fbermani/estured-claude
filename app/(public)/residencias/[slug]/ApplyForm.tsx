@@ -17,7 +17,7 @@ import {
 } from "@/app/students/applications/actions";
 import { JoinWaitlistForm } from "@/app/(public)/residencias/[slug]/JoinWaitlistForm";
 import { useReservationSelection } from "@/components/residences/reservationSelection";
-import { isTypePaused, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { STALE_NOTICE, isStaleBlocked, isTypePaused, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 import { MAX_MOVING_NOTE, MOVING_NOTE_HELP, MOVING_NOTE_LABEL } from "@/lib/stayChange/copy";
 import { ReservationCollectionPreference } from "@/components/applications/ReservationCollectionPreference";
 import type { ReservationCollectionOffer } from "@/lib/residences/offeredPaymentMethods";
@@ -30,7 +30,7 @@ interface RoomTypeOption {
   promotion_percent?: number | null;
   /** Ocupación futura del tipo (la arma el servidor); null/ausente = «a confirmar». */
   vacancy?: VacancyOutlook | null;
-  profile_availability: { status: string } | null;
+  profile_availability: { status: string; hidden_from_search_at?: string | null } | null;
 }
 
 /** Condiciones de reserva a nivel residencia (migración 0025). */
@@ -103,7 +103,9 @@ export function ApplyForm({
   const action = createApplicationRequest.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status)));
+  const availableTypes = roomTypes.filter((rt) =>
+    isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status), !!rt.profile_availability?.hidden_from_search_at),
+  );
   // Tipo de habitación seedeada desde `?room=` en la primera carga por
   // ReservationSelectionProvider (page.tsx) y luego controlada por el
   // contexto compartido con CommunityBrowser — elegir una plaza libre
@@ -131,19 +133,24 @@ export function ApplyForm({
     return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
+    // DR69: los tipos con 45 días sin actualizar no reciben solicitudes ni lista de espera.
+    const open = roomTypes.filter(
+      (rt) => !isStaleBlocked(typeAvailabilityState(rt.profile_availability?.status), !!rt.profile_availability?.hidden_from_search_at),
+    );
     // Todos los tipos pausados (por la residencia o por EstuRed): no es "completa", así que no se ofrece lista de espera.
-    if (roomTypes.every((rt) => isTypePaused(typeAvailabilityState(rt.profile_availability?.status)))) {
+    if (open.every((rt) => isTypePaused(typeAvailabilityState(rt.profile_availability?.status)))) {
       return (
         <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">
-          Las solicitudes de esta residencia están pausadas por ahora. Volvé a mirar más adelante o explorá otras
-          residencias.
+          {open.length < roomTypes.length
+            ? STALE_NOTICE
+            : "Las solicitudes de esta residencia están pausadas por ahora. Volvé a mirar más adelante o explorá otras residencias."}
         </p>
       );
     }
     return (
       <JoinWaitlistForm
         residenceId={residenceId}
-        roomTypes={roomTypes.map((rt) => ({ id: rt.id, name: rt.name, state: typeAvailabilityState(rt.profile_availability?.status) }))}
+        roomTypes={open.map((rt) => ({ id: rt.id, name: rt.name, state: typeAvailabilityState(rt.profile_availability?.status) }))}
         minStartDate={minStartDate}
       />
     );

@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { createAuditLog } from "@/lib/audit";
 import { recordFamilyProposalResponse } from "@/lib/applications/recordFamilyProposalResponse";
-import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { loadRequestableRoomType } from "@/lib/availability/loadRequestableRoomType";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
 import { guardianConsentMissing, minorHoldError } from "@/lib/students/minorHold";
@@ -91,21 +91,9 @@ export async function createFamilyProposal(
     return { status: "error", message: "Esta residencia ya no está disponible para proponer." };
   }
 
-  const { data: roomType } = await admin
-    .from("room_types")
-    .select("id, is_active, profile_availability(status)")
-    .eq("id", roomTypeId)
-    .eq("residence_id", residenceId)
-    .maybeSingle();
-  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
-  // un objeto singular en el embed, no un array.
-  const availability = roomType?.profile_availability as unknown as { status: string } | null;
-  if (!roomType || !roomType.is_active) {
-    return { status: "error", message: "Ese tipo de habitación ya no está disponible." };
-  }
-  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
-  if (blockedMessage) {
-    return { status: "error", message: blockedMessage };
+  const requestable = await loadRequestableRoomType(admin, residenceId, roomTypeId);
+  if (!requestable.ok) {
+    return { status: "error", message: requestable.error };
   }
 
   const { data: proposal, error } = await admin

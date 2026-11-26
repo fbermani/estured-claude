@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
-import { requestBlockedMessage, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { loadRequestableRoomType } from "@/lib/availability/loadRequestableRoomType";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { validateMovingNote } from "@/lib/stayChange/validate";
 import { MAX_APPLICATION_TEXT, checkTextMax, isIsoDate, parseDurationMonths } from "@/lib/applications/inputLimits";
@@ -142,28 +142,16 @@ export async function createApplicationRequest(
   const preferred = resolvePreferredPaymentMethod(formData.get("preferred_payment_method"), collection.offer);
   if (!preferred.ok) return { status: "error", message: preferred.error };
 
-  const { data: roomType } = await admin
-    .from("room_types")
-    .select("id, monthly_price_usd, is_active, profile_availability(status)")
-    .eq("id", roomTypeId)
-    .eq("residence_id", residenceId)
-    .maybeSingle();
-  // profile_availability tiene unique(room_type_id) — PostgREST devuelve
-  // un objeto singular en el embed, no un array.
-  const availability = roomType?.profile_availability as unknown as { status: string } | null;
-  if (!roomType || !roomType.is_active) {
-    return { status: "error", message: "Ese tipo de habitación ya no está disponible." };
-  }
-  const blockedMessage = requestBlockedMessage(typeAvailabilityState(availability?.status));
-  if (blockedMessage) {
-    return { status: "error", message: blockedMessage };
+  const requestable = await loadRequestableRoomType(admin, residenceId, roomTypeId);
+  if (!requestable.ok) {
+    return { status: "error", message: requestable.error };
   }
 
   const result = await createApplicationFromRoomType(admin, {
     studentProfileId: studentProfile.id,
     residenceId,
     roomTypeId,
-    roomType: { monthly_price_usd: Number(roomType.monthly_price_usd) },
+    roomType: { monthly_price_usd: requestable.roomType.monthlyPriceUsd },
     desiredStartDate,
     durationMonths,
     academicObjective,

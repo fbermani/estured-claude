@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
-import { isTypePaused, isTypeRequestable } from "@/lib/availability/typeAvailability";
+import { STALE_NOTICE, isTypePaused, isTypeRequestable } from "@/lib/availability/typeAvailability";
 import type { ReservationWindowNotice } from "@/lib/students/reservationWindow";
 import type { RequestPanelMode } from "@/lib/residences/requestPanelMode";
 import type { FichaRoomType } from "@/components/residences/ficha/types";
@@ -27,10 +27,12 @@ export function RequestNotices({
   windowNotice: ReservationWindowNotice | null;
   studentName: string | null;
 }) {
-  const requestable = roomTypes.filter((rt) => isTypeRequestable(rt.state));
+  const requestable = roomTypes.filter((rt) => isTypeRequestable(rt.state, rt.staleBlocked));
   const allFull = roomTypes.length > 0 && roomTypes.every((rt) => rt.state === "full");
   const allPaused = roomTypes.length > 0 && roomTypes.every((rt) => isTypePaused(rt.state));
   const notUpdated = requestable.length > 0 && requestable.every((rt) => rt.state === "not_updated");
+  // DR69: ningún tipo admite solicitudes y al menos uno es por falta de actualización.
+  const blockedStale = requestable.length === 0 && roomTypes.some((rt) => rt.staleBlocked);
   const box = "rounded-field bg-sand-100 px-3.5 py-2.5 text-xs leading-relaxed text-ink-soft";
 
   return (
@@ -92,6 +94,7 @@ export function RequestNotices({
           residencias.
         </p>
       )}
+      {blockedStale && <p className={box}>{STALE_NOTICE}</p>}
       {notUpdated && (
         <p className={box}>
           La residencia no actualizó su disponibilidad. Podés enviar tu solicitud de reserva igual, pero no te asegura el lugar.

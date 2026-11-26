@@ -12,7 +12,7 @@ import {
 import { useReservationSelection } from "@/components/residences/reservationSelection";
 import type { VacancyOutlook } from "@/lib/applications/emptyMonths";
 import { CostBreakdown, type CostBreakdownConditions } from "@/components/residences/ficha/CostBreakdown";
-import { isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
+import { STALE_NOTICE, isStaleBlocked, isTypeRequestable, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 interface RoomTypeOption {
   id: string;
@@ -22,7 +22,7 @@ interface RoomTypeOption {
   promotion_percent?: number | null;
   /** Ocupación futura del tipo (la arma el servidor); null/ausente = «a confirmar». */
   vacancy?: VacancyOutlook | null;
-  profile_availability: { status: string } | null;
+  profile_availability: { status: string; hidden_from_search_at?: string | null } | null;
 }
 interface StudentOption {
   id: string;
@@ -56,7 +56,9 @@ export function ProposeForm({
   const action = createFamilyProposal.bind(null, residenceId);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const availableTypes = roomTypes.filter((rt) => isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status)));
+  const availableTypes = roomTypes.filter((rt) =>
+    isTypeRequestable(typeAvailabilityState(rt.profile_availability?.status), !!rt.profile_availability?.hidden_from_search_at),
+  );
   // El tipo elegido en la tabla de tarifas / la card llega preseleccionado (mismo estado que `ApplyForm`).
   const { roomTypeId: contextRoomTypeId, setRoomTypeId } = useReservationSelection();
   const roomTypeId = availableTypes.some((rt) => rt.id === contextRoomTypeId) ? (contextRoomTypeId as string) : "";
@@ -76,7 +78,14 @@ export function ProposeForm({
     return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Esta residencia todavía no cargó tipos de habitación.</p>;
   }
   if (availableTypes.length === 0) {
-    return <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">Ningún tipo de habitación tiene disponibilidad informada por ahora.</p>;
+    const stale = roomTypes.some((rt) =>
+      isStaleBlocked(typeAvailabilityState(rt.profile_availability?.status), !!rt.profile_availability?.hidden_from_search_at),
+    );
+    return (
+      <p className="px-5 py-5 text-sm text-ink-soft sm:px-6">
+        {stale ? STALE_NOTICE : "Ningún tipo de habitación tiene disponibilidad informada por ahora."}
+      </p>
+    );
   }
 
   return (

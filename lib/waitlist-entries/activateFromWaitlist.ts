@@ -6,6 +6,7 @@ import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { createApplicationFromRoomType } from "@/lib/applications/createRequestFromRoomType";
 import { checkReservationWindowOverlap } from "@/lib/students/reservationWindow";
 import { notifyGuardianRegulationPending } from "@/lib/regulations/notifyGuardian";
+import { STALE_ROOM_MESSAGE, isStaleBlocked, typeAvailabilityState } from "@/lib/availability/typeAvailability";
 
 export type ActivateFromWaitlistResult = { ok: true; applicationId: string } | { ok: false; error: string };
 
@@ -67,18 +68,22 @@ export async function activateFromWaitlist(
 
   const { data: roomType } = await admin
     .from("room_types")
-    .select("id, monthly_price_usd, is_active, profile_availability(status)")
+    .select("id, monthly_price_usd, is_active, profile_availability(status, hidden_from_search_at)")
     .eq("id", entry.room_type_id)
     .eq("residence_id", entry.residence_id)
     .maybeSingle();
   // profile_availability tiene unique(room_type_id) — PostgREST devuelve
   // un objeto singular en el embed, no un array.
-  const availability = roomType?.profile_availability as unknown as { status: string } | null;
+  const availability = roomType?.profile_availability as unknown as { status: string; hidden_from_search_at: string | null } | null;
   if (!roomType || !roomType.is_active) {
     return { ok: false, error: "Ese tipo de habitación ya no está disponible." };
   }
   if (availability?.status === "full") {
     return { ok: false, error: "Esa habitación todavía no tiene lugar." };
+  }
+  // DR69: desde el día 45 sin actualizar no entran solicitudes nuevas, tampoco desde la lista de espera.
+  if (isStaleBlocked(typeAvailabilityState(availability?.status), !!availability?.hidden_from_search_at)) {
+    return { ok: false, error: STALE_ROOM_MESSAGE };
   }
 
   const result = await createApplicationFromRoomType(admin, {
