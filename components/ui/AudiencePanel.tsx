@@ -104,7 +104,7 @@ export function AudiencePanel({
       <div className="mt-auto grid gap-2 px-6 pb-6 pt-5 lg:mt-0 lg:content-start">
         <Link
           href={href}
-          className={`group/btn inline-flex h-14 w-full items-center justify-center gap-2 rounded-full text-base font-bold text-white transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:active:scale-[0.98] active:brightness-90 ${t.btn}`}
+          className={`group/btn inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full px-5 py-2 text-center text-base leading-tight font-bold text-white transition duration-200 ease-out-fresh focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:active:scale-[0.98] active:brightness-90 ${t.btn}`}
         >
           {cta}
           <Icon name="arrow_forward" className="text-xl transition-transform duration-200 ease-out-fresh group-hover/btn:translate-x-1 group-active/btn:translate-x-1" />

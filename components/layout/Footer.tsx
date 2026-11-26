@@ -103,7 +103,7 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
             </li>
             <li>
               <Link href="/for-students#que-pagas" className={link}>
-                Qué pagás y a quién
+                Qué pagás y cuándo
               </Link>
             </li>
             <li className="py-1">

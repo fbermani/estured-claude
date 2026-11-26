@@ -70,7 +70,7 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
                 <span className="flex items-start gap-2">
                   <Icon name="remove" className="mt-px text-[19px] text-orange-700" />
                   <span>
-                    <span className="font-bold text-ink-soft md:hidden">A ciegas: </span>
+                    <span className="mr-1.5 inline-block rounded-md bg-ink px-1.5 py-0.5 text-xs font-bold text-paper md:hidden">A ciegas</span>
                     {it.before}
                   </span>
                 </span>
@@ -83,7 +83,10 @@ export function BenefitCompare({ items, label }: { items: BentoItem[]; label: st
               >
                 <span className="flex items-start gap-2.5">
                   <Icon name="check_circle" className="mt-px text-[21px] text-forest [font-variation-settings:'FILL'_1]" />
-                  <span>{it.yes}</span>
+                  <span>
+                    <span className="mb-1 block w-fit rounded-md bg-forest px-1.5 py-0.5 text-xs font-bold text-paper md:hidden">Con EstuRed</span>
+                    {it.yes}
+                  </span>
                 </span>
               </td>
             </tr>
