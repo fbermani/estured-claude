@@ -51,8 +51,9 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 
 ### Etapa 2 — Instagram
 
-- [ ] Cuenta profesional, bio, destacadas y la tanda base de 10 posts publicada (`marketing/instagram/ESTRATEGIA_INSTAGRAM.md` §2–§4). Meta Ads arranca **después** de los 10 posts.
-  - Propuesta 2026-11-25, sin validar: la tanda pasa a 12 piezas (3 fijadas) y se publica cuando el link de la bio abra el popup en producción (`marketing/instagram/GUIONES_Y_POSTS.md` §8).
+- [ ] Cuenta profesional, bio, destacadas y la tanda base de 12 piezas publicada (`marketing/instagram/ESTRATEGIA_INSTAGRAM.md` §2–§4). Meta Ads arranca **después** de las 12 piezas.
+  - Aprobado 2026-11-25: 12 piezas (3 fijadas) y 29 historias de destacadas (en validación). Producción: una pieza por chat (`marketing/instagram/PRODUCCION.md`). Publicar cuando el link de la bio abra el popup en producción.
+  - Pendiente de medición: `/guias` no captura UTM ni carga el pixel (solo `app/(preapertura)/layout.tsx`). Resolver antes de medir links a guías.
 - [ ] Regla vigente: ningún post nombra residencias ni muestra precios.
 - [ ] Enlace de la bio al dominio con UTM propio.
 - [ ] Rutina de interacción diaria (§5.2). Es la actividad que no se negocia: primero Instagram, después la app.
@@ -94,7 +95,7 @@ Se ejecuta con las secciones A a G de este runbook, con este alcance recortado:
 
 - Producción en `estured.com` con la preapertura activa y el popup que no se cierra.
 - Textos legales publicados y pixel midiendo.
-- 10 posts base en Instagram.
+- 12 piezas base en Instagram.
 - Una semana de test de anuncios con números por ángulo.
 - Decisión escrita de escalar, ajustar o pausar.
 
