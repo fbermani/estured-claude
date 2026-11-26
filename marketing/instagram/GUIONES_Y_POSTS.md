@@ -98,7 +98,7 @@ Capturas: códigos K en §7. Toda captura lleva el rótulo «Así va a funcionar
 | 3 | Miralo en el mapa | Y compará a cuántas cuadras queda tu facultad | K02 |
 | 4 | Entrá a cada ficha | Fotos, habitaciones, áreas comunes y reglas | K04 y K06 |
 | 5 | Mirá quiénes viven ahí | En las residencias que activan la comunidad. Cada persona elige qué mostrar | K07 |
-| 6 | Pedí y seguí cada paso | Solicitar es gratis. La residencia confirma | K08 y K09 |
+| 6 | Pedí y seguí cada paso | Enviar tu solicitud de reserva es gratis. La residencia confirma | K08 y K09 |
 | 7 | Enterate primero | Sumate gratis. Si querés, aparecé en la comunidad (18+) | K12 |
 
 **Texto del post:**
@@ -212,7 +212,7 @@ Fuente: guía 05. Revisá los textos contra la guía en la versión final.
 
 ### P12. Carrusel, familias y estudiantes: pagos (7)
 1. Antes de mandar una seña, mirá esto.
-2. Solicitar es gratis.
+2. Enviar tu solicitud de reserva es gratis.
 3. La residencia responde y confirma.
 4. Lo acordado se paga directo a la residencia.
 5. Fee EstuRed: 5% de la estadía inicial, sin depósito. Solo si la residencia confirma.

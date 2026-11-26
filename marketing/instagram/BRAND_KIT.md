@@ -170,6 +170,7 @@ Verificá recortes en la vista previa de Instagram antes de producir en serie.
 | Usá | No uses |
 |---|---|
 | Sumate gratis | Reservá ya |
+| Enviar tu solicitud de reserva | El verbo «solicitar» |
 | Visitada en persona | 100% segura, garantizada |
 | Solicitud sujeta a confirmación | Reserva asegurada |
 | Soporte | Mediación |

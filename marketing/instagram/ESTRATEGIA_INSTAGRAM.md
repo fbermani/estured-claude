@@ -51,7 +51,7 @@ Fuentes: `docs/23_PREAPERTURA.md`, `design-proposals/voz-y-tono/GUIA_DE_VOZ.md`,
 | 1. Mudarse con todo claro | 30% | Educativo y de guardado: qué preguntar al visitar, costos, alertas, checklist |
 | 2. Llegar a Buenos Aires | 20% | Barrios, trámites, transporte (reutiliza el Centro de Guías) |
 | 3. Convivencia y vida independiente | 10% | Comunidad, reglas y acompañamiento. Tono de adulto a adulto; nunca infantilizar ni apelar a "mamá/papá" |
-| 4. Cómo funciona EstuRed | 25% | Capturas de la app, proceso, "solicitar es gratis", comprobante |
+| 4. Cómo funciona EstuRed | 25% | Capturas de la app, proceso, "enviar tu solicitud de reserva es gratis", comprobante |
 | 5. Hacer las cosas mejor | 15% | Para dueños: previsibilidad, anticipación, mejor comunicación, residencias fundadoras. Sin nombrar ninguna |
 
 ### Lineamientos visuales
@@ -84,7 +84,7 @@ Seis destacadas, nombres de hasta 11 caracteres. Portadas: círculo oscuro `#252
 | # | Nombre | Ícono | Objetivo | Contenido sugerido |
 |---|---|---|---|---|
 | 1 | Cómo funciona | Escalera de pasos | Entender el proceso en 30 s | Pasos del flujo con capturas de la app (nombres y precios difuminados): perfil, solicitud, contacto, pago, comprobante |
-| 2 | Costos | Signo $ | Sacar la duda de la plata | "Solicitar es gratis"; qué se paga a la residencia; fee EstuRed (5%, sin contar el depósito); a quién y cuándo |
+| 2 | Costos | Signo $ | Sacar la duda de la plata | "Enviar tu solicitud de reserva es gratis"; qué se paga a la residencia; fee EstuRed (5%, sin contar el depósito); a quién y cuándo |
 | 3 | Guías | Libro abierto | Atraer por utilidad | Una historia por guía del Centro de Guías, con enlace |
 | 4 | Familias | Casa con dos figuras | Hablarle a quien acompaña | Qué ve y qué hace el familiar; privacidad; "la decisión es de tu estudiante" |
 | 5 | Verificadas | Casa con tilde (verde) | Confianza | Cómo se verifica una residencia en persona, sin nombrar ninguna |

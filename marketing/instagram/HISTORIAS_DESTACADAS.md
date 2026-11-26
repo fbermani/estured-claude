@@ -33,7 +33,7 @@ Reglas: `GUIONES_Y_POSTS.md` §1. Diseño: `BRAND_KIT.md`. Capturas K01 a K19: `
 | # | Titular | Apoyo | Visual | Sticker |
 |---|---|---|---|---|
 | 1 | 1. Buscá | Filtrá por barrio, universidad y presupuesto | K03 | Encuesta: «¿Qué mirás primero?» Barrio / Facultad |
-| 2 | 2. Pedí tu lugar | Solicitar es gratis. Queda sujeto a confirmación | K08 | |
+| 2 | 2. Pedí tu lugar | Enviar tu solicitud de reserva es gratis. Queda sujeta a confirmación | K08 | |
 | 3 | 3. La residencia responde | Seguís cada cambio de estado | K09 | |
 | 4 | 4. Pagá a la residencia | Lo acordado se paga directo | K09 | |
 | 5 | 5. Confirmá | Fee EstuRed del 5% y comprobante verificable | K10 | Link `/preregistro`: «Sumate gratis» |
@@ -42,8 +42,8 @@ Reglas: `GUIONES_Y_POSTS.md` §1. Diseño: `BRAND_KIT.md`. Capturas K01 a K19: `
 
 | # | Titular | Apoyo | Visual | Sticker |
 |---|---|---|---|---|
-| 1 | ¿Solicitar tiene costo? | Respondé antes de seguir | Tipografía | Cuestionario: Sí / No (correcta: No) |
-| 2 | Sumarte y solicitar es gratis | El fee se paga solo si la residencia confirma | K08 | |
+| 1 | ¿Enviar tu solicitud de reserva tiene costo? | Respondé antes de seguir | Tipografía | Cuestionario: Sí / No (correcta: No) |
+| 2 | Gratis: sumarte y enviar tu solicitud de reserva | El fee se paga solo si la residencia confirma | K08 | |
 | 3 | A la residencia, directo | Pagás lo que acuerden, como matrícula o depósito | K08 | |
 | 4 | Fee EstuRed: 5% | De la estadía inicial; incluye la matrícula, si la hay. Sin depósito | K10, montos difuminados | |
 | 5 | Va aparte | Lo paga el estudiante o su familiar vinculado | Tipografía | Link `/preregistro`: «Sumate gratis» |
