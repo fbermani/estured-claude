@@ -6,6 +6,10 @@
 
 ---
 
+## [ABIERTO — alto, regla sin implementar] La búsqueda no oculta tipos vencidos (2026-11-26)
+
+`checkStaleAvailability` marca `hidden_from_search_at` (día 45), pero `lib/residences/catalog.ts` no lo lee: la residencia sigue en `/search`. `docs/03` §9.6, `docs/04` §10.4, DR69 y el aviso del panel dicen que no se ve. Las solicitudes sí se bloquean. Fix: filtrar en el catálogo (definir qué pasa si solo algunos tipos están vencidos).
+
 ## [ABIERTO — medio, operación] La residencia no recibe aviso antes de quedar bloqueada (DR69, 2026-11-26)
 
 `checkStaleAvailability` marca `not_updated` (día 30) y `hidden_from_search_at` (día 45) sin notificar, aunque `docs/07` §14.3 dice «notificar». Desde DR69 el día 45 corta las solicitudes. Fix: recordatorio antes del día 30 y antes del día 45.
