@@ -17,7 +17,7 @@
 
 - Hecho: `SealIntro` en `staging` (`4427347`). Verificado en staging al cerrar el popup (dev), en computadora y a 375 px.
 - Causa del fallo en celular (confirmada 2026-11-26): el Redmi Note 13 Pro+ del dueño tiene «Reducir movimiento» activado y la apertura vieja se ocultaba en ese caso. No era un error de animación.
-- Decisión del dueño: con «Reducir movimiento» se ve la «versión suave» (mismos pasos, solo fundidos, nada se mueve). Verificada en una página de prueba con la regla forzada; falta verla en el celular del dueño.
+- Decisión del dueño: con «Reducir movimiento» se ve la «versión suave» (mismos pasos, solo fundidos, nada se mueve). Verificada en una página de prueba con la regla forzada y por el dueño en su Redmi (2026-11-26).
 - Sin verificar: la apertura en el hero de la home. Solo aparece con la preapertura apagada.
 
 ## Vista previa del link (WhatsApp, 2026-11-25)
