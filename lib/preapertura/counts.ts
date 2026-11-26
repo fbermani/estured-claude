@@ -62,20 +62,3 @@ export async function getPreaperturaEntryData(): Promise<{ counter: StudentCount
   const [count, inputs] = await Promise.all([getStudentCount(), getFounderInputs()]);
   return { counter: studentCounter(count), founders: founderState(inputs), closure: getFounderClosure() };
 }
-
-/** Lugar real de un estudiante en la lista: cuántos estudiantes se registraron hasta su alta (incluido él). `null` si no se pudo consultar. */
-export async function getStudentPosition(createdAt: string): Promise<number | null> {
-  const admin = getSupabaseAdmin();
-  if (!admin) return null;
-  try {
-    const { count, error } = await admin
-      .from("preapertura_estudiantes")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "student")
-      .lte("created_at", createdAt);
-    if (error || count == null) return null;
-    return count;
-  } catch {
-    return null;
-  }
-}

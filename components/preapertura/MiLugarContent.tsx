@@ -1,20 +1,19 @@
-import { DevAccountNotice } from "@/components/preapertura/DevAccountNotice";
 import Link from "next/link";
 import { signOut } from "@/app/(public)/login/actions";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { MiniCommunityRail } from "@/components/preapertura/MiniCommunityRail";
-import type { RailCard } from "@/lib/preapertura/communityRail";
+import { DevAccountNotice } from "@/components/preapertura/DevAccountNotice";
+import { LiveBand } from "@/components/preapertura/LiveBand";
+import { INSTAGRAM_URL } from "@/lib/constants/contact";
 import type { MiLugarData } from "@/lib/preapertura/miLugar";
 
-/** Los 5 pasos de `/for-students`, resumidos (SPEC pantalla 5). Es cómo va a funcionar al abrir, no una promesa de disponibilidad. */
 const STEPS = [
-  { icon: "search", title: "Creá tu cuenta y buscá", text: "Compará reglas y comunidad." },
-  { icon: "edit_note", title: "Enviá tu solicitud", text: "Gratis y registrada." },
-  { icon: "mark_email_read", title: "La residencia te responde", text: "Valores finales, sin costos ocultos." },
-  { icon: "apartment", title: "Le pagás a la residencia", text: "Ella confirma que lo recibió." },
-  { icon: "verified", title: "Recibís tu comprobante", text: "Fee de EstuRed aparte, a la vista." },
+  { icon: "photo_camera", title: "Seguinos en Instagram.", text: "Mostramos las visitas." },
+  { icon: "notifications", title: "Esperá el aviso.", text: "Te escribimos apenas abramos." },
 ] as const;
+
+const FOOTER_LINK =
+  "inline-flex min-h-11 items-center rounded-field px-2 font-bold underline-offset-4 hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink";
 
 function InvitationBox({ invitation }: { invitation: NonNullable<MiLugarData["invitation"]> }) {
   const who = invitation.studentFirstName;
@@ -62,133 +61,88 @@ function InvitationBox({ invitation }: { invitation: NonNullable<MiLugarData["in
 }
 
 /**
- * «Mi lugar» final (SPEC pantalla 5): celebración con el #N real, panel que se activa al abrir, 5 pasos y carrusel. Variantes: perfil
- * incompleto (invita a completar), familiar (invitación esperando, vencida o vinculados) y cuenta sin fila de preapertura (básica).
+ * «Registro listo» (DR67 d, g): número fijo de registro, qué hacer ahora y una sola acción principal. Estudiante con el perfil
+ * incompleto: «Completar mi perfil». Con el perfil completo, familiar o cuenta sin fila de preapertura: Instagram. El número solo
+ * aparece si está guardado (estudiantes, con la migración 0111). No dice que se mandó un mensaje: eso llega con el bloque B.
  */
-export function MiLugarContent({
-  data,
-  position,
-  rail,
-  devAccount = false,
-}: {
-  data: MiLugarData;
-  position: number | null;
-  rail: { cards: RailCard[]; hasExamples: boolean };
-  devAccount?: boolean;
-}) {
+export function MiLugarContent({ data, devAccount = false }: { data: MiLugarData; devAccount?: boolean }) {
   const isStudent = data.role === "student";
-  // Sin fila de preapertura = la cuenta ya existía (no nació acá): el primer paso («Creá tu cuenta») ya está hecho.
+  const needsProfile = isStudent && !data.profileComplete;
+  // Sin fila de preapertura = la cuenta ya existía (no nació acá).
   const hasAccount = data.role === null;
-  const steps = hasAccount
-    ? [{ icon: "check_circle", title: "Ya tenés tu cuenta", text: "Buscás cuando abramos." }, ...STEPS.slice(1)]
-    : STEPS;
-  const showBoost = isStudent && data.profilePercent != null && data.profilePercent < 100;
   return (
     <div>
-      <div className="grid justify-items-center gap-2.5 bg-forest-ink px-5 pb-6 pt-8 text-center text-white sm:px-10 sm:pb-7 sm:pt-9">
+      <LiveBand>
+        <span id="pre-lugar-title">{hasAccount ? "Tu cuenta ya está lista" : "¡Listo! Ya estás adentro"}</span>
+      </LiveBand>
+
+      {data.registrationNumber != null && (
+        <div className="grid justify-items-center gap-1.5 bg-forest-ink px-5 py-6 text-paper">
+          <p>Tu número de registro</p>
+          <p className="pre-number font-display font-bold text-gold tabular-nums">{data.registrationNumber}</p>
+        </div>
+      )}
+
+      <div className="grid gap-3.5 px-4 pb-6 pt-5 text-center sm:px-8">
         {devAccount && <DevAccountNotice />}
-        <span aria-hidden="true" className="grid size-14 place-items-center rounded-full bg-gold text-forest-ink">
-          <Icon name="check" className="text-4xl" />
-        </span>
-        <h1 id="pre-lugar-title" className="font-display text-[clamp(28px,7vw,40px)] leading-[1.05] tracking-[-0.03em]">
-          {hasAccount ? "Tu cuenta ya está lista." : data.firstName ? `¡Listo, ${data.firstName}! Ya estás adentro.` : "¡Listo! Ya estás adentro."}
-        </h1>
-        <p id="pre-lugar-text" className="max-w-[44ch] text-base text-white/90">
-          Te vas a enterar primero de las residencias verificadas y de todas las novedades.
-        </p>
-        {isStudent && position != null && (
-          <div className="grid justify-items-center gap-1">
-            <p className="inline-flex items-baseline gap-2 rounded-card border border-white/20 bg-white/10 px-4 py-2">
-              <b className="font-display text-[34px] leading-none tabular-nums">{position.toLocaleString("es-AR")}</b>
-              <span className="text-sm text-white/90">persona en sumarse al acceso anticipado</span>
-            </p>
-            <p className="text-sm text-white/85">Es solo el orden en que te sumaste: no da prioridad ni reserva nada.</p>
-          </div>
-        )}
-      </div>
+        <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-ink">¿Y ahora?</h1>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-5 px-5 pb-6 pt-6 sm:px-10 sm:pb-8">
-        {data.role === "family" && data.invitation && <InvitationBox invitation={data.invitation} />}
-
-        {showBoost && (
-          <div className="flex flex-wrap items-center gap-3 rounded-card border-l-4 border-orange bg-orange-tint p-4">
-            <p className="min-w-[200px] flex-1 text-sm text-orange-700">
-              <b className="block text-ink">Tu perfil está al {data.profilePercent}%.</b>
-              Un perfil completo ayuda a que te conozcan mejor cuando abramos.
-            </p>
-            <Button href="/preregistro/perfil" variant="secondary" size="sm" className="shadow-orange">
-              Completar perfil
-            </Button>
+        {data.role === "family" && data.invitation && (
+          <div className="text-left">
+            <InvitationBox invitation={data.invitation} />
           </div>
         )}
 
-        <p className="flex items-center gap-3 rounded-card border-[1.5px] border-dashed border-line-2 bg-cream p-4 text-sm text-ink-soft">
-          <Icon name="dashboard" className="shrink-0 rounded-field bg-butter p-1.5 text-2xl text-butter-fg" />
-          <span>
-            <b className="block text-ink">Cuando se active tu cuenta, acá vas a ver tu panel.</b>
-            Y vas a poder buscar entre las residencias verificadas.
-          </span>
-        </p>
+        {needsProfile && (
+          <Button href="/preregistro/perfil" variant="secondary" size="lg" className="w-full shadow-orange">
+            Completar mi perfil
+            <Icon name="arrow_forward" className="text-xl" />
+          </Button>
+        )}
 
-        <section aria-labelledby="pre-lugar-steps">
-          <h2 id="pre-lugar-steps" className="mb-3 font-display text-xl font-bold text-ink">
-            Así va a funcionar
-          </h2>
-          <ol className="grid gap-2.5 @min-[700px]:grid-cols-5">
-            {steps.map((s, i) => (
-              <li key={s.title} className="flex items-center gap-3 rounded-field border-[1.5px] border-line bg-paper p-3 @min-[700px]:flex-col @min-[700px]:items-start @min-[700px]:p-3.5">
-                <span aria-hidden="true" className="relative grid size-10 shrink-0 place-items-center rounded-field bg-forest-tint text-forest-700">
-                  <Icon name={s.icon} className="text-2xl" />
-                  <i className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-orange text-xs font-bold not-italic text-white">{i + 1}</i>
-                </span>
-                <span>
-                  <b className="block text-[15px] leading-tight text-ink">{s.title}</b>
-                  <small className="mt-0.5 block text-sm leading-snug text-ink-soft">{s.text}</small>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section aria-labelledby="pre-lugar-rail" className="-mx-5 sm:-mx-10">
-          <div className="flex flex-wrap items-center gap-2 px-5 sm:px-10">
-            <h2 id="pre-lugar-rail" className="font-display text-xl font-bold text-ink">
-              Se siguen sumando
-            </h2>
-            {rail.hasExamples && (
-              <span className="inline-flex items-center gap-1 rounded-field bg-butter px-2 py-1 text-xs font-bold text-butter-fg">
-                <Icon name="info" className="text-base" />
-                Las marcadas «Ejemplo» son ilustrativas
+        <ol className="grid gap-2 text-left">
+          {STEPS.map((step) => (
+            <li key={step.title} className="flex items-center gap-3 rounded-field border-[1.5px] border-line px-3 py-2.5 text-[15px] text-ink">
+              <Icon name={step.icon} className="shrink-0 text-forest-700" />
+              <span>
+                <b>{step.title}</b> {step.text}
               </span>
-            )}
-          </div>
-          <MiniCommunityRail cards={rail.cards} hasExamples={rail.hasExamples} />
-        </section>
+            </li>
+          ))}
+        </ol>
 
-        <div className="flex flex-wrap items-center justify-between gap-x-4 text-sm text-ink-soft">
-          <div className="flex flex-wrap items-center gap-x-1">
-            {isStudent && (
-              <Link href="/preregistro/perfil" className="inline-flex min-h-11 items-center rounded-field px-2 font-bold text-ink-soft hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
-                Editar mi perfil
-              </Link>
-            )}
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="inline-flex min-h-11 items-center rounded-field px-2 font-bold text-ink-soft hover:text-ink hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink"
-              >
-                Salir
-              </button>
-            </form>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-1">
-            <a href="/consentimientos#terminos" target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-field px-2 font-semibold hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
-              Términos
-            </a>
-            <a href="/consentimientos#privacidad" target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-field px-2 font-semibold hover:underline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink">
-              Privacidad
-            </a>
-          </div>
+        {/* Una sola acción naranja por pantalla: Instagram pasa a serlo cuando no queda perfil por completar. */}
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener"
+          className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-5 font-bold transition duration-200 ease-out-fresh focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink motion-safe:hover:-translate-y-0.5 ${
+            needsProfile
+              ? "border-[1.5px] border-forest bg-paper text-forest-700 hover:bg-forest-tint"
+              : "bg-orange text-paper shadow-orange hover:bg-orange-600"
+          }`}
+        >
+          <Icon name="photo_camera" />
+          Seguir @estured.residencias
+        </a>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-2 text-sm text-ink-soft">
+          {isStudent && data.profileComplete && (
+            <Link href="/preregistro/perfil" className={FOOTER_LINK}>
+              Editar mi perfil
+            </Link>
+          )}
+          <form action={signOut}>
+            <button type="submit" className={FOOTER_LINK}>
+              Salir
+            </button>
+          </form>
+          <a href="/consentimientos#terminos" target="_blank" rel="noopener" className={FOOTER_LINK}>
+            Términos
+          </a>
+          <a href="/consentimientos#privacidad" target="_blank" rel="noopener" className={FOOTER_LINK}>
+            Privacidad
+          </a>
         </div>
       </div>
     </div>

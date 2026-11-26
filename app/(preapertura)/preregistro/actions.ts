@@ -44,7 +44,7 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
   let acceptTerms = formData.get("accept_terms") === "on";
 
   // SOLO DESARROLLO: el envío completamente vacío crea una cuenta de prueba (`test-preap-est-…@estured.test`, 18+, términos aceptados) y
-  // sigue al paso 2. Con cualquier campo escrito, con invitación, o fuera de desarrollo (producción y tests), la validación normal queda intacta.
+  // sigue a «Mi lugar». Con cualquier campo escrito, con invitación, o fuera de desarrollo (producción y tests), la validación normal queda intacta.
   const devAuto = devAutoAccountsEnabled() && !invitationToken && !typedEmail && !password && !birthRaw;
   if (devAuto) {
     const creds = devCredentials("est");
@@ -103,12 +103,12 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
     return stepError(result.reason === "unavailable" ? UNAVAILABLE : GENERIC, values);
   }
 
-  // Sesión iniciada: el cliente sigue al paso 2. Si el inicio de sesión fallara, la cuenta ya existe: se va a ingresar.
+  // Sesión iniciada: el cliente sigue a «Mi lugar» (DR67). Si el inicio de sesión fallara, la cuenta ya existe: se va a ingresar.
   const supabase = await getSupabaseServer();
   const signedIn = supabase ? await supabase.auth.signInWithPassword({ email, password }) : null;
   return {
     status: "success",
-    redirectTo: signedIn && !signedIn.error ? "/preregistro/perfil" : "/login",
+    redirectTo: signedIn && !signedIn.error ? "/mi-lugar" : "/login",
     ...(devAuto ? { devEmail: email } : {}),
   };
 }

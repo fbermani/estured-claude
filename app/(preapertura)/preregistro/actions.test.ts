@@ -312,12 +312,12 @@ describe("envío vacío: cuenta de prueba SOLO en desarrollo", () => {
     expect((await registerFamilyInvite(IDLE, form(EMPTY_FAMILY))).status).toBe("error");
   });
 
-  it("DESARROLLO: el paso 1 vacío crea una cuenta de prueba identificable (18+, con sesión) y sigue al paso 2", async (ctx) => {
+  it("DESARROLLO: el paso 1 vacío crea una cuenta de prueba identificable (18+, con sesión) y sigue a «Mi lugar»", async (ctx) => {
     if (!admin || !ready) return ctx.skip();
     vi.stubEnv("NODE_ENV", "development");
     const state = await registerStudentStep1(STEP1, form(EMPTY_STEP1));
     expect(state.status).toBe("success");
-    expect(state.redirectTo).toBe("/preregistro/perfil");
+    expect(state.redirectTo).toBe("/mi-lugar");
     expect(state.devEmail).toMatch(/^test-preap-est-[0-9a-f]{8}@estured\.test$/);
     known.push(state.devEmail!);
     const id = await userIdByEmail(state.devEmail!);

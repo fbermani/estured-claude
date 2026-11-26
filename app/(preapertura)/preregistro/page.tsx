@@ -45,7 +45,7 @@ export default async function PreregistroPage({ searchParams }: { searchParams: 
   }
 
   return (
-    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-signup-title" size="wide" initialFocus={invitation ? "#pre-password" : "#pre-email"}>
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-signup-title" size="wide" fullOnMobile initialFocus={invitation ? "#pre-password" : "#pre-email"}>
       <div className="grid grid-cols-[minmax(0,1fr)] p-2 pb-0 @min-[860px]:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] @min-[860px]:p-2.5">
         <UrgencyPanel />
         <Step1Form invitation={invitation} loggedIn={loggedIn} />

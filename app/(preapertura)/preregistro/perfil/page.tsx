@@ -61,7 +61,7 @@ export default async function PerfilPage() {
   };
 
   return (
-    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-profile-title" size="form" initialFocus="#pre-first_name">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-profile-title" size="form" fullOnMobile initialFocus="#pre-first_name">
       <ProfileForm
         initial={initial}
         age={ageByBirthDate(row.birth_date)}
