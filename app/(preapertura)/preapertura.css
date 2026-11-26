@@ -122,7 +122,7 @@
   .pre-title { margin-top: 4px; font-size: 28px; }
   .pre-sub { margin-top: 6px; font-size: 15px; }
   .pre-bens { margin-top: 10px; }
-  .pre-bens li { grid-auto-flow: column; align-items: center; justify-content: center; padding: 7px 8px; font-size: 13px; }
+  .pre-bens li { grid-auto-flow: column; align-content: center; align-items: center; justify-content: center; padding: 7px 8px; font-size: 13px; }
   .pre-cta-block { margin-top: 10px; }
   .pre-cta { min-height: 48px; }
   .pre-micro { margin-top: 4px; }
@@ -179,6 +179,12 @@
 }
 @media (max-width: 639px) and (max-height: 700px) {
   .pre-number { font-size: 84px; }
+}
+
+/* Celular con aviso de cookies (82 px menos): hasta que la persona elige, se ocultan la marca, la frase larga, los íconos y la
+   lista de la tarjeta de fundadoras, para que su botón siga a la vista. Medido de 360×600 a 390×800. */
+@media (max-width: 639px) and (max-height: 800px) {
+  body:has([data-cookie-notice]) :is(.pre-brand, .pre-sub-long, .pre-bens .pre-bens-icon, .pre-found .pre-found-list) { display: none; }
 }
 
 /* prefers-reduced-motion: carrusel quieto y desplazable a mano; el anillo no se muestra. */
