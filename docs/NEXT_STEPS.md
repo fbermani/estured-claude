@@ -9,6 +9,8 @@
 - [x] Etiqueta «Así se va a ver EstuRed» quitada y enlaces legales en los popups (en `staging`; falta publicar).
 - [ ] **Bloque A incluye:** 15 lugares (`FOUNDER_CAPACITY`, medidor, textos, tests), 10 perfiles de ejemplo (`EXAMPLE_PROFILES`, tests del carrusel), «Gratis. Sin tarjeta.», perfil obligatorio.
 - [ ] **Dueño:** confirmar las 4 residencias fundadoras y cargarlas por `/register/residence`.
+- [ ] **Bloque A, familiares:** «Completar mi perfil» es solo de estudiantes (`saveProfile` rechaza familiares). La pantalla del familiar muestra el estado de la invitación.
+- [ ] **Bloque A, celulares bajos:** tras implementar, medir en `staging` que el botón de fundadoras se vea sin desplazarse (375×600).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
 - [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
 - [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
