@@ -59,7 +59,7 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
             <Link href={`/login?next=/residencias/${slug}/comunidad`} className="font-semibold text-forest-700 hover:underline">
               Iniciá sesión
             </Link>{" "}
-            para ver los perfiles individuales de los residentes que eligieron mostrarse.
+            para ver los perfiles individuales de los residentes.
           </p>
         )}
 
