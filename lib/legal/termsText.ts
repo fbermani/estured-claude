@@ -289,7 +289,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "22. Reclamos y Soporte",
     paras: [
       "Estudiantes, familiares y residencias pueden usar los canales de contacto para reportar problemas, dudas, diferencias o situaciones relevantes. Antes de iniciar la gestión de un caso, EstuRed puede mostrar un recordatorio de términos, alcance y límites de intervención, y puede decidir si un caso amerita intervención activa.",
-      "La apertura de un reclamo no suspende automáticamente una solicitud, reserva, renovación o pago, salvo decisión manual de EstuRed.",
+      "La apertura de un reclamo no suspende automáticamente una solicitud, reserva, renovación o pago, salvo decisión manual de EstuRed. Excepción: un caso sobre el pago de la reserva a la residencia frena el vencimiento de esa solicitud mientras siga abierto. Si al cerrarlo el plazo ya venció y no hay «Pago recibido», corre un plazo nuevo de 24 horas.",
       "Durante la gestión de un caso, EstuRed puede solicitar evidencia, contactar a las partes, pedir información adicional, proponer soluciones, cerrar sin acción, registrar un acuerdo, aplicar medidas administrativas, evaluar el reembolso del fee y suspender usuarios o residencias. La intervención de EstuRed no implica garantía de resultado.",
       "Podés cargar evidencia como fotos, videos, capturas (incluyendo capturas de conversaciones de WhatsApp, ya que EstuRed no tiene acceso directo a ellas), audios u otros elementos pertinentes.",
     ],

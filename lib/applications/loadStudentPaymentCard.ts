@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolvePaymentActor, type PaymentActorRole } from "@/lib/applications/studentPaymentAccess";
 import { isPaymentIssueOpen } from "@/lib/applications/paymentReportView";
+import { loadOpenPaymentCaseIds } from "@/lib/applications/paymentSupportCase";
 import { loadCollectionChoice } from "@/lib/applications/collectionChoiceDb";
 import { availableCollectionPaths } from "@/lib/applications/reservationCollectionChoice";
 import { resolveAgreedReservationAmount } from "@/lib/reservations/agreedReservationAmount";
@@ -16,7 +17,7 @@ import type { PaymentApplication } from "@/lib/applications/studentPaymentAccess
  * Serializable al cliente: los datos de cobro viajan SOLO a quien tiene derecho a verlos.
  *
  * Contacto directo (`whatsapp_direct`, DR72 (f)): monto acordado en USD y ARS, fecha límite y «La residencia te contactará para coordinar
- * la forma de pago con vos». Nunca un número ni un botón.
+ * la forma de pago con vos». Nunca un número. Desde DR74 (c), también «Ya pagué».
  */
 
 export type StudentPaymentStage = "to_pay" | "reported" | "issue_open" | "disputed";
@@ -36,6 +37,8 @@ export type StudentPaymentCardView =
       reportedPaidAt: string | null;
       hasProof: boolean;
       issueAt: string | null;
+      /** DR73: hay un caso de Soporte de pago abierto (frena el vencimiento). */
+      paymentCaseOpen: boolean;
     }
   | {
       kind: "whatsapp_direct";
@@ -45,6 +48,13 @@ export type StudentPaymentCardView =
       amountUsd: number | null;
       amountArs: number | null;
       deadlineAt: string | null;
+      /** DR74 (c): también hay «Ya pagué». «No pude realizar el pago» no aplica (la residencia coordina). */
+      stage: Exclude<StudentPaymentStage, "issue_open">;
+      reportedPaidAt: string | null;
+      hasProof: boolean;
+      paymentCaseOpen: boolean;
+      /** Solo con `collection_mode = whatsapp_direct` (el servidor rechaza «Ya pagué» sin camino definido). */
+      canReportPaid: boolean;
     }
   /** Tras una propuesta de ajuste la residencia todavía no definió cómo cobra. */
   | { kind: "choosing"; actorRole: PaymentActorRole; isMinor: boolean };
@@ -77,10 +87,14 @@ async function directContactView(
   base: { actorRole: PaymentActorRole; isMinor: boolean },
   application: PaymentApplication,
 ): Promise<Extract<StudentPaymentCardView, { kind: "whatsapp_direct" }>> {
-  const view = { kind: "whatsapp_direct" as const, ...base, amountUsd: null, amountArs: null, deadlineAt: application.payment_deadline_at ?? null };
+  const canReportPaid = application.collection_mode === "whatsapp_direct";
   const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id ?? null;
-  const [payment, snapshot] = await Promise.all([
-    admin.from("external_residence_payments").select("expected_amount_usd, expected_amount_ars").eq("application_request_id", application.id).maybeSingle(),
+  const [payment, snapshot, openCases] = await Promise.all([
+    admin
+      .from("external_residence_payments")
+      .select("status, expected_amount_usd, expected_amount_ars, student_reported_paid_at, student_proof_file_id")
+      .eq("application_request_id", application.id)
+      .maybeSingle(),
     snapshotId
       ? admin
           .from("application_snapshots")
@@ -88,7 +102,23 @@ async function directContactView(
           .eq("id", snapshotId)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
+    loadOpenPaymentCaseIds(admin, [application.id]),
   ]);
+  const p = payment.data as { status: string; student_reported_paid_at: string | null; student_proof_file_id: string | null } | null;
+  const stage: Exclude<StudentPaymentStage, "issue_open"> =
+    p?.status === "disputed" ? "disputed" : p?.status === "student_reported_paid" ? "reported" : "to_pay";
+  const view = {
+    kind: "whatsapp_direct" as const,
+    ...base,
+    amountUsd: null,
+    amountArs: null,
+    deadlineAt: application.payment_deadline_at ?? null,
+    stage,
+    reportedPaidAt: p?.student_reported_paid_at ?? null,
+    hasProof: Boolean(p?.student_proof_file_id),
+    paymentCaseOpen: openCases?.has(application.id) ?? false,
+    canReportPaid,
+  };
   if (payment.error || snapshot.error) {
     console.error("[student-payment-card] direct contact amount read failed:", payment.error?.code ?? snapshot.error?.code);
     return view;
@@ -118,6 +148,7 @@ export async function loadStudentPaymentCard(admin: SupabaseClient, params: { us
     return { kind: "choosing", actorRole: role, isMinor };
   }
 
+  const openCases = await loadOpenPaymentCaseIds(admin, [params.applicationId]);
   const { data, error } = await admin
     .from("external_residence_payments")
     .select(
@@ -151,5 +182,6 @@ export async function loadStudentPaymentCard(admin: SupabaseClient, params: { us
     reportedPaidAt: row.student_reported_paid_at,
     hasProof: Boolean(row.student_proof_file_id),
     issueAt: issueOpen ? row.student_payment_issue_at : null,
+    paymentCaseOpen: openCases?.has(params.applicationId) ?? false,
   };
 }

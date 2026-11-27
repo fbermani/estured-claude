@@ -98,6 +98,22 @@ describe("expireApplicationRequests: avisos del estudiante frenan el vencimiento
     expect(broken.tables.application_requests[0].status).toBe("residence_payment_pending");
   });
 
+  it("DR73 (a): un caso de Soporte de pago abierto frena el vencimiento; uno cerrado no", async () => {
+    const withCases = createInMemorySupabase({
+      application_requests: [app("open-case"), app("closed-case")],
+      external_residence_payments: [payment("open-case"), payment("closed-case")],
+      support_cases: [
+        { id: "sc-1", topic: "residence_payment", related_entity_type: "application_requests", related_entity_id: "open-case", status: "under_review" },
+        { id: "sc-2", topic: "residence_payment", related_entity_type: "application_requests", related_entity_id: "closed-case", status: "closed_no_action" },
+      ],
+      application_status_events: [],
+    });
+    await expireApplicationRequests(withCases.client);
+    const st = (id: string) => withCases.tables.application_requests.find((a) => a.id === id)?.status;
+    expect(st("open-case")).toBe("residence_payment_pending");
+    expect(st("closed-case")).toBe("expired_no_student_payment");
+  });
+
   it("sin la migración 0102 (columnas inexistentes) vence como antes de DR63", async () => {
     const legacy = createInMemorySupabase(
       { application_requests: [app("plain")], external_residence_payments: [payment("plain")], application_status_events: [] },

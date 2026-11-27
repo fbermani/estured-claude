@@ -54,7 +54,7 @@ export function OpenCaseForm({ residences }: { residences: { id: string; name: s
         <p className="mt-1">
           EstuRed es una plataforma intermediaria: puede analizar y actuar en los casos que considere pertinente,
           pero no garantiza un resultado ni interviene en todos los reclamos. Abrir un caso no suspende
-          automáticamente tu solicitud, reserva o renovación.
+          automáticamente tu solicitud, reserva o renovación. Excepción: un caso sobre el pago de la reserva a la residencia frena el vencimiento de esa solicitud mientras siga abierto.
         </p>
       </div>
 

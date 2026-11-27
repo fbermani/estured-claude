@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildCollectionView, type CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { loadCollectionChoice } from "@/lib/applications/collectionChoiceDb";
 import { buildPaymentReportView, type PaymentReportView } from "@/lib/applications/paymentReportView";
+import { loadOpenPaymentCaseIds } from "@/lib/applications/paymentSupportCase";
 
 /**
  * Vista del cobro de la reserva para las solicitudes de la bandeja de la residencia que lo necesitan (`contact_established` y
@@ -86,6 +87,8 @@ export async function loadCollectionViews(
     }
   }
 
+  const openCases = pendingIds.length > 0 ? await loadOpenPaymentCaseIds(admin, pendingIds) : null;
+
   for (const app of relevant) {
     const cols = columnsById.get(app.id);
     const view = buildCollectionView({
@@ -98,6 +101,7 @@ export async function loadCollectionViews(
       snapshot: app.snapshotId ? (snapshotsById.get(app.snapshotId) ?? null) : null,
       payment: paymentsById.get(app.id) ?? null,
       report: reportsById.get(app.id) ?? null,
+      paymentCaseOpen: openCases?.has(app.id) ?? false,
     });
     if (view) out.set(app.id, view);
   }

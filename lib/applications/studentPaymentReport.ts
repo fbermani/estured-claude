@@ -14,7 +14,8 @@ import { notifyPaymentCounterpart, notifyResidencePaymentTeam } from "@/lib/appl
  * Reglas comunes:
  *  - El actor sale de la BASE (`resolvePaymentActor`): estudiante de la solicitud, o familiar pagador de un menor. Todo lo demás recibe
  *    «No encontramos esa solicitud» (no se filtra si existe).
- *  - Solo con `application_requests.status = residence_payment_pending` y `collection_mode = enabled_methods`. NO cambia la máquina de
+ *  - Solo con `application_requests.status = residence_payment_pending`. «Ya pagué» vale en los dos caminos (DR74 (c)); «No pude realizar
+ *    el pago» solo con `collection_mode = enabled_methods`. NO cambia la máquina de
  *    estados de la solicitud: sigue en `residence_payment_pending` hasta que la residencia confirma (docs/04 §5.8).
  *  - El cambio se reclama con un update condicional; los efectos (aviso, auditoría) salen SOLO si el reclamo devolvió la fila: un segundo
  *    toque no hace nada (idempotente).
@@ -42,12 +43,14 @@ type PaymentRow = {
   student_proof_file_id: string | null;
 };
 
-async function loadActiveContext(admin: SupabaseClient, userId: string, applicationId: string) {
+async function loadActiveContext(admin: SupabaseClient, userId: string, applicationId: string, opts: { allowDirectContact: boolean }) {
   const actor = await resolvePaymentActor(admin, userId, applicationId);
   if (!actor.ok) return { ok: false as const, error: actor.reason === "read_failed" ? READ_FAILED : NOT_FOUND };
   const { application } = actor;
   if (application.status !== "residence_payment_pending") return { ok: false as const, error: NOT_PENDING };
-  if (application.collection_mode !== "enabled_methods") return { ok: false as const, error: NOT_ENABLED_METHODS };
+  // DR74 (c): con contacto directo también hay «Ya pagué». Sin camino definido (pase tras un ajuste) no hay nada que avisar todavía.
+  const modeOk = application.collection_mode === "enabled_methods" || (opts.allowDirectContact && application.collection_mode === "whatsapp_direct");
+  if (!modeOk) return { ok: false as const, error: NOT_ENABLED_METHODS };
 
   const { data, error } = await admin
     .from("external_residence_payments")
@@ -67,7 +70,7 @@ export async function reportResidencePaymentPaidCore(
   admin: SupabaseClient,
   params: { actorUserId: string; applicationId: string; proofInput?: FormDataEntryValue | null },
 ): Promise<ReportPaymentResult> {
-  const ctx = await loadActiveContext(admin, params.actorUserId, params.applicationId);
+  const ctx = await loadActiveContext(admin, params.actorUserId, params.applicationId, { allowDirectContact: true });
   if (!ctx.ok) return { ok: false, error: ctx.error };
   const { actor, payment } = ctx;
 
@@ -163,7 +166,7 @@ export async function reportResidencePaymentIssueCore(
   const reason = validateIssueReason(params.reason);
   if (!reason.ok) return { ok: false, error: reason.error };
 
-  const ctx = await loadActiveContext(admin, params.actorUserId, params.applicationId);
+  const ctx = await loadActiveContext(admin, params.actorUserId, params.applicationId, { allowDirectContact: false });
   if (!ctx.ok) return { ok: false, error: ctx.error };
   const { actor, payment } = ctx;
 

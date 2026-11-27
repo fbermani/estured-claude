@@ -443,7 +443,9 @@ export default async function StudentApplicationDetailPage({
           feeIsPaid={feePayment?.status === "paid"}
           residencePaymentDeadlineAt={
             // Con «Ya pagué», un aviso de problema abierto o una disputa el plazo está frenado (DR63 (f), (l)): no se muestra cuenta regresiva.
-            application.status === "residence_payment_pending" && !(paymentCard?.kind === "enabled_methods" && paymentCard.stage !== "to_pay")
+            // DR73/DR74 (c): también un caso de Soporte abierto y «Ya pagué» en contacto directo.
+            application.status === "residence_payment_pending" &&
+            !(paymentCard && paymentCard.kind !== "choosing" && (paymentCard.stage !== "to_pay" || paymentCard.paymentCaseOpen))
               ? (application.payment_deadline_at as string | null)
               : null
           }

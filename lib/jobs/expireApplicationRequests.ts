@@ -1,3 +1,4 @@
+import { loadOpenPaymentCaseIds } from "@/lib/applications/paymentSupportCase";
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { notifyFamilyApplicationMilestone } from "@/lib/family/familyMilestones";
@@ -144,7 +145,8 @@ const SCHEMA_MISSING_CODES = new Set(["42703", "PGRST204"]);
 
 /**
  * Ids de `residence_payment_pending` con plazo vencido que SÍ pueden vencer: se excluyen los que tienen «Ya pagué» o un aviso de
- * «No pude realizar el pago» sin responder (`paymentHoldsDeadline`, por fechas). `null` si no se pudo leer (no se vence nada).
+ * «No pude realizar el pago» sin responder (`paymentHoldsDeadline`, por fechas) o un caso de Soporte de pago abierto (DR73). `null` si no se
+ * pudo leer (no se vence nada).
  * Sin la migración 0102 (columnas inexistentes) no hay avisos posibles: vencen todos, como antes de DR63.
  */
 export async function selectExpirablePaymentPending(admin: SupabaseClient, nowIso: string): Promise<string[] | null> {
@@ -174,5 +176,9 @@ export async function selectExpirablePaymentPending(admin: SupabaseClient, nowIs
       .filter((p) => paymentHoldsDeadline(p))
       .map((p) => p.application_request_id),
   );
-  return ids.filter((id) => !held.has(id));
+  const notHeld = ids.filter((id) => !held.has(id));
+  // DR73 (a): un caso de Soporte abierto sobre el pago frena el vencimiento. Si no se pudo leer, no se vence nada.
+  const withOpenCase = await loadOpenPaymentCaseIds(admin, notHeld);
+  if (!withOpenCase) return null;
+  return notHeld.filter((id) => !withOpenCase.has(id));
 }

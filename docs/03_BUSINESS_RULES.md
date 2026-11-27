@@ -1458,7 +1458,7 @@ Los usuarios pueden aportar: fotos, videos, capturas, audios, comprobantes, mens
 
 EstuRed puede analizar casos y actuar cuando lo considere pertinente. No está obligada a intervenir en todos los casos.
 
-Abrir un reclamo no suspende automáticamente una solicitud, reserva o renovación. El admin puede suspender manualmente si el caso lo amerita.
+Abrir un reclamo no suspende automáticamente una solicitud, reserva o renovación. El admin puede suspender manualmente si el caso lo amerita. Excepción: un caso sobre el pago de la reserva a la residencia frena el vencimiento de esa solicitud mientras siga abierto. Si al cerrarlo el plazo ya venció y no hay «Pago recibido», corre un plazo nuevo de 24 horas. (DR73)
 
 ### 22.4 Resultados posibles
 
@@ -1614,7 +1614,7 @@ Antes de lanzamiento, QA debe probar:
 - comprobante se emite solo con fee pagado;
 - admin reemite comprobante → auditoría registrada;
 - admin procesa reembolso del fee → auditoría registrada;
-- reclamo abierto no suspende reserva automáticamente;
+- reclamo abierto no suspende reserva automáticamente (excepción: un caso sobre el pago de la reserva frena el vencimiento de esa solicitud, DR73);
 - usuario cambia visibilidad de datos → cambio reflejado de inmediato;
 - solicitud iniciada por familiar → contacto de residencia va al familiar (no al estudiante);
 - estudiante menor de edad con solicitud iniciada por él mismo → contacto de la residencia va al familiar vinculado;

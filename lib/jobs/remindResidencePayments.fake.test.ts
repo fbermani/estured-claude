@@ -7,10 +7,8 @@ const adminNotices = vi.hoisted(() => [] as { title: string; entityType: string 
 vi.mock("@/lib/notifications/notifyAdminsSafe", () => ({ notifyAdminsSafe: async (_a: unknown, p: { title: string; entityType: string }) => void adminNotices.push(p) }));
 const residenceNotices = vi.hoisted(() => [] as { applicationId: string; kind: string; isMinor: boolean }[]);
 const noticeControl = vi.hoisted(() => ({ fail: false }));
-const studentNotices = vi.hoisted(() => [] as { applicationId: string; student: { title: string; body: string }; family: unknown }[]);
 vi.mock("@/lib/applications/paymentReportNotices", () => ({
   notifyResidencePaymentTeam: async (_a: unknown, p: { applicationId: string; kind: string; isMinor: boolean }) => (noticeControl.fail ? false : (residenceNotices.push(p), true)),
-  notifyStudentAndFamily: async (_a: unknown, p: { applicationId: string; student: { title: string; body: string }; family: unknown }) => void studentNotices.push(p),
 }));
 const superNotices = vi.hoisted(() => [] as { title: string; entityType: string; entityId: string }[]);
 const superControl = vi.hoisted(() => ({ recipients: true }));
@@ -18,11 +16,23 @@ vi.mock("@/lib/notifications/notifySuperadminsCounted", () => ({
   notifySuperadminsCounted: async (_a: unknown, p: { title: string; entityType: string; entityId: string }) => (superControl.recipients ? (superNotices.push(p), true) : false),
 }));
 vi.mock("@/lib/family/notifyLinkedFamily", () => ({ loadStudentShortName: async () => "Valentina R." }));
+type Copy = { title: string; body: string };
+const deadlineNotices = vi.hoisted(() => [] as { applicationId: string; student: Copy; family: Copy | null }[]);
+const residenceDeadline = vi.hoisted(() => [] as { applicationId: string; copy: Copy }[]);
+const deadlineControl = vi.hoisted(() => ({ recipients: true }));
+vi.mock("@/lib/applications/paymentDeadlineNotices", () => ({
+  deliverStudentSideNotice: async (_a: unknown, p: { applicationId: string; isMinor: boolean; build: (audience: string) => Copy }) => {
+    if (!deadlineControl.recipients) return false;
+    deadlineNotices.push({ applicationId: p.applicationId, student: p.build(p.isMinor ? "minor_student" : "student"), family: p.isMinor ? p.build("family") : null });
+    return true;
+  },
+  deliverResidenceNotice: async (_a: unknown, p: { applicationId: string; copy: Copy }) => (residenceDeadline.push(p), true),
+}));
 
 import { createInMemorySupabase, type Row } from "@/lib/testing/inMemorySupabase";
 import { remindResidencePayments } from "@/lib/jobs/remindResidencePayments";
 
-/** DR63 (f), (j) 1 y (l): recordatorios 24 h / 12 h y alerta de 72 h. Idempotentes: cada aviso se reclama con su marca. */
+/** DR63 (f), (j) 1 y (l): aviso de 24 h y alerta de 72 h; DR74: alertas del plazo. Idempotentes: cada aviso se reclama con su marca. */
 const NOW = new Date("2026-11-21T12:00:00.000Z");
 const ago = (hours: number) => new Date(NOW.getTime() - hours * 3_600_000).toISOString();
 const ahead = (hours: number) => new Date(NOW.getTime() + hours * 3_600_000).toISOString();
@@ -45,6 +55,8 @@ function payment(appId: string, over: Row = {}): Row {
     admin_alert_sent_at: null,
     admin_escalated_at: null,
     reopen_count: 0,
+    deadline_alert_stage: 0,
+    deadline_alert_for: null,
     ...over,
   };
 }
@@ -69,10 +81,12 @@ beforeEach(() => {
   audits.length = 0;
   adminNotices.length = 0;
   residenceNotices.length = 0;
-  studentNotices.length = 0;
   noticeControl.fail = false;
   superNotices.length = 0;
   superControl.recipients = true;
+  deadlineNotices.length = 0;
+  residenceDeadline.length = 0;
+  deadlineControl.recipients = true;
 });
 
 describe("aviso a la residencia a las 24 h", () => {
@@ -173,50 +187,68 @@ describe("alerta al admin a las 72 h", () => {
   });
 });
 
-describe("recordatorio al estudiante 12 h antes del plazo", () => {
-  it("avisa solo con medios habilitados, dentro de las 12 h y sin «Ya pagué» ni aviso de problema", async () => {
+describe("alertas del plazo al estudiante (DR74)", () => {
+  it("en los dos caminos, la etapa que corresponde, sin «Ya pagué», problema abierto ni caso de Soporte", async () => {
     boot(
       [
         app("due", { payment_deadline_at: ahead(10) }),
-        app("far", { payment_deadline_at: ahead(20) }),
+        app("far", { payment_deadline_at: ahead(40) }),
         app("past", { payment_deadline_at: ago(1) }),
-        app("wa", { payment_deadline_at: ahead(10), collection_mode: "whatsapp_direct" }),
+        app("wa", { payment_deadline_at: ahead(30), collection_mode: "whatsapp_direct" }),
+        app("nomode", { payment_deadline_at: ahead(10), collection_mode: null }),
         app("paid", { payment_deadline_at: ahead(10) }),
         app("issue", { payment_deadline_at: ahead(10) }),
-        app("done", { payment_deadline_at: ahead(10) }),
+        app("case", { payment_deadline_at: ahead(10) }),
       ],
       [
         payment("due"),
         payment("far"),
         payment("past"),
         payment("wa"),
+        payment("nomode"),
         payment("paid", reported(1)),
         payment("issue", { student_payment_issue_at: ago(1) }),
-        payment("done", { student_reminder_sent_at: ago(1) }),
+        payment("case"),
       ],
     );
+    fake.tables.support_cases.push({ id: "sc-1", topic: "residence_payment", related_entity_type: "application_requests", related_entity_id: "case", status: "submitted" });
     const res = await remindResidencePayments(fake.client, NOW);
-    expect(res.studentReminders).toBe(1);
-    expect(studentNotices.map((n) => n.applicationId)).toEqual(["due"]);
-    expect(studentNotices[0].student.body).toContain("Ya pagué");
-    expect(studentNotices[0].student.body).not.toMatch(/garantiz/i);
-    expect(pay("due").student_reminder_sent_at).toBe(NOW.toISOString());
+    expect(res.studentReminders).toBe(2);
+    expect(deadlineNotices.map((n) => n.applicationId).sort()).toEqual(["due", "wa"]);
+    const due = deadlineNotices.find((n) => n.applicationId === "due")!;
+    expect(due.student.title).toBe("Tu solicitud puede vencer pronto");
+    expect(due.student.body).toContain("«Ya pagué»");
+    expect(deadlineNotices.find((n) => n.applicationId === "wa")!.student.title).toBe("Tenés un pago pendiente");
+    expect(pay("due").deadline_alert_stage).toBe(3);
+    expect(pay("due").deadline_alert_for).toBe(ahead(10));
+    expect(residenceDeadline).toEqual([]);
   });
 
-  it("es idempotente y, con un menor, también avisa al familiar", async () => {
+  it("es idempotente; con el «Último aviso» avisa también a la residencia y, con un menor, al familiar", async () => {
     boot([app("m", { payment_deadline_at: ahead(5), contact_target: "family_member" })], [payment("m")]);
     await remindResidencePayments(fake.client, NOW);
-    expect(studentNotices[0].family).toMatchObject({ title: expect.stringContaining("Valentina R.") });
-    studentNotices.length = 0;
+    expect(deadlineNotices[0].student.body).toMatch(/^Tu familiar vinculado tiene que pagar/);
+    expect(deadlineNotices[0].family?.body).toMatch(/^Pagá la reserva de Valentina R\. en Norte/);
+    expect(residenceDeadline).toHaveLength(1);
+    expect(residenceDeadline[0].copy.body).toContain("Podés escribirle al familiar vinculado");
+    deadlineNotices.length = 0;
     await remindResidencePayments(fake.client, new Date(NOW.getTime() + 3_600_000));
-    expect(studentNotices).toEqual([]);
+    expect(deadlineNotices).toEqual([]);
   });
 
-  it("tras responder la residencia (marcas limpias y plazo nuevo) vuelve a haber recordatorio", async () => {
-    boot([app("r", { payment_deadline_at: ahead(5) })], [payment("r", { student_reminder_sent_at: ago(40), student_payment_issue_at: ago(50), student_payment_issue_resolved_at: ago(2) })]);
-    pay("r").student_reminder_sent_at = null; // lo que limpia resolveStudentPaymentIssue
+  it("si el plazo se reinicia, la cuenta vuelve a empezar", async () => {
+    boot([app("r", { payment_deadline_at: ahead(30) })], [payment("r", { deadline_alert_stage: 4, deadline_alert_for: ago(2) })]);
     await remindResidencePayments(fake.client, NOW);
-    expect(studentNotices.map((n) => n.applicationId)).toEqual(["r"]);
+    expect(deadlineNotices.map((n) => n.applicationId)).toEqual(["r"]);
+    expect(pay("r").deadline_alert_stage).toBe(1);
+  });
+
+  it("sin destinatario devuelve la etapa para reintentar", async () => {
+    deadlineControl.recipients = false;
+    boot([app("x", { payment_deadline_at: ahead(10) })], [payment("x")]);
+    await remindResidencePayments(fake.client, NOW);
+    expect(pay("x").deadline_alert_stage).toBe(0);
+    expect(pay("x").deadline_alert_for).toBeNull();
   });
 });
 

@@ -17,7 +17,7 @@ const initialState: ReportPaymentState = { status: "idle" };
  * Una sola acción principal: «Ya pagué» (comprobante opcional, con confirmación). «No pude realizar el pago» es secundaria
  * y abre un motivo opcional. El servidor valida quién es y en qué estado está el pago: esto es solo presentación.
  */
-export function StudentPaymentActions({ applicationId }: { applicationId: string }) {
+export function StudentPaymentActions({ applicationId, allowIssue = true }: { applicationId: string; allowIssue?: boolean }) {
   const paidAction = reportResidencePaymentPaid.bind(null, applicationId);
   const issueAction = reportResidencePaymentIssue.bind(null, applicationId);
   const [paidState, paidFormAction, isPaidPending] = useActionState(paidAction, initialState);
@@ -66,7 +66,7 @@ export function StudentPaymentActions({ applicationId }: { applicationId: string
         }}
       />
 
-      {!showIssue ? (
+      {!allowIssue ? null : !showIssue ? (
         <Button type="button" variant="outline" size="sm" className="w-full" disabled={busy} onClick={() => setShowIssue(true)}>
           No pude realizar el pago
         </Button>

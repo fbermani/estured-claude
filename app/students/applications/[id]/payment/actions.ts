@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { reportResidencePaymentIssueCore, reportResidencePaymentPaidCore } from "@/lib/applications/studentPaymentReport";
+import { openPaymentSupportCaseCore } from "@/lib/applications/paymentSupportCase";
 
 export type ReportPaymentState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -47,6 +48,25 @@ export async function reportResidencePaymentIssue(
     actorUserId: sessionUser.id,
     applicationId,
     reason: formData.get("reason"),
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  revalidatePath(`/students/applications/${applicationId}`);
+  return { status: "saved" };
+}
+
+/** «Abrir un caso en Soporte» sobre el pago de la reserva (DR73). Frena el vencimiento mientras siga abierto. */
+export async function openStudentPaymentCase(applicationId: string, _prev: ReportPaymentState, formData: FormData): Promise<ReportPaymentState> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { status: "error", message: "Tu sesión expiró. Volvé a ingresar." };
+  const admin = getSupabaseAdmin();
+  if (!admin) return { status: "error", message: "No disponible en este momento." };
+
+  const result = await openPaymentSupportCaseCore(admin, {
+    actorUserId: sessionUser.id,
+    applicationId,
+    side: "student",
+    description: formData.get("description"),
+    termsAccepted: formData.get("terms_accepted") === "on",
   });
   if (!result.ok) return { status: "error", message: result.error };
   revalidatePath(`/students/applications/${applicationId}`);

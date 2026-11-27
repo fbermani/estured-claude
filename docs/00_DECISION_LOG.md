@@ -2042,7 +2042,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) aplicados en la fase 1 (`staging`, 2026-11-26); (f), en la fase 2 (`staging`, 2026-11-27). Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
 
-### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26, sin implementar)
+### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26)
 
 **Fuente:** decisión del dueño. Modifica DR63 (f).
 
@@ -2055,7 +2055,13 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Supuesto reversible** (`docs/13` §4): el plazo nuevo solo corre si nada más lo frena («Ya pagué» o un problema de pago abierto).
 
-### DR74: alertas de pago de la reserva (2026-11-26, sin implementar)
+**Decisión del dueño (2026-11-27):** el estudiante, su familiar vinculado y la residencia abren el caso con «Abrir un caso en Soporte» en la solicitud, mientras el pago está pendiente. El caso queda vinculado a la solicitud (`topic = residence_payment`). Un caso abierto por solicitud.
+
+**Supuestos reversibles** (`docs/13` §4, 2026-11-27): el caso frena desde que se abre, aunque el plazo esté por vencer. Si no se puede leer `support_cases`, el job no vence nada. El plazo nuevo se fija antes de cerrar el caso; si el cierre falla, se deshace.
+
+**Estado:** implementado en `staging` (2026-11-27).
+
+### DR74: alertas de pago de la reserva (2026-11-26)
 
 **Fuente:** decisión del dueño. El pago pendiente es una instancia crítica. Modifica DR63 (d) y (j).
 
@@ -2070,3 +2076,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 **Límites conocidos:** los avisos del estudiante hoy salen solo en la app y por push; el mail es código nuevo. WhatsApp depende de DR67 (a): sin proveedor, plantillas ni consentimiento, y `/terms` dice que no es canal. Hasta entonces: app, push y mail. El cron es horario. Staging no tiene cron ni clave de Resend. Requiere migración.
 
 **Textos aprobados:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §5.
+
+**Supuestos reversibles** (`docs/13` §4, 2026-11-27): las alertas se ordenan por el tiempo que falta: 36, 24, 12 y 6 horas antes del vencimiento (equivalen a las 12, 24, 36 y 42 horas de un plazo de 48). Si el cron se atrasa, sale solo la última alerta que corresponda. En el plazo nuevo de 24 horas salen solo las de 12 y 6 horas antes (el aviso del plazo nuevo reemplaza a las anteriores). Canales: app, push y mail; WhatsApp queda fuera hasta DR67 (a).
+
+**Estado:** implementado en `staging` (2026-11-27). Migración 0112. Mail sin probar (staging no tiene cron ni clave de Resend).

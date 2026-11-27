@@ -1256,7 +1256,7 @@ support_case
 
 - Antes de abrir un reclamo: mostrar recordatorio de términos, deslinde de responsabilidad y alcance de la intervención.
 - EstuRed puede actuar en determinados casos. No está obligada a intervenir en todos.
-- Abrir un reclamo **no suspende automáticamente** solicitud, reserva o renovación.
+- Abrir un reclamo **no suspende automáticamente** solicitud, reserva o renovación. **Excepción (DR73):** un caso `residence_payment` abierto frena el vencimiento de 48 h de esa solicitud; si se cierra con el plazo vencido y sin «Pago recibido», corre un plazo nuevo de 24 h.
 - Admin puede suspender manualmente si el caso lo amerita.
 - Se aceptan evidencias: fotos, videos, capturas, audios, documentos.
 - **Usar el término "resolución de conflictos" o "soporte de gestión", no "mediación", en comunicación pública.**

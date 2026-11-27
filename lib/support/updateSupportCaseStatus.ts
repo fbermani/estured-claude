@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/audit";
 import { createNotification } from "@/lib/notifications/createNotification";
+import { announceNewPaymentWindow, prepareNewPaymentWindow, rollbackNewPaymentWindow } from "@/lib/applications/paymentCaseNewWindow";
 
 export type UpdateSupportCaseStatusResult = { status: "ok" } | { status: "error"; message: string };
 
@@ -65,7 +66,7 @@ export async function updateSupportCaseStatus(
 
   const { data: supportCase } = await admin
     .from("support_cases")
-    .select("id, status, topic, opened_by_user_id, related_entity_type, residences(name)")
+    .select("id, status, topic, opened_by_user_id, related_entity_type, related_entity_id, residences(name)")
     .eq("id", params.supportCaseId)
     .maybeSingle();
   if (!supportCase) return { status: "error", message: "Caso no encontrado." };
@@ -75,6 +76,17 @@ export async function updateSupportCaseStatus(
       message: "Este caso se cierra solo al resolver la revocación del fee, desde Actividad → Revocaciones.",
     };
   }
+
+  // DR73 (c): cerrar un caso de pago con el plazo vencido abre un plazo nuevo de 24 h. Se fija ANTES de cerrar (con el caso abierto el
+  // job no vence la solicitud) y se deshace si el cierre falla.
+  const closesPaymentCase =
+    isClosing &&
+    !CLOSED_STATUSES.includes(supportCase.status as string) &&
+    supportCase.topic === "residence_payment" &&
+    supportCase.related_entity_type === "application_requests" &&
+    Boolean(supportCase.related_entity_id);
+  const newWindow = closesPaymentCase ? await prepareNewPaymentWindow(admin, supportCase.related_entity_id as string) : ({ kind: "none" } as const);
+  if (newWindow.kind === "error") return { status: "error", message: "No pudimos revisar el plazo de pago de la solicitud. Probá de nuevo." };
 
   const { error } = await admin
     .from("support_cases")
@@ -86,6 +98,7 @@ export async function updateSupportCaseStatus(
     })
     .eq("id", supportCase.id);
   if (error) {
+    await rollbackNewPaymentWindow(admin, newWindow);
     console.error("[support] updateSupportCaseStatus failed:", error);
     return { status: "error", message: "No pudimos actualizar el caso. Probá de nuevo." };
   }
@@ -117,6 +130,8 @@ export async function updateSupportCaseStatus(
       relatedEntityId: supportCase.id,
     });
   }
+
+  await announceNewPaymentWindow(admin, newWindow, { actorUserId: params.actorUserId, actorRole: params.actorRole, supportCaseId: supportCase.id });
 
   return { status: "ok" };
 }

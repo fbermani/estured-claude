@@ -29,6 +29,8 @@ export type CollectionChoiceView = {
   whatsappAllowed: boolean;
   /** DR63 (e) y (l): lo que el estudiante avisó del pago («Ya pagué», «No pude realizar el pago»). `null` si no avisó nada. */
   report: PaymentReportView | null;
+  /** DR73: hay un caso de Soporte de pago abierto (frena el vencimiento). */
+  paymentCaseOpen: boolean;
 };
 
 export function buildCollectionView(input: {
@@ -45,6 +47,7 @@ export function buildCollectionView(input: {
   payment: { chosenMethod: string | null; expectedUsd: number | null; expectedArs: number | null } | null;
   /** Aviso del estudiante sobre el pago (sin datos de cobro). */
   report?: PaymentReportView | null;
+  paymentCaseOpen?: boolean;
 }): CollectionChoiceView | null {
   if (input.status !== "contact_established" && input.status !== "residence_payment_pending") return null;
   const ctx: CollectionChoiceContext = {
@@ -66,6 +69,7 @@ export function buildCollectionView(input: {
     amountUsd: amounts?.ok ? amounts.value.usd : null,
     amountArs: amounts?.ok ? amounts.value.ars : null,
     report: input.status === "residence_payment_pending" ? (input.report ?? null) : null,
+    paymentCaseOpen: input.status === "residence_payment_pending" && input.paymentCaseOpen === true,
   };
 
   if (input.status === "contact_established") {

@@ -8,6 +8,7 @@ import {
   openStudentPaymentProofCore,
   resolveStudentPaymentIssueCore,
 } from "@/lib/applications/residencePaymentReview";
+import { openPaymentSupportCaseCore } from "@/lib/applications/paymentSupportCase";
 
 export type PaymentReviewState = { status: "idle" | "error" | "saved"; message?: string };
 
@@ -64,4 +65,20 @@ export async function openStudentPaymentProof(applicationId: string): Promise<{ 
   const ctx = await context();
   if (!ctx.ok) return { ok: false, error: ctx.error };
   return openStudentPaymentProofCore(ctx.admin, { actorUserId: ctx.sessionUser.id, applicationId });
+}
+
+/** «Abrir un caso en Soporte» sobre el pago de la reserva (DR73). Frena el vencimiento mientras siga abierto. */
+export async function openResidencePaymentCase(applicationId: string, _prev: PaymentReviewState, formData: FormData): Promise<PaymentReviewState> {
+  const ctx = await context();
+  if (!ctx.ok) return { status: "error", message: ctx.error };
+  const result = await openPaymentSupportCaseCore(ctx.admin, {
+    actorUserId: ctx.sessionUser.id,
+    applicationId,
+    side: "residence",
+    description: formData.get("description"),
+    termsAccepted: formData.get("terms_accepted") === "on",
+  });
+  if (!result.ok) return { status: "error", message: result.error };
+  await revalidate(applicationId);
+  return { status: "saved" };
 }

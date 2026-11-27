@@ -117,7 +117,6 @@ describe("«Ya pagué»", () => {
   it("estados que no admiten el aviso", async () => {
     const cases: [Row, Row, RegExp][] = [
       [{ status: "converted_to_reservation" }, {}, /ya no está esperando/],
-      [{ collection_mode: "whatsapp_direct" }, {}, /lo coordina la residencia/],
       [{ collection_mode: null }, {}, /lo coordina la residencia/],
       [{}, { status: "reported_received_by_residence" }, /ya no admite cambios/],
       [{}, { status: "expired" }, /ya no admite cambios/],
@@ -131,6 +130,12 @@ describe("«Ya pagué»", () => {
       if (!res.ok) expect(res.error).toMatch(re);
       expect(writes()).toEqual([]);
     }
+  });
+
+  it("contacto directo también admite «Ya pagué» (DR74 (c))", async () => {
+    boot(world({ app: { collection_mode: "whatsapp_direct" } }));
+    const res = await reportResidencePaymentPaidCore(fake.client, { actorUserId: "u-student", applicationId: "app-1" });
+    expect(res).toEqual({ ok: true, alreadyReported: false });
   });
 
   it("el comprobante es opcional y, si viene, se guarda y se vincula", async () => {

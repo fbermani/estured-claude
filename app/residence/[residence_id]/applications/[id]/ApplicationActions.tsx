@@ -16,6 +16,8 @@ import { COLLECTION_PATH_TITLES, studentCollectionPreview } from "@/lib/applicat
 import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { CollectionPaymentPanel } from "@/app/residence/[residence_id]/applications/[id]/CollectionPaymentPanel";
 import { PaymentReportPanel } from "@/app/residence/[residence_id]/applications/[id]/PaymentReportPanel";
+import { PaymentSupportCaseForm } from "@/components/applications/PaymentSupportCaseForm";
+import { openResidencePaymentCase } from "@/app/residence/[residence_id]/applications/[id]/payment/reportActions";
 import {
   markUnderReview,
   establishContact,
@@ -261,6 +263,13 @@ export function ApplicationActions({
             isMinor={collection.isMinor}
             methods={collection.methods}
             currentMethodKey={collection.chosen?.mode === "enabled_methods" ? (collection.methods.find((m) => m.label === collection.chosen?.methodLabel)?.key ?? null) : null}
+          />
+        )}
+        {collection && (
+          <PaymentSupportCaseForm
+            action={openResidencePaymentCase.bind(null, applicationId)}
+            caseOpen={collection.paymentCaseOpen}
+            disabled={!allowed.residencePayment}
           />
         )}
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">

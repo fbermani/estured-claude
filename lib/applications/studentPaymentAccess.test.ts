@@ -146,6 +146,12 @@ describe("loadStudentPaymentCard: los datos de cobro solo llegan a quien corresp
       amountUsd: 300,
       amountArs: 456000,
       deadlineAt: "2030-01-01T00:00:00.000Z",
+      // DR74 (c) y DR73: «Ya pagué» y caso de Soporte también en contacto directo.
+      stage: "to_pay",
+      reportedPaidAt: null,
+      hasProof: false,
+      paymentCaseOpen: false,
+      canReportPaid: true,
     });
     expect(JSON.stringify(view)).not.toContain("CBU");
   });

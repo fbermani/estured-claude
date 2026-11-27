@@ -398,7 +398,7 @@ Antes de iniciar la gestión de un caso, se mostrará un recordatorio de términ
 
 EstuRed podrá decidir si un caso amerita intervención activa.
 
-La apertura de un reclamo no suspende automáticamente una solicitud, reserva, renovación o pago, salvo decisión manual de EstuRed.
+La apertura de un reclamo no suspende automáticamente una solicitud, reserva, renovación o pago, salvo decisión manual de EstuRed. Excepción: un caso sobre el pago de la reserva a la residencia frena el vencimiento de esa solicitud mientras siga abierto. Si al cerrarlo el plazo ya venció y no hay «Pago recibido», corre un plazo nuevo de 24 horas. (DR73)
 
 Durante la gestión de un caso, EstuRed podrá: solicitar evidencia; contactar a ambas partes; pedir información adicional; proponer soluciones; cerrar sin acción; registrar acuerdo; aplicar medidas administrativas; evaluar reembolso del fee EstuRed; suspender usuarios o residencias.
 

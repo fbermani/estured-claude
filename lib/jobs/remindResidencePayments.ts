@@ -5,8 +5,11 @@ import { notifyAdminsSafe } from "@/lib/notifications/notifyAdminsSafe";
 import { notifySuperadminsCounted } from "@/lib/notifications/notifySuperadminsCounted";
 import { ESCALATION_HOURS } from "@/lib/payments/reopenCap";
 import { loadStudentShortName } from "@/lib/family/notifyLinkedFamily";
-import { isPaymentIssueOpen } from "@/lib/applications/paymentReportView";
-import { notifyResidencePaymentTeam, notifyStudentAndFamily } from "@/lib/applications/paymentReportNotices";
+import { isPaymentIssueOpen, paymentHoldsDeadline } from "@/lib/applications/paymentReportView";
+import { loadOpenPaymentCaseIds } from "@/lib/applications/paymentSupportCase";
+import { LAST_ALERT_STAGE, nextAlertStage, PAYMENT_ALERT_STAGES, residenceLastAlertCopy, studentAlertCopy } from "@/lib/applications/paymentDeadlineAlerts";
+import { deliverResidenceNotice, deliverStudentSideNotice } from "@/lib/applications/paymentDeadlineNotices";
+import { notifyResidencePaymentTeam } from "@/lib/applications/paymentReportNotices";
 import { openResidencePaymentSupportCase } from "@/lib/applications/residencePaymentSupportCase";
 
 /**
@@ -17,8 +20,8 @@ import { openResidencePaymentSupportCase } from "@/lib/applications/residencePay
  *  - 24 h de «Ya pagué» (o de «No pude realizar el pago» sin responder) sin respuesta → aviso al equipo de la residencia.
  *  - 72 h de lo mismo → alerta al admin + caso de Soporte (`residence_payment`, abierto por el sistema a nombre del estudiante). NO hay
  *    transición automática a `disputed`.
- *  - 12 h antes de `payment_deadline_at`, solo con «Cobro con medios habilitados» y si el estudiante no avisó nada → aviso al
- *    estudiante (y a su familiar si es menor).
+ *  - DR74: alertas 36, 24, 12 y 6 h antes de `payment_deadline_at`, en los dos caminos, si nada frena el plazo → aviso al estudiante
+ *    (y a su familiar si es menor) por app, push y mail; con la última, también a la residencia (`runDeadlineAlerts`).
  *  - 7 días de lo mismo (DR66 (a)) → aviso in-app a TODOS los superadmin, una sola vez (`admin_escalated_at`). NO vence ni cambia de estado:
  *    es una pasada aparte, porque a los 7 días la alerta de 72 h ya salió y esas filas quedan fuera de la consulta de arriba.
  * Los avisos no llevan datos de cobro ni montos. Se limpian las marcas al registrar cada evento nuevo (acciones del estudiante y de la
@@ -28,7 +31,6 @@ import { openResidencePaymentSupportCase } from "@/lib/applications/residencePay
 const HOUR_MS = 3_600_000;
 const RESIDENCE_REMINDER_HOURS = 24;
 const ADMIN_ALERT_HOURS = 72;
-const STUDENT_REMINDER_HOURS_BEFORE = 12;
 const SCHEMA_MISSING_CODES = new Set(["42703", "42P01", "PGRST204", "PGRST205"]);
 
 export type RemindResiduePaymentsResult = { residenceReminders: number; adminAlerts: number; studentReminders: number; superadminEscalations: number };
@@ -48,6 +50,16 @@ type PaymentRow = {
   student_reminder_sent_at: string | null;
   admin_alert_sent_at: string | null;
   admin_escalated_at: string | null;
+};
+type AlertPaymentRow = {
+  id: string;
+  application_request_id: string;
+  status: string;
+  student_reported_paid_at: string | null;
+  student_payment_issue_at: string | null;
+  student_payment_issue_resolved_at: string | null;
+  deadline_alert_stage: number | null;
+  deadline_alert_for: string | null;
 };
 type AppRow = { id: string; status: string; residence_id: string; student_profile_id: string; contact_target: string | null; collection_mode: string | null; payment_deadline_at: string | null };
 
@@ -82,7 +94,7 @@ export async function remindResidencePayments(admin: SupabaseClient, now: Date =
   try {
     await runResidenceAndAdmin(admin, now, result);
     await runSuperadminEscalation(admin, now, result);
-    await runStudentReminder(admin, now, result);
+    await runDeadlineAlerts(admin, now, result);
   } catch (error) {
     console.error("[jobs] remindResidencePayments threw:", error);
   }
@@ -253,14 +265,20 @@ async function alertAdmin(admin: SupabaseClient, p: PaymentRow, app: AppRow, isR
   return true;
 }
 
-async function runStudentReminder(admin: SupabaseClient, now: Date, result: RemindResiduePaymentsResult): Promise<void> {
+/**
+ * DR74: alertas del plazo a las 36, 24, 12 y 6 h antes del vencimiento (= 12, 24, 36 y 42 h de un plazo de 48), en los dos caminos.
+ * Se frenan con «Ya pagué», un problema de pago abierto, un caso de Soporte abierto o «Pago recibido» (la solicitud sale de
+ * `residence_payment_pending`). Con el «Último aviso» también se avisa a la residencia. La etapa se reclama con compare-and-set sobre
+ * (`deadline_alert_stage`, `deadline_alert_for`) y se devuelve si no había a quién avisar. Sin la migración 0112 no hace nada.
+ */
+async function runDeadlineAlerts(admin: SupabaseClient, now: Date, result: RemindResiduePaymentsResult): Promise<void> {
   const nowIso = now.toISOString();
-  const limitIso = new Date(now.getTime() + STUDENT_REMINDER_HOURS_BEFORE * HOUR_MS).toISOString();
+  const limitIso = new Date(now.getTime() + PAYMENT_ALERT_STAGES[0].hoursLeft * HOUR_MS).toISOString();
   const { data: appData, error } = await admin
     .from("application_requests")
     .select("id, status, residence_id, student_profile_id, contact_target, collection_mode, payment_deadline_at")
     .eq("status", "residence_payment_pending")
-    .eq("collection_mode", "enabled_methods")
+    .not("collection_mode", "is", null)
     .gt("payment_deadline_at", nowIso)
     .lte("payment_deadline_at", limitIso);
   if (error) {
@@ -269,37 +287,66 @@ async function runStudentReminder(admin: SupabaseClient, now: Date, result: Remi
   }
   const apps = (appData ?? []) as AppRow[];
   if (apps.length === 0) return;
+  const ids = apps.map((a) => a.id);
 
   const { data: paymentData, error: paymentError } = await admin
     .from("external_residence_payments")
-    .select(PAYMENT_COLUMNS)
-    .in("application_request_id", apps.map((a) => a.id));
+    .select("id, application_request_id, status, student_reported_paid_at, student_payment_issue_at, student_payment_issue_resolved_at, deadline_alert_stage, deadline_alert_for")
+    .in("application_request_id", ids);
   if (paymentError) {
     if (!SCHEMA_MISSING_CODES.has(paymentError.code ?? "")) console.error("[jobs] remindResidencePayments (pagos) failed:", paymentError.code, paymentError.message);
     return;
   }
-  const paymentByApp = new Map(((paymentData ?? []) as PaymentRow[]).map((p) => [p.application_request_id, p]));
+  const openCases = await loadOpenPaymentCaseIds(admin, ids);
+  if (!openCases) return;
+  const paymentByApp = new Map(((paymentData ?? []) as AlertPaymentRow[]).map((p) => [p.application_request_id, p]));
 
   for (const app of apps) {
     const p = paymentByApp.get(app.id);
-    // Solo si todavía no informó el pago ni avisó un problema.
     if (!p || (p.status !== "pending" && p.status !== "student_reference_uploaded")) continue;
-    if (p.student_reported_paid_at || isPaymentIssueOpen(p) || p.student_reminder_sent_at) continue;
-    if (!(await claimMark(admin, p.id, "student_reminder_sent_at", nowIso))) continue;
+    if (paymentHoldsDeadline(p) || openCases.has(app.id)) continue;
+    const stage = nextAlertStage({ deadlineIso: app.payment_deadline_at, now, sentStage: p.deadline_alert_stage, sentFor: p.deadline_alert_for });
+    if (stage === null || !app.payment_deadline_at) continue;
 
+    // Reclamo: solo si nadie cambió la etapa desde que se leyó.
+    let claim = admin
+      .from("external_residence_payments")
+      .update({ deadline_alert_stage: stage, deadline_alert_for: app.payment_deadline_at })
+      .eq("id", p.id)
+      .eq("deadline_alert_stage", p.deadline_alert_stage ?? 0);
+    claim = p.deadline_alert_for ? claim.eq("deadline_alert_for", p.deadline_alert_for) : claim.is("deadline_alert_for", null);
+    const { data: claimed, error: claimError } = await claim.select("id");
+    if (claimError || !claimed || claimed.length === 0) {
+      if (claimError) console.error("[jobs] remindResidencePayments (alerta) claim failed:", claimError.code, claimError.message);
+      continue;
+    }
+
+    const deadlineIso = app.payment_deadline_at;
     const { data: residence } = await admin.from("residences").select("name").eq("id", app.residence_id).maybeSingle();
     const residenceName = (residence?.name as string | undefined) ?? "la residencia";
     const isMinor = app.contact_target === "family_member";
-    const studentName = isMinor ? await loadStudentShortName(admin, app.student_profile_id) : "el estudiante";
-    const tail = "Si ya pagaste, tocá «Ya pagué» en la solicitud; si no pudiste, avisalo ahí. La solicitud sigue sujeta a confirmación.";
-    await notifyStudentAndFamily(admin, {
+    const studentName = await loadStudentShortName(admin, app.student_profile_id);
+    const sent = await deliverStudentSideNotice(admin, {
       applicationId: app.id,
       studentProfileId: app.student_profile_id,
-      student: { title: "Tu plazo para pagar la reserva vence pronto", body: `Te quedan menos de 12 horas para pagar la reserva en ${residenceName}. ${tail}` },
-      family: isMinor
-        ? { title: `Vence pronto el plazo de pago de ${studentName}`, body: `Quedan menos de 12 horas para pagar la reserva en ${residenceName}. ${tail}` }
-        : null,
+      isMinor,
+      build: (audience) => studentAlertCopy({ stage, audience, residenceName, studentName, deadlineIso }),
     });
+    if (!sent) {
+      // Sin destinatario: se devuelve la etapa (solo si sigue siendo la de este proceso) para reintentar.
+      const release = admin
+        .from("external_residence_payments")
+        .update({ deadline_alert_stage: p.deadline_alert_stage ?? 0, deadline_alert_for: p.deadline_alert_for })
+        .eq("id", p.id)
+        .eq("deadline_alert_stage", stage)
+        .eq("deadline_alert_for", deadlineIso);
+      await release;
+      continue;
+    }
     result.studentReminders += 1;
+    if (stage === LAST_ALERT_STAGE) {
+      await deliverResidenceNotice(admin, { applicationId: app.id, residenceId: app.residence_id, copy: residenceLastAlertCopy({ studentName, deadlineIso, isMinor }) });
+      result.residenceReminders += 1;
+    }
   }
 }

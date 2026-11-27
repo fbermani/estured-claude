@@ -8,6 +8,8 @@ import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import type { StudentPaymentCardView } from "@/lib/applications/loadStudentPaymentCard";
 import { DIRECT_CONTACT_MINOR_TEXT, DIRECT_CONTACT_STUDENT_TEXT } from "@/lib/applications/reservationCollectionChoice";
 import { StudentPaymentActions } from "@/app/students/applications/[id]/payment/StudentPaymentActions";
+import { openStudentPaymentCase } from "@/app/students/applications/[id]/payment/actions";
+import { PaymentSupportCaseForm } from "@/components/applications/PaymentSupportCaseForm";
 
 /** Aviso de seguridad (DR63 (g)) y TP-06 (DR65 (c)): EstuRed no recibe este dinero ni revisa los datos de cobro de la residencia. */
 const SECURITY_NOTICE =
@@ -25,7 +27,7 @@ function SupportButton({ label = "Escribir a Soporte" }: { label?: string }) {
  * Tarjeta del pago de la reserva en el detalle de la solicitud (DR63 (c), (d), (e), (l), (m)). Server Component: recibe la vista que
  * armó `loadStudentPaymentCard` (que ya comprobó que quien mira es el estudiante o el familiar pagador de un menor). Una sola acción
  * principal por pantalla: «Ya pagué». Con contacto directo (DR72 (f)): monto, plazo y la frase aprobada; el estudiante nunca ve un número
- * ni escribe a la residencia.
+ * ni escribe a la residencia. Desde DR74 (c) también hay «Ya pagué» en contacto directo; DR73: «Abrir un caso en Soporte» frena el plazo.
  */
 export function StudentPaymentCard({ applicationId, view }: { applicationId: string; view: StudentPaymentCardView }) {
   const forFamily = view.actorRole === "family_payer";
@@ -49,7 +51,9 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
     </p>
   );
 
-  if (view.kind === "whatsapp_direct") {
+  const caseAction = openStudentPaymentCase.bind(null, applicationId);
+
+  if (view.kind === "whatsapp_direct" && view.stage === "to_pay") {
     return (
       <Card className="mt-6 p-6">
         <h2 className="text-base font-bold text-ink">Pago de la reserva</h2>
@@ -58,15 +62,15 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
           <Icon name="chat" className="mt-0.5 shrink-0 text-lg text-forest-700" />
           <span>{view.isMinor && !forFamily ? DIRECT_CONTACT_MINOR_TEXT : DIRECT_CONTACT_STUDENT_TEXT}</span>
         </p>
-        <ContactDeadlineNote deadlineAt={view.deadlineAt} className="mt-4" />
+        {!view.paymentCaseOpen && <ContactDeadlineNote deadlineAt={view.deadlineAt} className="mt-4" />}
         <p className="mt-3 text-xs text-ink-faint">
           No transfieras dinero a datos que no te haya indicado la residencia. EstuRed no custodia ni garantiza este pago.
         </p>
+        {view.canReportPaid && <StudentPaymentActions applicationId={applicationId} allowIssue={false} />}
+        <PaymentSupportCaseForm action={caseAction} caseOpen={view.paymentCaseOpen} />
       </Card>
     );
   }
-
-  const amount = amountBlock(view.amountUsd, view.amountArs);
 
   if (view.stage === "reported") {
     return (
@@ -112,6 +116,9 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
     );
   }
 
+  if (view.kind !== "enabled_methods") return null;
+  const amount = amountBlock(view.amountUsd, view.amountArs);
+
   return (
     <Card className="mt-6 p-6">
       <h2 className="text-base font-bold text-ink">{forFamily ? "Pago de la reserva" : "Pagá la reserva"}</h2>
@@ -127,13 +134,14 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
         </div>
       )}
 
-      <ContactDeadlineNote deadlineAt={view.deadlineAt} className="mt-4" />
+      {!view.paymentCaseOpen && <ContactDeadlineNote deadlineAt={view.deadlineAt} className="mt-4" />}
       <p className="mt-3 flex items-start gap-2 text-xs text-ink-soft">
         <Icon name="shield" className="mt-0.5 shrink-0 text-base text-forest-700" />
         <span>{SECURITY_NOTICE}</span>
       </p>
 
       <StudentPaymentActions applicationId={applicationId} />
+      <PaymentSupportCaseForm action={caseAction} caseOpen={view.paymentCaseOpen} />
     </Card>
   );
 }

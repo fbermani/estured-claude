@@ -4,9 +4,9 @@
  * `lib/legal/consentVersion.ts` (solo servidor) y se guarda junto con la versión en cada consentimiento.
  */
 export const LEGAL_DOCUMENTS = {
-  terms: { version: "2026-11-26", updatedLabel: "26 de noviembre de 2026", title: "Términos y condiciones" },
+  terms: { version: "2026-11-27", updatedLabel: "27 de noviembre de 2026", title: "Términos y condiciones" },
   privacy: { version: "2026-11-25", updatedLabel: "25 de noviembre de 2026", title: "Política de privacidad" },
-  residence_terms: { version: "2026-11-26", updatedLabel: "26 de noviembre de 2026", title: "Condiciones para residencias" },
+  residence_terms: { version: "2026-11-27", updatedLabel: "27 de noviembre de 2026", title: "Condiciones para residencias" },
   /** Casilla del fee (`lib/legal/clauses.ts`). */
   estured_fee_terms: { version: "2026-11-22", updatedLabel: "22 de noviembre de 2026", title: "Política del fee" },
   /** Casilla de responsabilidad de la residencia (`lib/legal/clauses.ts`). */
