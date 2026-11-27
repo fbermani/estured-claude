@@ -1,6 +1,6 @@
 # MEMORY.md — Memoria viva de EstuRed
 
-**Última actualización:** 2026-11-26 (popup nuevo, bloque A de DR67, en `staging`; estado en §2). El histórico íntegro vive en `docs/archive/` (índice en §7).
+**Última actualización:** 2026-11-27 (bloque «pesos y pago», DR72–DR74, cerrado en `staging`; estado en §2). El histórico íntegro vive en `docs/archive/` (índice en §7).
 
 > Bitácora ejecutiva CORTA (se lee al inicio de cada sesión). NO reemplaza `/docs` (`00`–`22` = fuente de verdad de producto; decisiones del dueño en `docs/00` §31). El detalle de cada ciclo vive en el histórico: consultarlo a demanda con el índice de §7 (`Read` con `offset`/`limit`, no entero). Al cerrar un ciclo: agregar 2–4 líneas acá (no párrafos) y el detalle largo, si hace falta, a `docs/NEXT_STEPS.md` o al histórico.
 
@@ -79,7 +79,7 @@ Fuente: `docs/PLAN_SALIDA_PRODUCCION.md` (runbook). **Paso 0 (decidido 2026-11-2
 6. **Costos y abuso:** activar tope de gasto, alertas y WAF antes de abrir, y cachear páginas públicas (runbook, «Costos y abuso»).
 7. Abiertos en prod: runbook §D1 (Vault), §D3 (SMTP y plantilla) y §G; WAF y tope de gasto.
 8. Seguimiento técnico histórico: `docs/NEXT_STEPS.md`.
-9. **0107 (2026-11-25):** aplicada en dev y en prod (bootstrap). Suite: 3000 pasan, 4 fallan; sin relación detectada con la 0107. `renewals` (3 timeouts) pasa al repetirlo. `support` («abre un caso…») falla; solo usa service role; causa sin diagnosticar. Playwright: falla el envío de Camila (2 solicitudes activas previas); roles de estudiante pasan al repetir.
+9. **0107 (2026-11-25):** aplicada en dev y en prod (bootstrap). Suite: 3000 pasan, 4 fallan; sin relación detectada con la 0107. `renewals` (3 timeouts) pasa al repetirlo. `support` («abre un caso…»): diagnosticado y arreglado el 2026-11-27 (la consulta del test traía también los avisos a los admin; además limpia su cupo de 5 casos por hora). Playwright: falla el envío de Camila (2 solicitudes activas previas); roles de estudiante pasan al repetir.
 
 ## 5. Pendientes vigentes (no derivables del git)
 
