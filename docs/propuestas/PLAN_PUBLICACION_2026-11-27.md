@@ -1,17 +1,19 @@
 # Salida a producción de «pesos y pago» (DR72–DR74)
 
-**Estado al 2026-11-27 19:15:** `eca0a46` validado, listo para publicar. Nada enviado.
+**Estado al 2026-11-27 19:35:** `150c334` listo para publicar. Nada enviado.
 Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 
-`main` antes de publicar = `4f82924`.
+`main` antes de publicar = `89f8544` (mails, publicados a las 19:19).
 
 ## Publicar hoy
 
 ```bash
-git push origin eca0a46:main
+git push origin 150c334:main
 ```
 
-Es el único comando vigente. 47 commits sobre `main`, sin merge.
+Es el único comando vigente.
+`150c334` une `eca0a46` y `89f8544` (rama local `publicar/pesos-2026-11-27`). Mismos archivos que `eca0a46`.
+El push de `eca0a46` fue rechazado: `main` había avanzado.
 Condición: la cuenta creada a las 18:42 es tuya. Si no, avisale antes.
 
 El modo preapertura no se probó antes de publicar. Staging corre sin `PREAPERTURA`.

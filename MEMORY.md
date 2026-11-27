@@ -21,7 +21,7 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña», DR12–DR48, auditorías) está en `docs/archive/MEMORY_HISTORICO_2026-11-19.md` §B. Lo vigente:
 
-- **Salida de «pesos y pago» (2026-11-27 19:15):** `eca0a46` validado (3143 tests; 2 archivos fallan igual en `main`). Falta que el dueño corra `git push origin eca0a46:main`; después verificar prod. `9966802` queda fuera. Ramas `publicar/web-*` sin uso. Mails sin enviar (sin destinatarios reales). Plan: `docs/propuestas/PLAN_PUBLICACION_2026-11-27.md`.
+- **Salida de «pesos y pago» (2026-11-27 19:15):** `eca0a46` validado (3143 tests; 2 archivos fallan igual en `main`). `main` avanzó a `89f8544` (mails); falta que el dueño corra `git push origin 150c334:main` (mismos archivos que `eca0a46`); después verificar prod y mergear `main` en `staging`. `9966802` queda fuera. Ramas `publicar/web-*` sin uso. Mails sin enviar (sin destinatarios reales). Plan: `docs/propuestas/PLAN_PUBLICACION_2026-11-27.md`.
   - Prod: cron responde `401` (revisar `cron_secret` en Vault). Runbook sin actualizar (cambios sin commitear de otra sesión).
 - **Popup y campos (2026-11-27, `staging`; producción no).** Verde con textura (`app/surfaces.css`), campos de 56 px con título adentro (`app/fields.css`), «Siguiente» en celular (`FormKeyboardFlow`), popups sin scroll en escritorio, 15 universidades y 10 carreras con «Otra», sello en fundadoras.
   - Campos de llenado migrados (`9966802`); quedan crudos 29 a propósito (buscadores, filtros, anti-bot, en línea). En `Select`, usar `keepLabelUp` si la opción vacía es una elección. Pendiente: probar teclado en teléfono real.
