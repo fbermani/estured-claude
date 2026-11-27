@@ -403,7 +403,15 @@ Las tarifas de las residencias se publican en dólares estadounidenses (USD) y s
 
 Siempre que se muestren precios en ARS convertidos desde USD, debe aparecer un modal o tooltip aclaratorio con este contenido:
 
-> El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento.
+> El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia.
+
+Con la solicitud ya enviada, el contenido es:
+
+> Estos pesos usan el dólar blue (valor venta) del día en que se envió la solicitud de reserva. Esa cotización queda fija para el pago de la reserva y el fee EstuRed. Los pagos posteriores se acuerdan con la residencia.
+
+En una renovación:
+
+> Estos pesos usan el dólar blue (valor venta) del día en que se creó la oferta de renovación. Esa cotización queda fija para el fee EstuRed.
 
 Este modal debe mostrarse:
 
@@ -411,7 +419,7 @@ Este modal debe mostrarse:
 - En el resumen de solicitud al ver el monto estimado en ARS.
 - En cualquier pantalla donde se muestre conversión de USD a ARS.
 
-> **DR72 (2026-11-26):** la cotización queda fija al enviar la solicitud de reserva. La última oración del texto citado queda sin vigencia. El texto se reemplaza cuando el dueño apruebe el nuevo.
+> **DR72 (2026-11-26):** textos reemplazados. Antes decían que el valor final en pesos se fijaba al pagar.
 
 ### 13.4. Reglas del snapshot
 
@@ -1999,12 +2007,13 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 | # | Decisión |
 |---|---|
-| DR70 (a) | «Pago recibido» muestra el monto acordado, sin editar. La residencia elige la moneda y confirma. Aplica a solicitudes y renovaciones. |
+| DR70 (a) | «Pago recibido» muestra el monto acordado, sin editar. La residencia elige la moneda y confirma. Aplica solo a solicitudes. |
 | DR70 (b) | Si el monto no coincide, la residencia no confirma y abre un caso de Soporte. |
+| DR70 (c) | Las renovaciones siguen como hoy, con monto libre (dueño, 2026-11-26). |
 
-**Estado:** el dueño aprobó la ayuda «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» (2026-11-26). Falta el código. El choque con §13.3 lo resolvió DR72.
+**Estado:** textos aprobados (`docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §4). Falta el código. El choque con §13.3 lo resolvió DR72.
 
-**Hueco en renovaciones:** el monto acordado (`expected_amount_usd`/`ars`) se guarda solo para solicitudes (`enableResidencePayment`). La oferta de renovación no define cuánto se paga a la residencia. Hay que decidirlo antes de aplicar DR70 (a) a renovaciones.
+**Pendiente:** `docs/03` §16.3 pide «monto requerido para asegurar renovación, si aplica». La oferta no tiene ese campo (`GAPS.md`).
 
 
 ### DR71: ajustes del popup de preapertura (2026-11-26)
@@ -2018,7 +2027,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR71 (c) | **Tarjeta de fundadoras del popup:** etiqueta, pregunta y cupo centrados. |
 | DR71 (d) | **`/fundadoras`:** título «Menos mensajes repetidos, mejor gestión.» y debajo «Sin costo para tu residencia.». El botón «Quiero que me contacten» va después del encabezado. La insignia y el Plan Premium pasan a la lista de beneficios. |
 
-### DR72: la cotización en pesos queda fija al enviar la solicitud de reserva (2026-11-26, textos pendientes)
+### DR72: la cotización en pesos queda fija al enviar la solicitud de reserva (2026-11-26)
 
 **Fuente:** decisión del dueño. Reemplaza la regla «al momento del pago» de §13.3 y de `docs/03` §8.1 y §8.5 (3).
 
@@ -2031,7 +2040,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR72 (e) | El pago de la reserva en pesos queda fijo redondeado a múltiplos de 500 (§13.5). Vale para solicitudes nuevas. Las enviadas conservan su monto. El fee no cambia. |
 | DR72 (f) | Con contacto directo, la tarjeta de pago muestra el monto en USD y ARS y la fecha límite. Nunca un teléfono. Modifica DR63 (c) y (d). |
 
-**Estado:** el dueño aprobó los textos el 2026-11-26: avisos, frases cortas, `/terms` y condiciones de residencias. Sin aplicar. El código calcula así el pago de la reserva (`resolveExpectedAmounts`), sin el redondeo. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13). Actualizar `docs/01`, `02`, `03`, `07`, `08`, `10`, `17`, `20` y `21`.
+**Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) se aplican en la fase 1; (f), en la fase 2. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
 
 ### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26, sin implementar)
 
@@ -2041,8 +2050,10 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 |---|---|
 | DR73 (a) | Un caso de Soporte abierto sobre el pago de una reserva frena el vencimiento de 48 horas de esa solicitud. |
 | DR73 (b) | Sin «Ya pagué» ni caso abierto, la solicitud vence en plazo. El estudiante puede abrir un caso en Soporte para intentar resolverlo. |
+| DR73 (c) | Si el caso se cierra con el plazo vencido y sin «Pago recibido», corre un plazo nuevo de 24 horas. Se avisa al estudiante y a la residencia. |
+| DR73 (d) | Los formularios de Soporte y `/terms` suman la excepción a «abrir un caso no suspende». Modifica `docs/03`, `04`, `05`, `07`, `20` y `21` en ese punto. |
 
-**Pendiente:** definir qué pasa si el caso se cierra con el plazo vencido. Ajustar el aviso «Abrir un caso no suspende automáticamente…» solo para este caso.
+**Supuesto reversible** (`docs/13` §4): el plazo nuevo solo corre si nada más lo frena («Ya pagué» o un problema de pago abierto).
 
 ### DR74: alertas de pago de la reserva (2026-11-26, sin implementar)
 
@@ -2052,9 +2063,10 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 |---|---|
 | DR74 (a) | Alertas por mail y WhatsApp a las 12, 24, 36 y 42 horas del plazo de 48, mientras no se haga el pago. Avisan lo que puede pasar. |
 | DR74 (b) | A las 42 horas se avisa también a la residencia. Puede contactar al estudiante para que pague, o saber que la solicitud puede vencer. |
+| DR74 (c) | El contacto directo suma «Ya pagué», con comprobante opcional, como en medios habilitados. Frena el plazo y dispara los mismos avisos. |
 
 **Supuestos reversibles** (`docs/13` §4): las horas cuentan desde que corre el plazo y se reinician si el plazo se reinicia. Reemplazan el recordatorio de 12 horas antes. Se frenan con «Ya pagué», un problema de pago abierto, un caso abierto o «Pago recibido». No llevan montos ni datos de cobro. Con un menor, avisan también al familiar. A las 42 horas la residencia ve el botón de contacto en ambos caminos. No alcanzan a las renovaciones.
 
 **Límites conocidos:** los avisos del estudiante hoy salen solo en la app y por push; el mail es código nuevo. WhatsApp depende de DR67 (a): sin proveedor, plantillas ni consentimiento, y `/terms` dice que no es canal. Hasta entonces: app, push y mail. El cron es horario. Staging no tiene cron ni clave de Resend. Requiere migración.
 
-**Pendiente:** con contacto directo no existe «Ya pagué»; decidir si se suma. Aprobar los textos de las alertas.
+**Textos aprobados:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §5.
