@@ -1,32 +1,38 @@
 # Salida a producción de «pesos y pago» (DR72–DR74)
 
-**Estado al 2026-11-27 19:35:** `150c334` listo para publicar. Nada enviado.
+**Estado al 2026-11-27 19:45:** publicado en `main` (`150c334`). Mails de aviso sin enviar.
 Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 
-`main` antes de publicar = `89f8544` (mails, publicados a las 19:19).
+## Publicación
 
-## Publicar hoy
+- El dueño corrió `git push origin 150c334:main`.
+- `150c334` une `eca0a46` y `89f8544` (mails, publicados a las 19:19). Mismos archivos que `eca0a46`.
+- El primer intento, con `eca0a46`, fue rechazado: `main` había avanzado.
+- Deploy `dpl_ApeXsq5Dv785uCc3epjW64MVpLPM`: `READY` en `gru1`, alias `estured.com`.
+- `main` mergeado en `staging` (`1b844ea`, sin cambios de archivos).
 
-```bash
-git push origin 150c334:main
-```
+## Verificación en `estured.com` (navegador limpio, sin enviar formularios)
 
-Es el único comando vigente.
-`150c334` une `eca0a46` y `89f8544` (rama local `publicar/pesos-2026-11-27`). Mismos archivos que `eca0a46`.
-El push de `eca0a46` fue rechazado: `main` había avanzado.
-Condición: la cuenta creada a las 18:42 es tuya. Si no, avisale antes.
+| Control | Resultado |
+|---|---|
+| Celular (390) y escritorio (1366): 11 rutas | 200, sin scroll horizontal |
+| `/search` | Redirige a `/preregistro` |
+| `/terms` y `/terms/residencias` | 27 de noviembre, con «queda fija» |
+| Popup, `/preregistro`, fundadoras, footer | Vistos en capturas |
+| Popup de alta | Sin scroll; muestra el anti-bots |
+| 7 imágenes de `/email/` | 200 |
+| Meta sin aceptar cookies | Sin pedidos |
+| Logs de error y aviso del deploy | Sin registros |
 
-El modo preapertura no se probó antes de publicar. Staging corre sin `PREAPERTURA`.
-Vuelta atrás: *Instant Rollback* en Vercel.
+- Consola: errores en páginas con anti-bots (CSP `data:` y un 400 externo). Sin comparar con el deploy anterior.
+- Sin probar: alta real, mail de bienvenida, teclado en teléfono, cron y push.
 
-Después:
+Pendiente:
 
-1. [Yo] Verifico en `estured.com`: `/`, popup, `/preregistro`, `/fundadoras`, footer y redirección de `/search`.
-2. [Yo] Verifico `/terms`, `/terms/residencias`, `/email/*.png` y logs.
-3. [Vos] Hacé un alta de prueba. Confirmá que llega la bienvenida.
-4. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de `eca0a46`.
-
-Queda fuera: `9966802` (campos nuevos en 45 archivos, sin validar).
+1. [Vos] Alta de prueba en `estured.com`. Confirmá que llega la bienvenida.
+2. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html`.
+3. [Vos] Cargá bien `cron_secret` en Vault. Las respuestas guardadas eran `401`.
+4. [Yo] Pasar esto al runbook cuando no tenga cambios sin commitear.
 
 ## Validación de `eca0a46`
 
