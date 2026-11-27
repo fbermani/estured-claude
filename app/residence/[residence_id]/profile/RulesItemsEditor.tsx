@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { MAX_RULE_ITEMS, RULE_DETAIL_MAX, RULE_LEAD_MAX, RULE_TITLE_MAX, moveItem } from "@/lib/residences/ruleItems";
+import { Input } from "@/components/ui/Input";
 
 /** Fila en edición: `id` estable para reordenar sin perder el foco ni el texto. */
 export type RuleDraft = { id: number; lead: string; title: string; detail: string };
@@ -12,8 +13,6 @@ export function newRuleDraft(partial: Partial<Omit<RuleDraft, "id">> = {}): Rule
   return { id: nextDraftId++, lead: partial.lead ?? "", title: partial.title ?? "", detail: partial.detail ?? "" };
 }
 
-const FIELD =
-  "mt-1 block min-h-11 w-full rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
 const ICON_BTN =
   "inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border-[1.5px] border-line-2 bg-paper px-3 text-sm font-semibold text-ink-soft transition-colors hover:border-forest hover:text-forest-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-40 disabled:hover:border-line-2 disabled:hover:text-ink-soft";
 
@@ -60,55 +59,35 @@ export function RulesItemsEditor({ rows, onChange }: { rows: RuleDraft[]; onChan
               </div>
             </div>
             <div className="mt-2 grid gap-3 sm:grid-cols-[8rem_minmax(0,1fr)]">
-              <div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <label htmlFor={`${baseId}-lead-${row.id}`} className="text-xs font-semibold text-ink-soft">
-                    Dato (opcional)
-                  </label>
-                  <Counter value={row.lead} max={RULE_LEAD_MAX} />
-                </div>
-                <input
-                  id={`${baseId}-lead-${row.id}`}
-                  value={row.lead}
-                  maxLength={RULE_LEAD_MAX}
-                  onChange={(e) => update(row.id, { lead: e.target.value })}
-                  placeholder="23 a 7"
-                  className={FIELD}
-                />
-              </div>
-              <div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <label htmlFor={`${baseId}-title-${row.id}`} className="text-xs font-semibold text-ink-soft">
-                    Título
-                  </label>
-                  <Counter value={row.title} max={RULE_TITLE_MAX} />
-                </div>
-                <input
-                  id={`${baseId}-title-${row.id}`}
-                  value={row.title}
-                  maxLength={RULE_TITLE_MAX}
-                  onChange={(e) => update(row.id, { title: e.target.value })}
-                  placeholder="Silencio"
-                  className={FIELD}
-                />
-              </div>
-            </div>
-            <div className="mt-3">
-              <div className="flex items-baseline justify-between gap-2">
-                <label htmlFor={`${baseId}-detail-${row.id}`} className="text-xs font-semibold text-ink-soft">
-                  Detalle (opcional)
-                </label>
-                <Counter value={row.detail} max={RULE_DETAIL_MAX} />
-              </div>
-              <input
-                id={`${baseId}-detail-${row.id}`}
-                value={row.detail}
-                maxLength={RULE_DETAIL_MAX}
-                onChange={(e) => update(row.id, { detail: e.target.value })}
-                placeholder="Para música o videos, auriculares"
-                className={FIELD}
+              <Input
+                label="Dato (opcional)"
+                hint={<Counter value={row.lead} max={RULE_LEAD_MAX} />}
+                id={`${baseId}-lead-${row.id}`}
+                value={row.lead}
+                maxLength={RULE_LEAD_MAX}
+                onChange={(e) => update(row.id, { lead: e.target.value })}
+                placeholder="23 a 7"
+              />
+              <Input
+                label="Título"
+                hint={<Counter value={row.title} max={RULE_TITLE_MAX} />}
+                id={`${baseId}-title-${row.id}`}
+                value={row.title}
+                maxLength={RULE_TITLE_MAX}
+                onChange={(e) => update(row.id, { title: e.target.value })}
+                placeholder="Silencio"
               />
             </div>
+            <Input
+              label="Detalle (opcional)"
+              hint={<Counter value={row.detail} max={RULE_DETAIL_MAX} />}
+              id={`${baseId}-detail-${row.id}`}
+              value={row.detail}
+              maxLength={RULE_DETAIL_MAX}
+              onChange={(e) => update(row.id, { detail: e.target.value })}
+              placeholder="Para música o videos, auriculares"
+              className="mt-3"
+            />
           </li>
         ))}
       </ul>

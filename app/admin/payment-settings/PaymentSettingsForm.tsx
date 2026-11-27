@@ -5,6 +5,7 @@ import { AdminCard } from "@/components/admin/ui/AdminCard";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { savePaymentSettings, type SavePaymentSettingsState } from "@/app/admin/payment-settings/actions";
+import { Input, Textarea } from "@/components/ui/Input";
 
 const initialState: SavePaymentSettingsState = { status: "idle" };
 
@@ -40,6 +41,7 @@ function Field({
   required?: boolean;
   textarea?: boolean;
 }) {
+  const title = required ? label : `${label} (opcional)`;
   const common = {
     id: name,
     name,
@@ -49,20 +51,10 @@ function Field({
     required,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": error ? `${name}-error` : hint ? `${name}-hint` : undefined,
-    className: "mt-1.5 w-full rounded-field border bg-white px-3 py-2 text-sm",
-    style: { borderColor: error ? cmd.rose : cmd.outline, color: cmd.onSurface },
   };
   return (
     <div>
-      <label htmlFor={name} className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-        {label}
-        {!required && (
-          <span className="ml-1 font-normal" style={{ color: cmd.outline }}>
-            (opcional)
-          </span>
-        )}
-      </label>
-      {textarea ? <textarea rows={3} {...common} /> : <input type="text" inputMode={inputMode} {...common} />}
+      {textarea ? <Textarea label={title} rows={3} {...common} /> : <Input label={title} type="text" inputMode={inputMode} {...common} />}
       {error ? (
         <p id={`${name}-error`} role="alert" className="mt-1 text-xs font-medium" style={{ color: cmd.rose }}>
           {error}

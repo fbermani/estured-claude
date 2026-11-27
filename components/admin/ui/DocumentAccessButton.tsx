@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cmd } from "@/components/admin/ui/tokens";
 import { requestDocumentAccess } from "@/lib/documents/requestDocumentAccess";
+import { Textarea } from "@/components/ui/Input";
 
 /**
  * Botón de "ver documento" con justificación obligatoria (docs/09
@@ -31,17 +32,14 @@ export function DocumentAccessButton({ fileId, label = "Ver documento" }: { file
 
   return (
     <div className="mt-1 rounded p-2" style={{ border: `1px solid ${cmd.border}`, backgroundColor: cmd.surfaceContainer }}>
-      <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-        Motivo del acceso (obligatorio, mín. 10 caracteres)
-      </label>
-      <textarea
+      <Textarea
+        label="Motivo del acceso"
+        hint="Obligatorio, mínimo 10 caracteres."
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         rows={2}
         autoFocus
         placeholder="Ej: verificando comprobante para validar pago reportado."
-        className="mt-1 w-full rounded px-2 py-1 text-xs"
-        style={{ border: `1px solid ${cmd.outline}` }}
       />
       {error && (
         <p className="mt-1 text-xs font-medium" style={{ color: cmd.rose }}>

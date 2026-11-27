@@ -377,7 +377,8 @@ export function ResidenceProfileForm({
           </ul>
         )}
         <div className="mt-3 flex gap-2">
-          <input
+          <Input
+            label={kind === "service" ? "Otro servicio" : "Otra área común"}
             value={customDraft[kind]}
             onChange={(e) => setCustomDraft((prev) => ({ ...prev, [kind]: e.target.value }))}
             onKeyDown={(e) => {
@@ -387,9 +388,8 @@ export function ResidenceProfileForm({
               }
             }}
             maxLength={CUSTOM_AMENITY_MAX}
-            aria-label={`Otro ${kind === "service" ? "servicio" : "área común"}`}
             placeholder={kind === "service" ? "Ej: Bicicletero" : "Ej: Huerta"}
-            className="min-w-0 flex-1 rounded-field border-[1.5px] border-line-2 bg-paper px-3 py-2 text-sm"
+            className="flex-1"
           />
           <Button type="button" variant="secondary" onClick={() => addCustomItem(kind)} disabled={pendingCustomCount >= MAX_PENDING_CUSTOM_AMENITIES}>
             Agregar
@@ -861,20 +861,18 @@ export function ResidenceProfileForm({
               ))}
             </div>
             {commonAreas.has(KITCHEN_AREA) && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 rounded-field border border-sand-200 bg-sand-50 p-3 text-sm text-ink">
-                <label htmlFor="amenity_kitchens" className="font-semibold">Cantidad de cocinas compartidas</label>
-                <select
-                  id="amenity_kitchens"
-                  name="amenity_kitchens"
-                  value={kitchens}
-                  onChange={(e) => setKitchens(Number(e.target.value))}
-                  className="rounded-field border border-sand-300 bg-white px-2 py-1 text-sm"
-                >
-                  {Array.from({ length: KITCHENS_MAX }, (_, i) => i + 1).map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Cocinas compartidas"
+                id="amenity_kitchens"
+                name="amenity_kitchens"
+                value={kitchens}
+                onChange={(e) => setKitchens(Number(e.target.value))}
+                className="mt-4 max-w-xs"
+              >
+                {Array.from({ length: KITCHENS_MAX }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </Select>
             )}
             {renderCustomItems("area")}
           </Card>

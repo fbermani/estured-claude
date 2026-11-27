@@ -16,10 +16,9 @@ import {
   ROOM_CHANGE_REASON_MAX,
   ROOM_CHANGE_STATUS_LABEL,
 } from "@/lib/roomChange/rules";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 const initialState: StudentRoomChangeState = { status: "idle" };
-
-const fieldClass = "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2.5 text-sm text-ink focus:border-forest";
 
 const STATUS_TONE: Record<string, "amber" | "sage" | "neutral"> = { pending: "amber", offered: "sage", resolved: "neutral", cancelled: "neutral" };
 
@@ -52,38 +51,42 @@ function RequestForm({ view, onDone }: { view: StudentRoomChangeView; onDone: ()
   return (
     <form onSubmit={onSubmit} className="mt-4 space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-xs font-semibold text-ink-soft">
-          Tipo de habitación
-          <select name="room_type_id" value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} className={`mt-1 ${fieldClass}`}>
-            <option value="">Cualquiera</option>
-            {view.roomTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-                {t.name === view.currentTypeName ? " (la que tenés)" : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-xs font-semibold text-ink-soft">
-          Género de la habitación
-          <select name="gender" value={gender} onChange={(e) => setGender(e.target.value)} className={`mt-1 ${fieldClass}`}>
-            <option value="">Cualquiera</option>
-            {ROOM_CHANGE_GENDERS.map((g) => (
-              <option key={g} value={g}>
-                {ROOM_CHANGE_GENDER_LABEL[g]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select label="Tipo de habitación" name="room_type_id" value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} keepLabelUp>
+          <option value="">Cualquiera</option>
+          {view.roomTypes.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+              {t.name === view.currentTypeName ? " (la que tenés)" : ""}
+            </option>
+          ))}
+        </Select>
+        <Select label="Género de la habitación" name="gender" value={gender} onChange={(e) => setGender(e.target.value)} keepLabelUp>
+          <option value="">Cualquiera</option>
+          {ROOM_CHANGE_GENDERS.map((g) => (
+            <option key={g} value={g}>
+              {ROOM_CHANGE_GENDER_LABEL[g]}
+            </option>
+          ))}
+        </Select>
       </div>
-      <label className="block text-xs font-semibold text-ink-soft">
-        Piso o nota (opcional)
-        <input name="note" type="text" value={note} onChange={(e) => setNote(e.target.value)} maxLength={ROOM_CHANGE_NOTE_MAX} placeholder="Ej.: un piso más alto, lejos de la calle" className={`mt-1 ${fieldClass}`} />
-      </label>
-      <label className="block text-xs font-semibold text-ink-soft">
-        Motivo (opcional)
-        <textarea name="reason" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={ROOM_CHANGE_REASON_MAX} placeholder="Contale a tu residencia por qué querés el cambio" className={`mt-1 ${fieldClass}`} />
-      </label>
+      <Input
+        label="Piso o nota (opcional)"
+        name="note"
+        type="text"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        maxLength={ROOM_CHANGE_NOTE_MAX}
+        placeholder="Ej.: un piso más alto, lejos de la calle"
+      />
+      <Textarea
+        label="Motivo (opcional)"
+        hint="Contale a tu residencia por qué querés el cambio."
+        name="reason"
+        rows={3}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        maxLength={ROOM_CHANGE_REASON_MAX}
+      />
       <p className="text-xs text-ink-faint">Elegí al menos un tipo de habitación, un género o una nota: el motivo solo no alcanza. Lo que dejes vacío te da igual.</p>
       <label className="flex items-start gap-2.5 rounded-field bg-warning-bg px-3.5 py-3 text-sm text-ink-soft">
         <input

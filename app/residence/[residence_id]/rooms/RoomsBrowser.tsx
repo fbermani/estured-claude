@@ -22,6 +22,7 @@ import {
 } from "@/app/residence/[residence_id]/rooms/actions";
 import { ROOM_GENDER_LABEL, policyFromGender, type RoomGender } from "@/lib/residences/roomGender";
 import { endResidentStayAction } from "@/app/residence/[residence_id]/residents/actions";
+import { Input, Select } from "@/components/ui/Input";
 
 export type BedData = {
   id: string;
@@ -117,17 +118,15 @@ function RenameForm({ residenceId, room }: { residenceId: string; room: RoomData
   const [state, formAction, isPending] = useActionState(action, initialState);
   return (
     <form action={formAction}>
-      <label htmlFor={`room-label-${room.id}`} className="mb-1.5 block text-sm font-bold text-ink">
-        Nombre / número
-      </label>
       <div className="flex gap-2">
-        <input
+        <Input
+          label="Nombre / número"
           id={`room-label-${room.id}`}
           name="label"
           defaultValue={room.label}
           maxLength={40}
           required
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
+          className="flex-1"
         />
         <button
           type="submit"
@@ -149,22 +148,14 @@ function GenderForm({ residenceId, room, shared }: { residenceId: string; room: 
   const options: RoomGender[] = shared ? ["masculino", "femenino", "mixto"] : ["sin_especificar", "masculino", "femenino", "mixto"];
   return (
     <form action={formAction}>
-      <label htmlFor={`room-gender-${room.id}`} className="mb-1.5 block text-sm font-bold text-ink">
-        Género de la habitación
-      </label>
       <div className="flex gap-2">
-        <select
-          id={`room-gender-${room.id}`}
-          name="gender"
-          defaultValue={room.gender}
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-        >
+        <Select label="Género de la habitación" id={`room-gender-${room.id}`} name="gender" defaultValue={room.gender} className="flex-1">
           {options.map((o) => (
             <option key={o} value={o}>
               {ROOM_GENDER_LABEL[o]}
             </option>
           ))}
-        </select>
+        </Select>
         <button
           type="submit"
           disabled={isPending}
@@ -335,11 +326,12 @@ function BedRow({
 
       {mode === "assign" && (
         <form action={assignFormAction} className="mt-3 flex gap-2 border-t border-success-fg/20 pt-3">
-          <select
+          <Select
+            label={unassigned.length > 0 ? "Residente sin cama" : "No hay residentes sin cama"}
             name="resident_stay_id"
             required
             defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
+            className="flex-1"
           >
             <option value="" disabled>
               Elegí un residente sin cama…
@@ -349,7 +341,7 @@ function BedRow({
                 {u.name}
               </option>
             ))}
-          </select>
+          </Select>
           <button
             type="submit"
             disabled={assignPending || unassigned.length === 0}
@@ -368,11 +360,7 @@ function BedRow({
 
       {mode === "oos" && (
         <form action={oosFormAction} className="mt-3 flex gap-2 border-t border-success-fg/20 pt-3">
-          <input
-            name="reason"
-            placeholder="Razón (ej: mantenimiento aire acondicionado)"
-            className="w-full rounded-field border-[1.5px] border-field-border bg-paper px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-          />
+          <Input label="Razón" name="reason" placeholder="Ej: mantenimiento del aire acondicionado" className="flex-1" />
           <button
             type="submit"
             disabled={oosPending}
@@ -401,13 +389,7 @@ function RoomOutOfServiceForm({ residenceId, room }: { residenceId: string; room
       ) : (
         <>
           <p className="mt-0.5 text-xs text-ink-faint">Marca todas las camas como fuera de servicio (no cuentan como lugar libre).</p>
-          <input
-            name="reason"
-            maxLength={200}
-            placeholder="Razón (ej. Mantenimiento)"
-            aria-label="Razón de la baja de servicio"
-            className="mt-2 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-          />
+          <Input label="Razón de la baja" name="reason" maxLength={200} placeholder="Ej: mantenimiento" className="mt-2" />
         </>
       )}
       <button
@@ -455,20 +437,13 @@ function BulkGenderBar({
       <p className="text-sm font-bold text-ink">
         {selectedIds.length} {selectedIds.length === 1 ? "habitación elegida" : "habitaciones elegidas"}
       </p>
-      <label className="flex items-center gap-2 text-sm text-ink-soft">
-        Género
-        <select
-          name="gender"
-          defaultValue="mixto"
-          className="rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-        >
-          {options.map((o) => (
-            <option key={o} value={o}>
-              {ROOM_GENDER_LABEL[o]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select label="Género" name="gender" defaultValue="mixto" className="w-44">
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {ROOM_GENDER_LABEL[o]}
+          </option>
+        ))}
+      </Select>
       <button
         type="submit"
         disabled={isPending || selectedIds.length === 0}

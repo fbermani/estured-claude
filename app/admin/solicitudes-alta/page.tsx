@@ -11,6 +11,7 @@ import { SIGNUP_STATUSES, SIGNUP_STATUS_LABEL, canGenerateInvite, canTransition,
 import { changeStatusAction, confirmEmailAction, saveDetailsAction } from "@/app/admin/solicitudes-alta/actions";
 import { ActionForm } from "@/app/admin/solicitudes-alta/ActionForm";
 import { InviteGenerator } from "@/app/admin/solicitudes-alta/InviteGenerator";
+import { Input, Textarea } from "@/components/ui/Input";
 
 export const metadata: Metadata = { title: "Solicitudes de alta" };
 export const dynamic = "force-dynamic";
@@ -146,23 +147,26 @@ export default async function AdminSignupRequestsPage({ searchParams }: { search
                     <summary className="cursor-pointer text-xs font-semibold" style={{ color: cmd.onSurface }}>Notas, visita y ficha borrador</summary>
                     <ActionForm action={saveDetailsAction} className="mt-2 space-y-2" okMessage="Guardado.">
                       <input type="hidden" name="id" value={r.id} />
-                      <label className="block text-xs" style={{ color: cmd.outline }}>
-                        Notas internas
-                        <textarea name="admin_notes" defaultValue={r.admin_notes ?? ""} maxLength={4000} rows={3} className="mt-1 w-full rounded border p-2 text-xs" style={{ borderColor: cmd.border }} />
-                      </label>
-                      <label className="block text-xs" style={{ color: cmd.outline }}>
-                        Email de contacto (si lo cambiás, hay que volver a confirmarlo)
-                        <input type="email" name="email" required defaultValue={r.email} maxLength={254} className="mt-1 block w-full rounded border p-1.5 text-xs" style={{ borderColor: cmd.border }} />
-                      </label>
+                      <Textarea label="Notas internas" name="admin_notes" defaultValue={r.admin_notes ?? ""} maxLength={4000} rows={3} />
+                      <Input
+                        label="Email de contacto"
+                        hint="Si lo cambiás, hay que volver a confirmarlo."
+                        type="email"
+                        name="email"
+                        required
+                        defaultValue={r.email}
+                        maxLength={254}
+                      />
                       <div className="flex flex-wrap gap-3">
-                        <label className="block text-xs" style={{ color: cmd.outline }}>
-                          Visita (hora de Argentina)
-                          <input type="datetime-local" name="visit_at" defaultValue={toLocalInput(r.visit_at)} className="mt-1 block rounded border p-1.5 text-xs" style={{ borderColor: cmd.border }} />
-                        </label>
-                        <label className="block min-w-64 flex-1 text-xs" style={{ color: cmd.outline }}>
-                          ID de la ficha borrador (opcional, interna)
-                          <input type="text" name="residence_id" defaultValue={r.residence_id ?? ""} className="mt-1 block w-full rounded border p-1.5 text-xs" style={{ borderColor: cmd.border }} />
-                        </label>
+                        <Input label="Visita (hora de Argentina)" type="datetime-local" name="visit_at" defaultValue={toLocalInput(r.visit_at)} />
+                        <Input
+                          label="ID de ficha borrador"
+                          hint="Opcional, interna."
+                          type="text"
+                          name="residence_id"
+                          defaultValue={r.residence_id ?? ""}
+                          className="min-w-64 flex-1"
+                        />
                       </div>
                       <button type="submit" className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-bold" style={{ border: `1.5px solid ${cmd.border}`, color: cmd.onSurface }}>Guardar</button>
                     </ActionForm>

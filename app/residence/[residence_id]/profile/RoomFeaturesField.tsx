@@ -10,6 +10,7 @@ import {
   splitRoomFeatures,
   validateCustomRoomFeature,
 } from "@/lib/residences/roomFeatures";
+import { Input } from "@/components/ui/Input";
 
 /**
  * Características de un tipo de habitación: las de la lista como casillas y «Otro» con un campo de hasta 2 palabras. El valor sigue
@@ -70,10 +71,8 @@ export function RoomFeaturesField({ features, onChange }: { features: string[]; 
       </div>
       {showOther && (
         <div className="mt-2 max-w-xs">
-          <label htmlFor={inputId} className="sr-only">
-            Otra característica (hasta {ROOM_FEATURE_OTHER_MAX_WORDS} palabras)
-          </label>
-          <input
+          <Input
+            label="Otra característica"
             ref={inputRef}
             id={inputId}
             value={text}
@@ -90,7 +89,6 @@ export function RoomFeaturesField({ features, onChange }: { features: string[]; 
             autoComplete="off"
             aria-invalid={error ? true : undefined}
             aria-describedby={errorId}
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3.5 py-2.5 text-base text-ink placeholder:text-muted focus:border-forest focus:outline-2 focus:outline-forest-tint sm:text-sm"
           />
           <p id={errorId} role={error ? "alert" : undefined} className={`mt-1 text-xs ${error ? "font-medium text-danger-fg" : "text-muted"}`}>
             {error ?? `Hasta ${ROOM_FEATURE_OTHER_MAX_WORDS} palabras.`}

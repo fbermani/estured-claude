@@ -15,6 +15,7 @@ import {
   validateShareTemplate,
   type SharePlaceholderKey,
 } from "@/lib/share/resolveShareMessage";
+import { Textarea } from "@/components/ui/Input";
 
 /** Marcas (control chars que no existen en la plantilla) para resaltar en la vista previa lo que se completó solo. */
 const OPEN = "\u0001";
@@ -278,10 +279,8 @@ export function ShareMessageEditor({
                 ))}
               </ul>
             </div>
-            <label htmlFor={textareaId} className="mt-4 block text-sm font-semibold text-ink">
-              Mensaje
-            </label>
-            <textarea
+            <Textarea
+              label="Mensaje"
               id={textareaId}
               ref={textareaRef}
               value={template}
@@ -293,7 +292,7 @@ export function ShareMessageEditor({
               aria-describedby={hintId}
               aria-invalid={!validation.ok}
               spellCheck
-              className="mt-1 w-full rounded-field border-[1.5px] border-line-2 bg-paper px-4 py-3 font-mono text-sm leading-relaxed text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+              className="mt-4 font-mono leading-relaxed"
             />
             <p id={hintId} className={`mt-1 text-xs tabular-nums ${overLimit ? "font-bold text-danger-fg" : "text-ink-faint"}`}>
               {resolved.length.toLocaleString("es-AR")} caracteres (máx. {SHARE_TEMPLATE_MAX.toLocaleString("es-AR")}) en el mensaje ya armado.

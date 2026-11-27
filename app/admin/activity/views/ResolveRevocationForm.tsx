@@ -5,11 +5,9 @@ import { useFormStatus } from "react-dom";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { resolveRevocationAction, type ResolveRevocationState } from "@/app/admin/activity/revocationActions";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 const initialState: ResolveRevocationState = { status: "idle" };
-
-const inputClass = "mt-1.5 w-full rounded border px-3 py-2 text-sm";
-const labelClass = "block text-sm font-semibold";
 
 /**
  * Botón de envío con `name`/`value` NATIVOS (la decisión viaja en el FormData, no en estado del cliente: evita la carrera de
@@ -77,39 +75,29 @@ export function ResolveRevocationForm({
   return (
     <form action={formAction} className="mt-4 space-y-5 border-t pt-4" style={{ borderColor: cmd.border }}>
       <div>
-        <label htmlFor={`reason-${reservationId}`} className={labelClass} style={{ color: cmd.onSurface }}>
-          Motivo de la resolución (obligatorio, interno)
-        </label>
-        <textarea
+        <Textarea
+          label="Motivo interno (obligatorio)"
+          hint="De 10 a 1000 caracteres. Queda auditado y el estudiante nunca lo ve."
           id={`reason-${reservationId}`}
           name="internal_reason"
           rows={3}
           maxLength={1000}
           value={internalReason}
           onChange={(e) => setInternalReason(e.target.value)}
-          className={inputClass}
-          style={{ borderColor: cmd.outline }}
           placeholder="Ej: dentro de plazo, sin indicios de uso del contacto por fuera de la plataforma"
         />
-        <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
-          De 10 a 1000 caracteres. Queda auditado y el estudiante nunca lo ve.
-        </p>
       </div>
 
       <div>
-        <label htmlFor={`message-${reservationId}`} className={labelClass} style={{ color: cmd.onSurface }}>
-          Mensaje para el estudiante (opcional)
-        </label>
-        <textarea
+        <Textarea
+          label="Mensaje al estudiante (opcional)"
+          hint="Es lo único que ve el estudiante de esta resolución."
           id={`message-${reservationId}`}
           name="student_message"
           rows={2}
           maxLength={1000}
           value={studentMessage}
           onChange={(e) => setStudentMessage(e.target.value)}
-          className={inputClass}
-          style={{ borderColor: cmd.outline }}
-          placeholder="Es lo único que ve el estudiante de esta resolución."
         />
       </div>
 
@@ -122,56 +110,40 @@ export function ResolveRevocationForm({
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
-            <label htmlFor={`method-${reservationId}`} className={labelClass} style={{ color: cmd.onSurface }}>
-              Medio
-            </label>
-            <select
+            <Select
+              label="Medio"
               id={`method-${reservationId}`}
               name="refund_method"
               value={refundMethod}
               onChange={(e) => setRefundMethod(e.target.value)}
-              className={inputClass}
-              style={{ borderColor: cmd.outline }}
             >
               <option value="bank_transfer">Transferencia bancaria</option>
               <option value="digital_wallet">Billetera virtual</option>
               <option value="other">Otro medio</option>
-            </select>
+            </Select>
           </div>
           <div>
-            <label htmlFor={`date-${reservationId}`} className={labelClass} style={{ color: cmd.onSurface }}>
-              Fecha del reintegro
-            </label>
-            <input
+            <Input
+              label="Fecha del reintegro"
               id={`date-${reservationId}`}
               type="date"
               name="refunded_on"
               value={refundedOn}
               max={todayIso}
               onChange={(e) => setRefundedOn(e.target.value)}
-              className={inputClass}
-              style={{ borderColor: cmd.outline }}
             />
           </div>
         </div>
-        <div className="mt-3">
-          <label htmlFor={`ref-${reservationId}`} className={labelClass} style={{ color: cmd.onSurface }}>
-            Referencia de la operación
-          </label>
-          <p className="text-xs" style={{ color: cmd.outline }}>
-            N.º de operación (sin CBU/CVU/alias).
-          </p>
-          <input
-            id={`ref-${reservationId}`}
-            name="refund_reference"
-            maxLength={120}
-            value={refundReference}
-            onChange={(e) => setRefundReference(e.target.value)}
-            className={inputClass}
-            style={{ borderColor: cmd.outline }}
-            placeholder="N.º de operación (sin CBU/CVU/alias)"
-          />
-        </div>
+        <Input
+          label="Referencia de la operación"
+          hint="N.º de operación (sin CBU/CVU/alias)."
+          id={`ref-${reservationId}`}
+          name="refund_reference"
+          maxLength={120}
+          value={refundReference}
+          onChange={(e) => setRefundReference(e.target.value)}
+          className="mt-3"
+        />
         {paidInUsd && (
           <div className="mt-3 rounded-lg p-3" style={{ backgroundColor: cmd.amberBg }}>
             <p role="alert" className="text-sm font-semibold" style={{ color: cmd.amber }}>

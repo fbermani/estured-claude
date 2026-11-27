@@ -1,4 +1,4 @@
-import { useId, type ComponentPropsWithoutRef } from "react";
+import { useId, type ComponentPropsWithRef, type ComponentPropsWithoutRef } from "react";
 
 /**
  * Campos de la app (decisión del dueño, 2026-11-27). Con `label`, el título va DENTRO del campo y al enfocar o completar queda
@@ -12,7 +12,7 @@ const fieldClasses =
 const ALWAYS_FILLED = new Set(["date", "time", "datetime-local", "month", "week", "file", "color", "range"]);
 
 /** Clases de ubicación (margen, flex, grilla): van en el contenedor, no en el control, para no separar el título del campo. */
-const LAYOUT_CLASS = /^(?:[a-z0-9@[\]-]+:)*(?:-?m[trblxy]?-|flex-1$|flex-none$|grow|shrink|basis-|col-span-|row-span-|self-|order-)/;
+const LAYOUT_CLASS = /^(?:[a-z0-9@[\]-]+:)*(?:-?m[trblxy]?-|(?:min-|max-)?w-|flex-1$|flex-none$|grow|shrink|basis-|col-span-|row-span-|self-|order-)/;
 
 function splitClasses(className = ""): { layout: string; control: string } {
   const layout: string[] = [];
@@ -72,7 +72,7 @@ export function Input({
   hint,
   className,
   ...props
-}: Omit<ComponentPropsWithoutRef<"input">, "id"> & FieldWrapperProps) {
+}: Omit<ComponentPropsWithRef<"input">, "id"> & FieldWrapperProps) {
   // Sin `id` explícito el <label> quedaba sin asociar al campo (H31): se genera uno.
   const autoId = useId();
   const id = props.id ?? autoId;
@@ -96,7 +96,7 @@ export function Textarea({
   hint,
   className,
   ...props
-}: Omit<ComponentPropsWithoutRef<"textarea">, "id"> & FieldWrapperProps) {
+}: Omit<ComponentPropsWithRef<"textarea">, "id"> & FieldWrapperProps) {
   const autoId = useId();
   const id = props.id ?? autoId;
   const { layout, control } = splitClasses(className);
@@ -118,13 +118,18 @@ export function Select({
   hint,
   className,
   children,
+  keepLabelUp,
   ...props
-}: Omit<ComponentPropsWithoutRef<"select">, "id"> & FieldWrapperProps) {
+}: Omit<ComponentPropsWithRef<"select">, "id"> &
+  FieldWrapperProps & {
+    /** La opción vacía es una elección real («Cualquiera», «Todos»): se muestra, con el título arriba. */
+    keepLabelUp?: boolean;
+  }) {
   const autoId = useId();
   const id = props.id ?? autoId;
   const { layout, control } = splitClasses(className);
   return (
-    <FieldWrapper label={label} hint={hint} id={id} className={layout}>
+    <FieldWrapper label={label} hint={hint} id={id} className={layout} staticLabel={keepLabelUp}>
       <select {...props} id={id} className={`${fieldClasses} h-14 ${control}`}>
         {children}
       </select>

@@ -10,6 +10,7 @@ import {
   setExchangeRateOverride,
   type ExchangeRateActionState,
 } from "@/app/admin/exchange-rate/actions";
+import { Input, Textarea } from "@/components/ui/Input";
 
 const initialState: ExchangeRateActionState = { status: "idle" };
 
@@ -63,29 +64,14 @@ export function ExchangeRateActions({ hasOverrideToday }: { hasOverrideToday: bo
 
       {showOverrideForm && (
         <form action={overrideFormAction} className="mt-4 rounded border p-4" style={{ borderColor: cmd.border }}>
-          <label className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-            Valor ARS por USD
-          </label>
-          <input
-            name="ars_per_usd"
-            type="number"
-            step="0.01"
-            min="0"
-            required
-            className="mt-1.5 w-full rounded border px-3 py-2 text-sm"
-            style={{ borderColor: cmd.outline }}
-            placeholder="Ej: 1520"
-          />
-          <label className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-            Motivo (obligatorio)
-          </label>
-          <textarea
+          <Input label="Valor ARS por USD" name="ars_per_usd" type="number" step="0.01" min="0" required placeholder="Ej: 1520" />
+          <Textarea
+            label="Motivo (obligatorio)"
             name="reason"
             rows={2}
             required
-            className="mt-1.5 w-full rounded border px-3 py-2 text-sm"
-            style={{ borderColor: cmd.outline }}
             placeholder="Ej: monedapi.ar no responde desde hace 2 horas, uso el valor de referencia de otra casa de cambio"
+            className="mt-3"
           />
           {overrideState.status === "error" && (
             <p className="mt-2 text-sm font-medium" style={{ color: cmd.rose }}>

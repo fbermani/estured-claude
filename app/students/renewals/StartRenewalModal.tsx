@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Textarea } from "@/components/ui/Input";
+import { Input, Textarea } from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import { requestRenewalAction, type RenewalFormState } from "@/app/students/renewals/actions";
 
@@ -171,7 +171,8 @@ export function StartRenewalModal({
                       </button>
                     </div>
                     {customDuration && (
-                      <input
+                      <Input
+                        label="Meses"
                         type="number"
                         inputMode="numeric"
                         enterKeyHint="done"
@@ -179,8 +180,7 @@ export function StartRenewalModal({
                         max={24}
                         value={duration}
                         onChange={(e) => setDuration(Math.max(1, Number(e.target.value) || 1))}
-                        aria-label="Duración personalizada en meses"
-                        className="w-28 rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink"
+                        className="w-32"
                       />
                     )}
                     <input type="hidden" name="desired_duration_months" value={duration} />

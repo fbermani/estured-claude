@@ -10,6 +10,7 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { reviewProfileEdit, type ProfileEditReviewState } from "@/app/admin/profile-edits/actions";
+import { Textarea } from "@/components/ui/Input";
 
 const FIELD_GROUP_LABELS: Record<string, string> = {
   photos: "Fotos",
@@ -98,15 +99,11 @@ export function ProfileEditDetail({
       </AdminCard>
 
       <AdminCard className="p-6">
-        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-          Notas de revisión
-        </label>
-        <textarea
+        <Textarea
+          label="Notas de revisión"
+          hint="Obligatorio si rechazás o pedís corrección. La residencia lo ve como motivo."
           name="review_notes"
           rows={3}
-          placeholder="Obligatorio si rechazás o pedís corrección. La residencia lo ve como motivo."
-          className="mt-1 w-full rounded px-3 py-2 text-sm"
-          style={{ border: `1px solid ${cmd.outline}` }}
         />
 
         {state.status === "error" && (

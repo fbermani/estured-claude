@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Textarea } from "@/components/ui/Input";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 import { MODEL_ARTICLES, MODEL_VERSION } from "@/lib/regulations/modelTemplate";
 import { useLocalDraft } from "@/components/forms/useLocalDraft";
 import { DraftNotice } from "@/components/forms/DraftNotice";
@@ -122,31 +122,26 @@ export function RegulationWizard({
                     const id = `wiz-${a.n}-${name}`;
                     const value = fields[name] ?? "";
                     const set = (v: string) => setFields((prev) => ({ ...prev, [name]: v }));
-                    const cls = "mt-1 block w-full rounded-field border border-line-2 bg-white px-3 py-2 text-sm text-ink";
-                    return (
-                      <label key={name} htmlFor={id} className="block text-xs font-semibold text-ink-soft">
-                        {def.label}
-                        {def.kind === "select" ? (
-                          <select id={id} className={cls} value={value} onChange={(e) => set(e.target.value)}>
-                            <option value="">Elegí una opción</option>
-                            {def.options?.map((o) => (
-                              <option key={o} value={o}>
-                                {o}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            id={id}
-                            className={cls}
-                            type={def.kind === "time" ? "time" : def.kind === "number" ? "number" : "text"}
-                            min={def.kind === "number" ? 0 : undefined}
-                            maxLength={200}
-                            value={value}
-                            onChange={(e) => set(e.target.value)}
-                          />
-                        )}
-                      </label>
+                    return def.kind === "select" ? (
+                      <Select key={name} label={def.label} id={id} value={value} onChange={(e) => set(e.target.value)}>
+                        <option value="">Elegí una opción</option>
+                        {def.options?.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    ) : (
+                      <Input
+                        key={name}
+                        label={def.label}
+                        id={id}
+                        type={def.kind === "time" ? "time" : def.kind === "number" ? "number" : "text"}
+                        min={def.kind === "number" ? 0 : undefined}
+                        maxLength={200}
+                        value={value}
+                        onChange={(e) => set(e.target.value)}
+                      />
                     );
                   })}
                 </div>

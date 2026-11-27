@@ -9,6 +9,7 @@ import {
   restoreFaqQuestionAsAdminAction,
   type AdminFaqActionState,
 } from "@/app/admin/faq/actions";
+import { Input } from "@/components/ui/Input";
 
 const initialState: AdminFaqActionState = { status: "idle" };
 
@@ -25,13 +26,7 @@ export function HideFaqButton({ questionId }: { questionId: string }) {
   const [state, formAction] = useActionState(hideFaqQuestionAsAdminAction.bind(null, questionId), initialState);
   return (
     <form action={formAction} className="flex flex-col items-end gap-1.5">
-      <input
-        name="reason"
-        maxLength={300}
-        placeholder="Motivo (opcional)"
-        className="w-48 rounded-xl px-2.5 py-1 text-xs"
-        style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-      />
+      <Input label="Motivo (opcional)" name="reason" maxLength={300} className="w-56" />
       {state.status === "error" && (
         <span className="text-xs font-medium" style={{ color: cmd.rose }}>
           {state.message}

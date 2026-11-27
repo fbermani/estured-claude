@@ -3,7 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { Textarea } from "@/components/ui/Input";
+import { Select, Textarea } from "@/components/ui/Input";
 import { formatDateTime } from "@/lib/dates/format";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import type { PaymentReportView } from "@/lib/applications/paymentReportView";
@@ -99,20 +99,13 @@ export function PaymentReportPanel({
         </div>
 
         {showMethodChoice && (
-          <label className="block text-xs font-bold text-ink-soft">
-            Medio de pago al volver a habilitar
-            <select
-              name="chosen_method"
-              defaultValue={currentMethodKey ?? ""}
-              className="mt-1 w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-forest-tint"
-            >
-              {methods.map((m) => (
-                <option key={m.key} value={m.key}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select label="Medio de pago al habilitar" name="chosen_method" defaultValue={currentMethodKey ?? ""}>
+            {methods.map((m) => (
+              <option key={m.key} value={m.key}>
+                {m.label}
+              </option>
+            ))}
+          </Select>
         )}
 
         {resolveState.status === "error" && (

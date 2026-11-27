@@ -6,6 +6,7 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { FEE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import { reopenFeeWindowAction, type ReopenFeeWindowActionState } from "@/app/admin/reservations/actions";
+import { Textarea } from "@/components/ui/Input";
 
 const initialState: ReopenFeeWindowActionState = { status: "idle" };
 
@@ -40,14 +41,7 @@ export function ReopenFeeWindowControl({ feePaymentId, limitReached = false }: {
 
   return (
     <form action={formAction} className="flex w-56 flex-col items-end gap-1.5">
-      <textarea
-        name="reason"
-        rows={2}
-        required
-        placeholder="Motivo de la reapertura (obligatorio)"
-        className="w-full rounded-xl px-2.5 py-1.5 text-xs"
-        style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-      />
+      <Textarea label="Motivo de reapertura" name="reason" rows={2} required className="self-stretch" />
       {state.status === "error" && (
         <span className="text-xs font-medium" style={{ color: cmd.rose }}>
           {state.message}

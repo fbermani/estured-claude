@@ -10,6 +10,7 @@ import {
   revokeOperationalAccessAction,
   type OperationalAccessActionState,
 } from "@/app/admin/residences/actions";
+import { Input, Textarea } from "@/components/ui/Input";
 
 const initialState: OperationalAccessActionState = { status: "idle" };
 
@@ -45,26 +46,9 @@ export function OperationalAccessControl({
 
   return (
     <form action={formAction} className="flex w-64 flex-col items-end gap-1.5">
-      <textarea
-        name="reason"
-        rows={2}
-        required
-        placeholder="Motivo (obligatorio)"
-        className="w-full rounded-xl px-2.5 py-1.5 text-xs"
-        style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-      />
+      <Textarea label="Motivo (obligatorio)" name="reason" rows={2} required className="self-stretch" />
       {!hasAccess && (
-        <div className="w-full">
-          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-            Fecha límite (opcional, para Residencias fundadoras)
-          </label>
-          <input
-            type="date"
-            name="expires_at"
-            className="mt-0.5 w-full rounded-xl px-2.5 py-1.5 text-xs"
-            style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-          />
-        </div>
+        <Input label="Fecha límite (opcional)" hint="Para Residencias fundadoras." type="date" name="expires_at" className="self-stretch" />
       )}
       {state.status === "error" && (
         <span className="text-xs font-medium" style={{ color: cmd.rose }}>

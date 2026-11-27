@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cmd } from "@/components/admin/ui/tokens";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { limitResidentVisibility, restoreResidentVisibility, markResidentInactive } from "@/app/admin/community/actions";
+import { Textarea } from "@/components/ui/Input";
 
 /** Acciones de moderación por residente (docs/09 §21.3) — ocultar/restaurar visibilidad, marcar inactivo. */
 export function ResidentModerationActions({ residentStayId, status }: { residentStayId: string; status: string }) {
@@ -15,17 +16,7 @@ export function ResidentModerationActions({ residentStayId, status }: { resident
   if (pendingAction) {
     return (
       <div className="rounded p-2" style={{ border: `1px solid ${cmd.border}`, backgroundColor: cmd.surfaceContainer }}>
-        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-          Motivo (obligatorio)
-        </label>
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={2}
-          autoFocus
-          className="mt-1 w-full rounded px-2 py-1 text-xs"
-          style={{ border: `1px solid ${cmd.outline}` }}
-        />
+        <Textarea label="Motivo (obligatorio)" value={reason} onChange={(e) => setReason(e.target.value)} rows={2} autoFocus />
         {error && (
           <p className="mt-1 text-xs font-medium" style={{ color: cmd.rose }}>
             {error}

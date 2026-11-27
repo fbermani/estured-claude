@@ -12,6 +12,7 @@ import {
   type VisibilityActionState,
 } from "@/app/admin/visibility/actions";
 import type { QualityVisibilityStatus } from "@/lib/residences/setQualityVisibilityByAdmin";
+import { Textarea } from "@/components/ui/Input";
 
 const initialState: VisibilityActionState = { status: "idle" };
 
@@ -48,14 +49,7 @@ function StatusChangeForm({
 
   return (
     <form action={formAction} className="flex w-64 flex-col items-end gap-1.5">
-      <textarea
-        name="reason"
-        rows={2}
-        required
-        placeholder="Motivo (obligatorio)"
-        className="w-full rounded-xl px-2.5 py-1.5 text-xs"
-        style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-      />
+      <Textarea label="Motivo (obligatorio)" name="reason" rows={2} required className="self-stretch" />
       {state.status === "error" && (
         <span className="text-xs font-medium" style={{ color: cmd.rose }}>
           {state.message}
@@ -84,14 +78,7 @@ function NoteForm({ residenceId, onCancel, onSaved }: { residenceId: string; onC
 
   return (
     <form action={formAction} className="flex w-64 flex-col items-end gap-1.5">
-      <textarea
-        name="note"
-        rows={2}
-        required
-        placeholder="Nota interna (obligatoria)"
-        className="w-full rounded-xl px-2.5 py-1.5 text-xs"
-        style={{ border: `1.5px solid ${cmd.border}`, backgroundColor: cmd.surface, color: cmd.onSurface }}
-      />
+      <Textarea label="Nota interna (obligatoria)" name="note" rows={2} required className="self-stretch" />
       {state.status === "error" && (
         <span className="text-xs font-medium" style={{ color: cmd.rose }}>
           {state.message}

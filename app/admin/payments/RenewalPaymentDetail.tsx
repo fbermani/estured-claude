@@ -9,6 +9,7 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { markRenewalFeePaidManually, type MarkFeePaidState } from "@/app/admin/payments/actions";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 interface RenewalFeePayment {
   id: string;
@@ -101,39 +102,26 @@ export function RenewalPaymentDetail({
       </AdminCard>
 
       <AdminCard className="p-6">
-        <label className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Moneda del pago recibido
-        </label>
-        <select
-          name="payment_currency"
-          defaultValue="ARS"
-          className="mt-1.5 w-full rounded border px-3 py-2 text-sm"
-          style={{ borderColor: cmd.outline }}
-        >
+        <Select label="Moneda del pago recibido" name="payment_currency" defaultValue="ARS">
           <option value="ARS">ARS</option>
           <option value="USD">USD</option>
-        </select>
+        </Select>
 
-        <label className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Referencia del pago (opcional)
-        </label>
-        <input
+        <Input
+          label="Referencia del pago (opcional)"
           name="payment_provider_reference"
-          className="mt-1.5 w-full rounded border px-3 py-2 text-sm"
-          style={{ borderColor: cmd.outline }}
           placeholder="Ej: últimos 4 dígitos, número de operación"
+          className="mt-4"
         />
 
-        <label className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Motivo / notas de la validación (obligatorio)
-        </label>
-        <textarea
+        <Textarea
+          label="Motivo (obligatorio)"
+          hint="Notas de la validación."
           name="reason"
           rows={2}
           required
-          className="mt-1.5 w-full rounded border px-3 py-2 text-sm"
-          style={{ borderColor: cmd.outline }}
           placeholder="Ej: confirmado por comprobante de transferencia, coincide con el monto"
+          className="mt-4"
         />
 
         {state.status === "error" && (

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { reissueReceiptAction, type ReissueReceiptState } from "@/app/admin/receipts/actions";
+import { Textarea } from "@/components/ui/Input";
 
 const initialState: ReissueReceiptState = { status: "idle" };
 
@@ -30,14 +31,7 @@ export function ReissueForm({ receiptId }: { receiptId: string }) {
 
   return (
     <form action={formAction} className="flex min-w-[240px] flex-col gap-2">
-      <textarea
-        name="reason"
-        rows={2}
-        required
-        placeholder="Motivo de la reemisión (obligatorio)"
-        className="w-full rounded border px-2.5 py-1.5 text-xs"
-        style={{ borderColor: cmd.outline }}
-      />
+      <Textarea label="Motivo de reemisión" name="reason" rows={2} required />
       {state.status === "error" && (
         <p className="text-xs font-medium" style={{ color: cmd.rose }}>
           {state.message}

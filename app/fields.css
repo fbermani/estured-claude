@@ -41,16 +41,16 @@
   transform: translateY(-10px) scale(0.76);
   font-weight: 700;
 }
-/* Un `select` siempre está «lleno», salvo que la opción elegida sea la vacía. */
+/* Un `select` siempre está «lleno», salvo que la opción elegida sea la vacía (y no sea una elección real: `data-static`). */
 .field-float > select ~ label {
   transform: translateY(-10px) scale(0.76);
   font-weight: 700;
 }
-.field-float:not(:focus-within) > select:has(> option[value=""]:checked) ~ label {
+.field-float:not([data-static]):not(:focus-within) > select:has(> option[value=""]:checked) ~ label {
   transform: none;
   font-weight: 400;
 }
-.field-float:not(:focus-within) > select:has(> option[value=""]:checked) {
+.field-float:not([data-static]):not(:focus-within) > select:has(> option[value=""]:checked) {
   color: transparent;
 }
 .field-float > select option {

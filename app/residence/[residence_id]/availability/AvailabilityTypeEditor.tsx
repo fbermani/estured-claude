@@ -14,11 +14,9 @@ import {
   type EditorRow,
   type GenderRowStatus,
 } from "@/lib/availability/genderAvailability";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 const initialState: AvailabilityActionState = { status: "idle" };
-
-const fieldClasses =
-  "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-base text-ink sm:text-sm placeholder:text-muted focus:border-forest focus:outline-2 focus:outline-forest-tint disabled:bg-cream-2 disabled:text-muted";
 
 function summaryText(row: EditorRow): string | null {
   const s = row.summary;
@@ -88,29 +86,24 @@ function GenderRowFields({
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor={`status-${g}`} className="text-sm font-bold text-ink-soft">
-            Estado
-          </label>
-          <select
+          <Select
+            label="Estado"
             id={`status-${g}`}
             name={`status__${g}`}
             value={status}
             onChange={(e) => setStatus(e.target.value as GenderRowStatus)}
-            className={fieldClasses}
           >
             {GENDER_ROW_STATUSES.map((s) => (
               <option key={s} value={s}>
                 {GENDER_ROW_STATUS_LABEL[s]}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor={`count-${g}`} className="text-sm font-bold text-ink-soft">
-            Lugares disponibles
-          </label>
-          <input
+          <Input
+            label="Lugares disponibles"
             id={`count-${g}`}
             name={`count__${g}`}
             type="number"
@@ -121,7 +114,6 @@ function GenderRowFields({
             value={status === "full" ? "0" : count}
             disabled={status === "full"}
             onChange={(e) => setCount(e.target.value)}
-            className={fieldClasses}
           />
           {/* Un campo deshabilitado no se envía: con «Completa» el servidor fija la cantidad en 0. */}
           {!legacy && row.suggestedCount > 0 && status !== "full" && String(row.suggestedCount) !== count && (
@@ -136,29 +128,17 @@ function GenderRowFields({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor={`from-${g}`} className="text-sm font-bold text-ink-soft">
-            Disponible desde
-          </label>
-          <input
-            id={`from-${g}`}
-            name={`from__${g}`}
-            type="date"
-            defaultValue={row.draft.availableFrom ?? undefined}
-            className={fieldClasses}
-          />
+          <Input label="Disponible desde" id={`from-${g}`} name={`from__${g}`} type="date" defaultValue={row.draft.availableFrom ?? undefined} />
         </div>
 
         <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
-          <label htmlFor={`note-${g}`} className="text-sm font-bold text-ink-soft">
-            Nota pública
-          </label>
-          <textarea
+          <Textarea
+            label="Nota pública"
             id={`note-${g}`}
             name={`note__${g}`}
             rows={2}
             maxLength={MAX_GENDER_NOTE}
             defaultValue={row.draft.notesPublic ?? ""}
-            className={fieldClasses}
           />
         </div>
       </div>

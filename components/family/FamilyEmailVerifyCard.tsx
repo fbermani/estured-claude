@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { resendFamilyEmailCodeAction, verifyFamilyEmailAction } from "@/app/students/dashboard/familyEmailActions";
+import { Input } from "@/components/ui/Input";
 
 /** El familiar verifica su mail con el código de 6 dígitos; sin esto el estudiante no puede aprobar el vínculo (DR32 addendum). */
 export function FamilyEmailVerifyCard() {
@@ -48,16 +49,16 @@ export function FamilyEmailVerifyCard() {
           verify();
         }}
       >
-        <input
+        <Input
+          label="Código de 6 números"
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
           inputMode="numeric"
           autoComplete="one-time-code"
-          aria-label="Código de 6 números"
           placeholder="000000"
-          className="min-h-11 flex-1 rounded-field border-[1.5px] border-line px-3.5 text-center text-lg tracking-[0.3em]"
+          className="flex-1 tabular-nums tracking-[0.3em]"
         />
-        <Button type="submit" size="lg" disabled={pending || code.length !== 6} className="min-h-11">
+        <Button type="submit" size="lg" disabled={pending || code.length !== 6} className="min-h-14">
           {pending ? "Verificando…" : "Verificar"}
         </Button>
       </form>

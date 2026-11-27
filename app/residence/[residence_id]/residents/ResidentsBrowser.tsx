@@ -32,6 +32,7 @@ import {
   addResidentNoteAction,
   type ResidentsActionState,
 } from "@/app/residence/[residence_id]/residents/actions";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 export type ResidentRow = {
   stayId: string;
@@ -206,14 +207,7 @@ function NotesSection({
         <span className="ml-auto normal-case tracking-normal text-ink-faint">Solo visible para la residencia</span>
       </p>
       <form action={noteFormAction}>
-        <textarea
-          name="body"
-          rows={3}
-          placeholder="Escribí una nota sobre el residente…"
-          required
-          maxLength={2000}
-          className="w-full resize-none rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-        />
+        <Textarea label="Nota sobre el residente" name="body" rows={3} required maxLength={2000} className="resize-none" />
         <div className="mt-2 flex items-center justify-between gap-2">
           <div className="flex gap-3">
             {(["general", "pagos"] as const).map((c) => (
@@ -393,34 +387,17 @@ function DetailPanel({
         <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted">
           <Icon name="event" className="text-sm" /> Estadía y tarifa
         </p>
-        <label className="mb-1 block text-xs font-bold text-ink" htmlFor={`end-${row.stayId}`}>
-          Salida exacta
-        </label>
-        <input
-          id={`end-${row.stayId}`}
-          type="date"
-          name="expected_end_date"
-          defaultValue={row.expectedEndDate ?? ""}
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-        />
-        <label className="mb-1 mt-3 block text-xs font-bold text-ink" htmlFor={`rate-${row.stayId}`}>
-          Tarifa del residente (USD)
-        </label>
-        <input
+        <Input label="Salida exacta" id={`end-${row.stayId}`} type="date" name="expected_end_date" defaultValue={row.expectedEndDate ?? ""} />
+        <Input
+          label="Tarifa del residente (USD)"
+          hint={row.agreedRateUsd != null ? `Acordada en la reserva: USD ${row.agreedRateUsd}.` : row.baseRateUsd != null ? `Tarifa del tipo: USD ${row.baseRateUsd}.` : "Sin tarifa cargada."}
           id={`rate-${row.stayId}`}
           type="number"
           min={0}
           name="monthly_rate_usd"
           value={rateInput}
           onChange={(e) => setRateInput(e.target.value)}
-          placeholder={
-            row.agreedRateUsd != null
-              ? `${row.agreedRateUsd} (acordada en la reserva)`
-              : row.baseRateUsd != null
-                ? `${row.baseRateUsd} (tarifa del tipo)`
-                : "Sin tarifa"
-          }
-          className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
+          className="mt-3"
         />
         <p className="mt-1 text-xs text-ink-faint">
           {row.agreedRateUsd != null
@@ -463,12 +440,7 @@ function DetailPanel({
         </p>
         <PermissionGate bare allowed={canBeds}>
         <form action={bedFormAction} className="mt-3">
-          <select
-            name="bed_id"
-            required
-            defaultValue=""
-            className="w-full rounded-field border-[1.5px] border-field-border bg-cream px-3 py-2 text-sm text-ink focus:border-forest focus:outline-2 focus:outline-offset-1 focus:outline-forest"
-          >
+          <Select label={freeBeds.length > 0 ? "Cambiar de cama" : "Sin camas libres"} name="bed_id" required defaultValue="">
             <option value="" disabled>
               {freeBeds.length > 0 ? "Cambiar a…" : "Sin camas libres"}
             </option>
@@ -477,7 +449,7 @@ function DetailPanel({
                 {b.label}
               </option>
             ))}
-          </select>
+          </Select>
           <button
             type="submit"
             disabled={bedPending || freeBeds.length === 0}

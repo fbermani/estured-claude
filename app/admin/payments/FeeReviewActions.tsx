@@ -8,6 +8,7 @@ import { cmd } from "@/components/admin/ui/tokens";
 import { DISPUTE_REASON_MAX, DISPUTE_REASON_MIN, RESOLVE_REASON_MAX, RESOLVE_REASON_MIN } from "@/lib/payments/feeAdminLimits";
 import { FEE_REOPEN_CAP_MESSAGE } from "@/lib/payments/reopenCap";
 import { disputeFeePaymentAction, reopenFeePaymentAction, resolveFeeIssueAction, type MarkFeePaidState } from "@/app/admin/payments/actions";
+import { Textarea } from "@/components/ui/Input";
 
 /**
  * Acciones del admin sobre un fee en revisión (DR64 (d) y (e); `docs/08` §8.10). Botones con `name`/`value` nativos y `useFormStatus`
@@ -16,7 +17,6 @@ import { disputeFeePaymentAction, reopenFeePaymentAction, resolveFeeIssueAction,
  */
 
 const initial: MarkFeePaidState = { status: "idle" };
-const fieldClass = "mt-1.5 w-full rounded border px-3 py-2 text-sm";
 
 function Submit({ children, pendingLabel, variant, name, value, disabled }: { children: string; pendingLabel: string; variant: "primary" | "secondary" | "danger"; name?: string; value?: string; disabled?: boolean }) {
   const { pending } = useFormStatus();
@@ -73,19 +73,17 @@ export function DisputeFeeForm({ feePaymentId, receiptFileId }: { feePaymentId: 
         <p className="mt-1.5 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           El pago queda en revisión, se abre un caso de Soporte y se avisa al pagador sin mostrarle este motivo. La reserva no se confirma.
         </p>
-        <label htmlFor="dispute_reason" className="mt-3 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Qué pasó (obligatorio, de {DISPUTE_REASON_MIN} a {DISPUTE_REASON_MAX} caracteres)
-        </label>
-        <textarea
+        <Textarea
+          label="Qué pasó (obligatorio)"
+          hint={`De ${DISPUTE_REASON_MIN} a ${DISPUTE_REASON_MAX} caracteres.`}
           id="dispute_reason"
           name="reason"
           rows={3}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           maxLength={DISPUTE_REASON_MAX}
-          className={fieldClass}
-          style={{ borderColor: cmd.outline }}
           placeholder="Ej: el monto no figura en la cuenta ni con el comprobante"
+          className="mt-3"
         />
         <Feedback state={state} />
         <div className="mt-4 flex flex-wrap gap-2">
@@ -133,19 +131,17 @@ export function IssueResponseForm({
         <p className="mt-1.5 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           Mientras no respondas, el plazo no corre. Al responder, el pagador tiene 48 horas más.
         </p>
-        <label htmlFor="resolve_reason" className="mt-3 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Motivo de tu respuesta (obligatorio, al menos {RESOLVE_REASON_MIN} caracteres)
-        </label>
-        <textarea
+        <Textarea
+          label="Motivo de tu respuesta"
+          hint={`Obligatorio, al menos ${RESOLVE_REASON_MIN} caracteres.`}
           id="resolve_reason"
           name="reason"
           rows={2}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           maxLength={RESOLVE_REASON_MAX}
-          className={fieldClass}
-          style={{ borderColor: cmd.outline }}
           placeholder="Ej: el medio elegido no le funcionó; puede probar con otro"
+          className="mt-3"
         />
         <Feedback state={state} />
         {reopenLimitReached && (
@@ -198,18 +194,16 @@ export function ReopenAfterDisputeForm({
         <p className="mt-1.5 text-sm" style={{ color: cmd.onSurfaceVariant }}>
           El fee no vence mientras Soporte lo revisa. Si el pago aparece, validalo abajo. Si no, reabrilo: el pagador elige el medio y sube otro comprobante en 48 horas.
         </p>
-        <label htmlFor="reopen_reason" className="mt-3 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Motivo de la reapertura (obligatorio, al menos {RESOLVE_REASON_MIN} caracteres)
-        </label>
-        <textarea
+        <Textarea
+          label="Motivo de la reapertura"
+          hint={`Obligatorio, al menos ${RESOLVE_REASON_MIN} caracteres.`}
           id="reopen_reason"
           name="reason"
           rows={2}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           maxLength={RESOLVE_REASON_MAX}
-          className={fieldClass}
-          style={{ borderColor: cmd.outline }}
+          className="mt-3"
         />
         <Feedback state={state} />
         {reopenLimitReached && (

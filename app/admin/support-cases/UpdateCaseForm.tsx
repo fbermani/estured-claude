@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { cmd } from "@/components/admin/ui/tokens";
 import { updateSupportCaseStatusAction, type UpdateCaseActionState } from "@/app/admin/support-cases/actions";
+import { Select, Textarea } from "@/components/ui/Input";
 
 const initialState: UpdateCaseActionState = { status: "idle" };
 
@@ -41,30 +42,18 @@ export function UpdateCaseForm({ supportCaseId, currentStatus }: { supportCaseId
   return (
     <form action={formAction} className="mt-4 space-y-3 rounded-lg p-4" style={{ border: `1.5px solid ${cmd.border}` }}>
       <div>
-        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-          Estado
-        </label>
-        <select
-          name="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="mt-1 w-full rounded px-3 py-2 text-sm"
-          style={{ border: `1.5px solid ${cmd.border}` }}
-        >
+        <Select label="Estado" name="status" value={status} onChange={(e) => setStatus(e.target.value)}>
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {isClosing && (
         <div>
-          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-            Resultado
-          </label>
-          <select name="outcome" required defaultValue="" className="mt-1 w-full rounded px-3 py-2 text-sm" style={{ border: `1.5px solid ${cmd.border}` }}>
+          <Select label="Resultado" name="outcome" required defaultValue="">
             <option value="" disabled>
               Elegí un resultado
             </option>
@@ -73,7 +62,7 @@ export function UpdateCaseForm({ supportCaseId, currentStatus }: { supportCaseId
                 {o.label}
               </option>
             ))}
-          </select>
+          </Select>
           <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
             Esto es solo un registro — para reembolsar el fee, pausar la residencia o bloquear un usuario, usá esas
             pantallas directamente.
@@ -82,15 +71,11 @@ export function UpdateCaseForm({ supportCaseId, currentStatus }: { supportCaseId
       )}
 
       <div>
-        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-          Notas {isClosing && "(obligatorio al cerrar)"}
-        </label>
-        <textarea
+        <Textarea
+          label={isClosing ? "Notas (obligatorio al cerrar)" : "Notas"}
+          hint="Se comparte con quien abrió el caso si lo cerrás."
           name="notes"
           rows={3}
-          className="mt-1 w-full rounded px-3 py-2 text-sm"
-          style={{ border: `1.5px solid ${cmd.border}` }}
-          placeholder="Se comparte con quien abrió el caso si lo cerrás."
         />
       </div>
 

@@ -14,6 +14,7 @@ import { ResidencePhotoPlaceholder } from "@/components/residences/ResidencePhot
 import { MIN_PUBLISH_PHOTOS, hasEnoughPhotosToPublish } from "@/lib/residences/photos";
 import { CHANGES_MESSAGE_MAX, CHANGES_MESSAGE_MIN } from "@/lib/residences/changesRequest";
 import { isActionableStatus, type ReviewAction } from "@/lib/residences/verificationReview";
+import { Input, Textarea } from "@/components/ui/Input";
 
 interface Verification {
   status: string;
@@ -133,7 +134,6 @@ export function VerificationDetail({
           </p>
         )}
       </AdminCard>
-
 
       <AdminCard className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -287,34 +287,26 @@ export function VerificationDetail({
 
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="scheduled_at" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-              Visita programada para
-            </label>
-            <input
+            <Input
+              label="Visita programada"
               id="scheduled_at"
               type="date"
               name="scheduled_at"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="mt-1 w-full rounded px-3 py-2 text-sm"
-              style={{ border: `1px solid ${cmd.outline}` }}
             />
             <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
               Solo para &ldquo;Programar visita&rdquo;. La residencia ve la fecha en su panel.
             </p>
           </div>
           <div>
-            <label htmlFor="visited_at" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-              Fecha de la visita realizada
-            </label>
-            <input
+            <Input
+              label="Visita realizada"
               id="visited_at"
               type="date"
               name="visited_at"
               value={visitedAt}
               onChange={(e) => setVisitedAt(e.target.value)}
-              className="mt-1 w-full rounded px-3 py-2 text-sm"
-              style={{ border: `1px solid ${cmd.outline}` }}
             />
             <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
               Obligatoria para aprobar: la verificación presencial no se puede saltear.
@@ -323,35 +315,27 @@ export function VerificationDetail({
         </div>
 
         <div className="mt-4">
-          <label htmlFor="notes_internal" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-            Notas internas / motivo
-          </label>
-          <textarea
+          <Textarea
+            label="Notas internas / motivo"
+            hint="Obligatorio si rechazás. Es interno: la residencia no lo ve."
             id="notes_internal"
             name="notes_internal"
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Obligatorio si rechazás. Es interno: la residencia no lo ve."
-            className="mt-1 w-full rounded px-3 py-2 text-sm"
-            style={{ border: `1px solid ${cmd.outline}` }}
           />
         </div>
 
         <div className="mt-4">
-          <label htmlFor="changes_message" className="text-xs font-bold uppercase tracking-wide" style={{ color: cmd.outline }}>
-            Mensaje para la residencia
-          </label>
-          <textarea
+          <Textarea
+            label="Mensaje para la residencia"
+            hint={`Obligatorio al pedir cambios (${CHANGES_MESSAGE_MIN} a ${CHANGES_MESSAGE_MAX} caracteres). La residencia lo ve en su panel: decile qué corregir.`}
             id="changes_message"
             name="changes_message"
             rows={4}
             maxLength={CHANGES_MESSAGE_MAX}
             value={changesMessage}
             onChange={(e) => setChangesMessage(e.target.value)}
-            placeholder={`Obligatorio al pedir cambios (${CHANGES_MESSAGE_MIN} a ${CHANGES_MESSAGE_MAX} caracteres). La residencia lo ve en su panel: decile qué corregir.`}
-            className="mt-1 w-full rounded px-3 py-2 text-sm"
-            style={{ border: `1px solid ${cmd.outline}` }}
           />
           <p className="mt-1 text-xs" style={{ color: cmd.outline }}>
             Solo se usa al pedir cambios (y ahí no se guarda el checklist). No es una nota interna: la residencia lo lee.

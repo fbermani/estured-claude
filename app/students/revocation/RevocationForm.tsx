@@ -10,6 +10,7 @@ import {
   REVOCATION_SUBMITTED_MESSAGE,
   REVOCATION_UNDERSTANDING_LABEL,
 } from "@/lib/revocations/copy";
+import { Textarea } from "@/components/ui/Input";
 
 const initialState: RevokeFeeState = { status: "idle" };
 
@@ -60,17 +61,14 @@ export function RevocationForm({
       </ul>
 
       <div>
-        <label className="text-sm font-medium text-ink" htmlFor={`reason-${reservationId}`}>
-          Motivo (opcional)
-        </label>
-        <textarea
+        <Textarea
+          label="Motivo (opcional)"
           id={`reason-${reservationId}`}
           name="reason"
           rows={2}
           maxLength={1000}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="mt-1.5 w-full rounded-field border border-sand-300 bg-surface px-3 py-2 text-sm"
         />
       </div>
 

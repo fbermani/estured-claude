@@ -26,6 +26,7 @@ import { DocumentAccessButton } from "@/components/admin/ui/DocumentAccessButton
 import { cmd } from "@/components/admin/ui/tokens";
 import { markFeePaidManually, type MarkFeePaidState } from "@/app/admin/payments/actions";
 import { DisputeFeeForm, IssueResponseForm, ReopenAfterDisputeForm } from "@/app/admin/payments/FeeReviewActions";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 interface FeePayment {
   id: string;
@@ -72,8 +73,6 @@ const payerRoleLabel: Record<FeePayer["role"], string> = {
   family: "Familiar",
   unknown: "Pagador",
 };
-
-const fieldClass = "mt-1.5 w-full rounded border px-3 py-2 text-sm";
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -405,11 +404,9 @@ function ValidationCard({
             )}
 
             <div className={step === "edit" ? "" : "hidden"}>
-              <label htmlFor="received_amount" className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-                Monto recibido
-              </label>
               <div className="flex flex-wrap gap-2">
-                <input
+                <Input
+                  label="Monto recibido"
                   id="received_amount"
                   name="received_amount"
                   type="text"
@@ -417,21 +414,19 @@ function ValidationCard({
                   autoComplete="off"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className={`${fieldClass} min-w-0 flex-1 basis-40`}
-                  style={{ borderColor: cmd.outline }}
                   placeholder="Ej: 140500 o 140500,50"
+                  className="min-w-0 flex-1 basis-40"
                 />
-                <select
+                <Select
+                  label="Moneda"
                   name="payment_currency"
-                  aria-label="Moneda del pago recibido"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className={`${fieldClass} w-24 shrink-0`}
-                  style={{ borderColor: cmd.outline }}
+                  className="w-28 shrink-0"
                 >
                   <option value="ARS">ARS</option>
                   <option value="USD">USD</option>
-                </select>
+                </Select>
               </div>
               <p className="mt-1.5 text-xs" style={{ color: cmd.outline }}>
                 Fee esperado: {expectedForCurrency !== null ? money(expectedForCurrency) : "no se puede calcular en esta moneda"}
@@ -462,37 +457,32 @@ function ValidationCard({
                 </p>
               )}
 
-              <label htmlFor="payment_provider_reference" className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-                Referencia del pago (opcional)
-              </label>
-              <input
+              <Input
+                label="Referencia del pago (opcional)"
                 id="payment_provider_reference"
                 name="payment_provider_reference"
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
                 maxLength={120}
-                className={fieldClass}
-                style={{ borderColor: cmd.outline }}
                 placeholder="Ej: últimos 4 dígitos, número de operación"
+                className="mt-4"
               />
 
-              <label htmlFor="reason" className="mt-4 block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-                Motivo / notas de la validación (obligatorio, al menos {reasonMin} caracteres)
-              </label>
-              <textarea
+              <Textarea
+                label="Motivo (obligatorio)"
+                hint={`Notas de la validación. Al menos ${reasonMin} caracteres.`}
                 id="reason"
                 name="reason"
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 maxLength={1000}
-                className={fieldClass}
-                style={{ borderColor: cmd.outline }}
                 placeholder={
                   withoutReceipt
                     ? "Ej: el pagador mostró el movimiento en el home banking por soporte; no pudo subir el archivo"
                     : "Ej: el comprobante de transferencia coincide con el monto y la referencia"
                 }
+                className="mt-4"
               />
 
               {localError && (

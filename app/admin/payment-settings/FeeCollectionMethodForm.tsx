@@ -8,11 +8,9 @@ import {
   saveFeeCollectionMethod,
   type FeeMethodFormState,
 } from "@/app/admin/payment-settings/actions";
+import { Input, Select, Textarea } from "@/components/ui/Input";
 
 const initialState: FeeMethodFormState = { status: "idle" };
-
-const inputClass = "mt-1.5 w-full rounded-field border bg-white px-3 py-2 text-sm";
-const inputStyle = { borderColor: cmd.outline, color: cmd.onSurface } as const;
 
 export type FeeMethodFormDefaults = {
   key: string;
@@ -39,26 +37,25 @@ export function FeeCollectionMethodForm({ defaults }: { defaults: FeeMethodFormD
       </label>
       {defaults.requiresLabel && (
         <div>
-          <label htmlFor={`${id}-label`} className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-            Nombre del medio
-          </label>
-          <input id={`${id}-label`} name="label" type="text" maxLength={60} defaultValue={defaults.customLabel} className={inputClass} style={inputStyle} />
+          <Input label="Nombre del medio" id={`${id}-label`} name="label" type="text" maxLength={60} defaultValue={defaults.customLabel} />
         </div>
       )}
       <div>
-        <label htmlFor={`${id}-currency`} className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Moneda en la que se cobra
-        </label>
-        <select id={`${id}-currency`} name="currency" defaultValue={defaults.currency} className={inputClass} style={inputStyle}>
+        <Select label="Moneda en la que se cobra" id={`${id}-currency`} name="currency" defaultValue={defaults.currency}>
           <option value="ARS">Pesos (ARS)</option>
           <option value="USD">Dólares (USD)</option>
-        </select>
+        </Select>
       </div>
       <div>
-        <label htmlFor={`${id}-details`} className="block text-sm font-semibold" style={{ color: cmd.onSurface }}>
-          Datos de cobro
-        </label>
-        <textarea id={`${id}-details`} name="details" rows={4} maxLength={500} defaultValue={defaults.details} className={inputClass} style={inputStyle} aria-describedby={`${id}-hint`} />
+        <Textarea
+          label="Datos de cobro"
+          id={`${id}-details`}
+          name="details"
+          rows={4}
+          maxLength={500}
+          defaultValue={defaults.details}
+          aria-describedby={`${id}-hint`}
+        />
         <p id={`${id}-hint`} className="mt-1 text-xs" style={{ color: cmd.outline }}>
           {defaults.hint} Hasta 500 caracteres. Se muestran solo a quien tiene un fee por pagar.
         </p>
