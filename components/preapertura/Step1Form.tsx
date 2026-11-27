@@ -61,8 +61,11 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
       tracked.current = true;
       trackMetaEvent("CompleteRegistration", "preregistro_estudiante");
     }
-    if (state.redirectTo) router.replace(state.redirectTo);
-  }, [state, router]);
+    if (!state.redirectTo) return;
+    // Con invitación puede ser un menor: carga completa para que el layout vuelva a decidir, ya con sesión, si hay pixel.
+    if (invitation) window.location.replace(state.redirectTo);
+    else router.replace(state.redirectTo);
+  }, [state, router, invitation]);
 
   // El menor se detecta en el servidor con la fecha que mandó: si la cambia, el aviso deja de aplicar y puede volver a intentar.
   const minor = state.status === "minor" && state.values?.birth_date === birth;
