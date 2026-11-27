@@ -136,6 +136,7 @@ const ACTION_PHRASES: Record<string, string> = {
   residence_payment_proof_accessed: "abrió el comprobante de pago de un estudiante",
   residence_payment_escalated_to_superadmin: "escaló a los superadmin un pago a la residencia sin respuesta hace 7 días",
   residence_payment_unanswered_alert: "alertó por un pago a la residencia sin confirmar hace más de 72 horas",
+  residence_payment_new_window_after_support_case: "dio un plazo nuevo para pagar la reserva al cerrar un caso de Soporte",
   estured_fee_marked_paid_manually: "marcó un fee EstuRed como cobrado",
   estured_fee_expired: "venció el plazo de un fee EstuRed",
   estured_fee_revoked: "revocó un fee EstuRed",
