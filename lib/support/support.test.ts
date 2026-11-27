@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 import { openSupportCase } from "@/lib/support/openSupportCase";
 import { updateSupportCaseStatus } from "@/lib/support/updateSupportCaseStatus";
-import { hashRateLimitKey } from "@/lib/security/rateLimit";
 
 /**
  * Docs/12 Fase 14 (soporte y resolución de conflictos) — Ciclo
@@ -17,7 +17,8 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
   let residenceId: string;
   let ownerId: string;
   let adminActorId: string;
-  let studentUserId: string;
+  // Estudiante descartable: arranca sin casos ni cupo usado (0083) y no toca avisos del seed.
+  let student: TestStudent;
 
   beforeAll(async () => {
     admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -28,10 +29,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
     ownerId = owner!.id;
     const { data: adminUser } = await admin.from("users").select("id").eq("email", "admin.operaciones@estured.test").single();
     adminActorId = adminUser!.id;
-    const { data: studentUser } = await admin.from("users").select("id").eq("email", "lucia.fernandez@example.com").single();
-    studentUserId = studentUser!.id;
-    // Tope de 5 casos por hora (0083): sin esto, repetir el archivo falla por el cupo y no por el código.
-    await admin.from("rate_limit_hits").delete().eq("bucket", "support_open_user").eq("key_hash", hashRateLimitKey(studentUserId));
+    student = await createTestStudent(admin, "soporte");
 
     const { data: residence } = await admin
       .from("residences")
@@ -59,17 +57,35 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin || !residenceId) return;
-    await admin.from("notifications").delete().eq("related_entity_type", "support_cases");
-    await admin.from("files").delete().eq("related_entity_type", "support_cases");
-    await admin.from("support_cases").delete().eq("residence_id", residenceId);
-    await admin.from("residence_users").delete().eq("residence_id", residenceId);
-    await deleteResidenceCascade(admin, residenceId);
+    if (!admin) return;
+    if (residenceId) {
+      // Solo lo de los casos de esta residencia: los avisos y casos del seed quedan como están.
+      const { data: cases, error } = await admin.from("support_cases").select("id").eq("residence_id", residenceId);
+      if (error) throw new Error(`limpieza casos: ${error.message}`);
+      const caseIds = (cases ?? []).map((row) => row.id as string);
+      for (const caseId of caseIds) {
+        const bucket = admin.storage.from("support-evidence");
+        const { data: objects } = await bucket.list(caseId);
+        if (objects?.length) await bucket.remove(objects.map((object) => `${caseId}/${object.name}`));
+      }
+      if (caseIds.length > 0) {
+        const { error: filesError } = await admin
+          .from("files")
+          .delete()
+          .eq("related_entity_type", "support_cases")
+          .in("related_entity_id", caseIds);
+        if (filesError) throw new Error(`limpieza archivos: ${filesError.message}`);
+      }
+      await admin.from("residence_users").delete().eq("residence_id", residenceId);
+      // La cascada borra los casos y sus avisos (los busca por id de caso, así que va con los casos todavía vivos).
+      await deleteResidenceCascade(admin, residenceId);
+    }
+    await deleteTestStudent(admin, student);
   });
 
   it("rechaza abrir sin aceptar términos", async () => {
     const result = await openSupportCase(admin, {
-      actorUserId: studentUserId,
+      actorUserId: student.userId,
       actorRole: "student",
       residenceId,
       description: "La residencia canceló mi reserva sin avisar con anticipación.",
@@ -81,7 +97,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
 
   it("rechaza descripción corta", async () => {
     const result = await openSupportCase(admin, {
-      actorUserId: studentUserId,
+      actorUserId: student.userId,
       actorRole: "student",
       residenceId,
       description: "corto",
@@ -96,7 +112,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
       type: "image/png",
     });
     const opened = await openSupportCase(admin, {
-      actorUserId: studentUserId,
+      actorUserId: student.userId,
       actorRole: "student",
       residenceId,
       description: "Adjunto captura de la conversación con la residencia como evidencia.",
@@ -122,7 +138,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
 
   it("abre un caso, lo lleva a revisión, y lo cierra con resultado y notificación", async () => {
     const opened = await openSupportCase(admin, {
-      actorUserId: studentUserId,
+      actorUserId: student.userId,
       actorRole: "student",
       residenceId,
       description: "La residencia canceló mi reserva sin avisar con anticipación.",
@@ -184,7 +200,7 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
       .select("title")
       .eq("related_entity_id", opened.supportCaseId)
       // Abrir el caso también avisa a cada admin con el mismo id: acá interesa el aviso de quien lo abrió.
-      .eq("user_id", studentUserId)
+      .eq("user_id", student.userId)
       .maybeSingle();
     expect(notification?.title).toBe("Tu caso de soporte se resolvió");
   });

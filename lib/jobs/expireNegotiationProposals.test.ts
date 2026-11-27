@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
+import { createTestStudent, deleteTestStudent, type TestStudent } from "@/lib/testing/testStudent";
 import { expireNegotiationProposals } from "@/lib/jobs/expireNegotiationProposals";
 
 const hasCreds = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -10,8 +11,8 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
   let residenceId: string;
   let roomTypeId: string;
   let ownerId: string;
-  let studentUserId: string;
-  let studentProfileId: string;
+  // Estudiante descartable: el del seed puede tener ya una solicitud activa (tope de 2, 0093).
+  let student: TestStudent;
   let staleAppId: string;
   let freshAppId: string;
 
@@ -27,18 +28,7 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
       .single();
     ownerId = owner!.id;
 
-    const { data: studentUser } = await admin
-      .from("users")
-      .select("id")
-      .eq("email", "lucia.fernandez@example.com")
-      .single();
-    studentUserId = studentUser!.id;
-    const { data: studentProfile } = await admin
-      .from("student_profiles")
-      .select("id")
-      .eq("user_id", studentUserId)
-      .single();
-    studentProfileId = studentProfile!.id;
+    student = await createTestStudent(admin, "expire-negotiation");
 
     const { data: residence } = await admin
       .from("residences")
@@ -87,10 +77,10 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
         .select("id")
         .single();
 
-      const { data: application } = await admin
+      const { data: application, error } = await admin
         .from("application_requests")
         .insert({
-          student_profile_id: studentProfileId,
+          student_profile_id: student.profileId,
           initiated_by: "student",
           contact_target: "student",
           residence_id: residenceId,
@@ -100,10 +90,11 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
           initial_duration_months: 6,
           academic_objective: "Objetivo académico de prueba (test de integración).",
           snapshot_original_id: snapshot!.id,
-          created_by_user_id: studentUserId,
+          created_by_user_id: student.userId,
         })
         .select("id")
         .single();
+      if (error) throw new Error(`fixture: ${error.message}`);
       await admin.from("application_snapshots").update({ application_request_id: application!.id }).eq("id", snapshot!.id);
 
       await admin.from("application_negotiation_proposals").insert({
@@ -122,10 +113,14 @@ describe.skipIf(!hasCreds)("expireNegotiationProposals (integración)", () => {
   });
 
   afterAll(async () => {
-    if (!admin || !residenceId) return;
-    await admin.from("application_negotiation_proposals").delete().in("application_request_id", [staleAppId, freshAppId]);
-    await admin.from("application_requests").delete().in("id", [staleAppId, freshAppId]);
-    await deleteResidenceCascade(admin, residenceId);
+    if (!admin) return;
+    const appIds = [staleAppId, freshAppId].filter(Boolean);
+    if (appIds.length > 0) {
+      await admin.from("application_negotiation_proposals").delete().in("application_request_id", appIds);
+      await admin.from("application_requests").delete().in("id", appIds);
+    }
+    if (residenceId) await deleteResidenceCascade(admin, residenceId);
+    await deleteTestStudent(admin, student);
   });
 
   it("vence solo las solicitudes con propuesta de ajuste sin responder y ya vencida", async () => {
