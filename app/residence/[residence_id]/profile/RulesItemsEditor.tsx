@@ -60,8 +60,12 @@ export function RulesItemsEditor({ rows, onChange }: { rows: RuleDraft[]; onChan
             </div>
             <div className="mt-2 grid gap-3 sm:grid-cols-[8rem_minmax(0,1fr)]">
               <Input
-                label="Dato (opcional)"
-                hint={<Counter value={row.lead} max={RULE_LEAD_MAX} />}
+                label="Dato"
+                hint={
+                  <>
+                    Opcional · <Counter value={row.lead} max={RULE_LEAD_MAX} />
+                  </>
+                }
                 id={`${baseId}-lead-${row.id}`}
                 value={row.lead}
                 maxLength={RULE_LEAD_MAX}

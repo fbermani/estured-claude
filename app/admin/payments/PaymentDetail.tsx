@@ -404,7 +404,7 @@ function ValidationCard({
             )}
 
             <div className={step === "edit" ? "" : "hidden"}>
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Input
                   label="Monto recibido"
                   id="received_amount"

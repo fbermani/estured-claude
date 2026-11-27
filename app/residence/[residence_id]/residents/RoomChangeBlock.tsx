@@ -83,7 +83,7 @@ function PreferenceForm({
   const [state, formAction, pending] = useActionState(action, initialState);
   return (
     <form action={formAction} className="mt-3 space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3">
         <Select label="Tipo de habitación" name="room_type_id" defaultValue={request?.roomTypeId ?? ""} keepLabelUp>
           <option value="">Cualquiera</option>
           {roomTypes.map((t) => (

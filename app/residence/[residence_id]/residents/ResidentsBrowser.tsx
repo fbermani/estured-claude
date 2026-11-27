@@ -389,8 +389,8 @@ function DetailPanel({
         </p>
         <Input label="Salida exacta" id={`end-${row.stayId}`} type="date" name="expected_end_date" defaultValue={row.expectedEndDate ?? ""} />
         <Input
-          label="Tarifa del residente (USD)"
-          hint={row.agreedRateUsd != null ? `Acordada en la reserva: USD ${row.agreedRateUsd}.` : row.baseRateUsd != null ? `Tarifa del tipo: USD ${row.baseRateUsd}.` : "Sin tarifa cargada."}
+          label="Tarifa (USD)"
+          hint={row.agreedRateUsd != null ? `Acordada en la reserva: USD ${row.agreedRateUsd}.` : row.baseRateUsd != null ? `Tarifa del tipo: USD ${row.baseRateUsd}.` : undefined}
           id={`rate-${row.stayId}`}
           type="number"
           min={0}

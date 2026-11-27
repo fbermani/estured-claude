@@ -123,7 +123,7 @@ export function RegulationWizard({
                     const value = fields[name] ?? "";
                     const set = (v: string) => setFields((prev) => ({ ...prev, [name]: v }));
                     return def.kind === "select" ? (
-                      <Select key={name} label={def.label} id={id} value={value} onChange={(e) => set(e.target.value)}>
+                      <Select key={name} label={def.label} id={id} value={value} onChange={(e) => set(e.target.value)} keepLabelUp>
                         <option value="">Elegí una opción</option>
                         {def.options?.map((o) => (
                           <option key={o} value={o}>
@@ -135,6 +135,7 @@ export function RegulationWizard({
                       <Input
                         key={name}
                         label={def.label}
+                        keepLabelUp
                         id={id}
                         type={def.kind === "time" ? "time" : def.kind === "number" ? "number" : "text"}
                         min={def.kind === "number" ? 0 : undefined}

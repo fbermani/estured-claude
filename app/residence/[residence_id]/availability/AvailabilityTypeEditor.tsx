@@ -103,7 +103,7 @@ function GenderRowFields({
 
         <div className="flex flex-col gap-1.5">
           <Input
-            label="Lugares disponibles"
+            label="Lugares libres"
             id={`count-${g}`}
             name={`count__${g}`}
             type="number"

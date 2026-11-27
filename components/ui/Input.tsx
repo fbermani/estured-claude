@@ -71,14 +71,19 @@ export function Input({
   label,
   hint,
   className,
+  keepLabelUp,
   ...props
-}: Omit<ComponentPropsWithRef<"input">, "id"> & FieldWrapperProps) {
+}: Omit<ComponentPropsWithRef<"input">, "id"> &
+  FieldWrapperProps & {
+    /** Título largo en un campo angosto: arranca chico arriba para no cortarse. */
+    keepLabelUp?: boolean;
+  }) {
   // Sin `id` explícito el <label> quedaba sin asociar al campo (H31): se genera uno.
   const autoId = useId();
   const id = props.id ?? autoId;
   const { layout, control } = splitClasses(className);
   return (
-    <FieldWrapper label={label} hint={hint} id={id} className={layout} staticLabel={ALWAYS_FILLED.has(props.type ?? "text")}>
+    <FieldWrapper label={label} hint={hint} id={id} className={layout} staticLabel={keepLabelUp || ALWAYS_FILLED.has(props.type ?? "text")}>
       <input
         {...keyboardProps(props)}
         {...props}
