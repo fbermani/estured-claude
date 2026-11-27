@@ -77,9 +77,9 @@ export function CommunityPreview({ variant }: { variant: "students" | "residence
               </span>
               <Image
                 src="/landing/comunidad-desktop.webp"
-                alt="Sección Comunidad de una residencia en EstuRed: residentes, ocupación y habitaciones individuales y dobles con quién vive en cada cama y las plazas libres."
+                alt="Sección Comunidad de una residencia en EstuRed: filtros por tipo y habitaciones dobles con quién vive en cada cama y una cama disponible."
                 width={2240}
-                height={1360}
+                height={1184}
                 sizes="(min-width: 1024px) 620px, 100vw"
                 loading="lazy"
                 className="hidden h-auto w-full md:block"
