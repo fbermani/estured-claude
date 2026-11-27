@@ -10,6 +10,7 @@ import { SITE_URL } from "@/lib/siteUrl";
 import { devAutoAccountsEnabled, devCredentials } from "@/lib/preapertura/devAccounts";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { clientIpOf, createFamilyAccount } from "@/lib/preapertura/accounts";
+import { buildFamilyInviteEmail } from "@/lib/preapertura/familyInviteEmail";
 import { PREAPERTURA_TOO_MANY_ATTEMPTS, familyInviteMailAllowed, signupAllowed } from "@/lib/preapertura/throttle";
 import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
@@ -97,8 +98,7 @@ export async function registerFamilyInvite(_prev: FamilyState, formData: FormDat
   // La cuenta de prueba autogenerada no manda mail (el destinatario es un `.test` inexistente): se usa el link de desarrollo.
   const emailSent = devAuto ? false : await sendEmail({
     to: studentEmail,
-    subject: "Te invitaron a sumarte a EstuRed",
-    html: `<p>Un familiar te invitó a sumarte a EstuRed, la plataforma para encontrar residencias estudiantiles verificadas en Buenos Aires.</p><p><a href="${SITE_URL}${invitePath}">Sumate desde este link</a></p><p>Si no esperabas este mensaje, ignoralo.</p>`,
+    ...buildFamilyInviteEmail({ inviteUrl: `${SITE_URL}${invitePath}` }),
   });
   if (!emailSent && !isDev) {
     // El mail no salió: sin entrega no hay invitación. Se deshace el alta (cascada) para que el familiar pueda reintentar con el mismo email.
