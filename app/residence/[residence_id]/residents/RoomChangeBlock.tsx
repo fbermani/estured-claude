@@ -102,7 +102,8 @@ function PreferenceForm({
         </Select>
       </div>
       <Input
-        label="Piso o nota (opcional)"
+        label="Piso o nota"
+        hint="Opcional."
         name="note"
         type="text"
         maxLength={ROOM_CHANGE_NOTE_MAX}
