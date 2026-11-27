@@ -41,7 +41,17 @@ describe("Meta Pixel: inerte por defecto", () => {
     expect(doc.createElement).toHaveBeenCalledTimes(1);
     expect(insertBefore).toHaveBeenCalledTimes(1);
     expect(script.src).toBe("https://connect.facebook.net/en_US/fbevents.js");
-    expect(win.fbq?.queue[0]).toEqual(["init", "1234567890"]);
+    expect(win.fbq?.queue.filter((args) => args[0] === "init")).toEqual([["init", "1234567890"]]);
+  });
+
+  it("apaga la configuración automática antes del init (sin clics ni datos de página)", () => {
+    const win: { fbq?: ((...a: unknown[]) => void) & { queue: unknown[][] } } = {};
+    const doc = { createElement: vi.fn(() => ({ async: false, src: "" })), getElementsByTagName: vi.fn(() => []) };
+    loadMetaPixel("1234567890", win as never, doc as never);
+    expect(win.fbq?.queue).toEqual([
+      ["set", "autoConfig", false, "1234567890"],
+      ["init", "1234567890"],
+    ]);
   });
 
   it("trackMetaEvent no hace nada sin pixel y solo manda un rótulo fijo con pixel", () => {

@@ -26,8 +26,8 @@ type PixelDocument = {
 const SCRIPT_URL = "https://connect.facebook.net/en_US/fbevents.js";
 
 /**
- * Carga el script oficial y hace `init`. Sin ID devuelve false y no toca el documento. Idempotente: una segunda llamada no
- * vuelve a inyectar. `PageView` NO se dispara acá (lo hace `MetaPixel` en cada navegación).
+ * Carga el script oficial, apaga la configuración automática y hace `init`. Sin ID devuelve false y no toca el documento.
+ * Idempotente: una segunda llamada no vuelve a inyectar. `PageView` NO se dispara acá (lo hace `MetaPixel` en cada navegación).
  */
 export function loadMetaPixel(pixelId: string | null, win: PixelWindow = window as unknown as PixelWindow, doc: PixelDocument = document as unknown as PixelDocument): boolean {
   if (!pixelId) return false;
@@ -48,6 +48,7 @@ export function loadMetaPixel(pixelId: string | null, win: PixelWindow = window 
   script.src = SCRIPT_URL;
   const first = doc.getElementsByTagName("script")[0];
   first?.parentNode?.insertBefore(script, first);
+  fbq("set", "autoConfig", false, pixelId); // antes del init: sin esto el pixel manda clics en botones y datos de la página
   fbq("init", pixelId);
   return true;
 }
