@@ -1,38 +1,61 @@
 # Salida a producción de «pesos y pago» (DR72–DR74)
 
-**Estado al 2026-11-27:** plan armado. Nada enviado. Nada publicado en `main`.
+**Estado al 2026-11-27 19:15:** `eca0a46` validado, listo para publicar. Nada enviado.
 Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 
-`main` = `4f82924`. `staging` revisado = `16961d0`.
+`main` antes de publicar = `4f82924`.
 
-## Decisiones pendientes
+## Publicar hoy
 
-1. ~~¿Las 2 cuentas de prod son tus pruebas?~~ **Sí** (dueño, 2026-11-27).
-   - No hay destinatarios reales. Los mails no condicionan la fecha.
-   - Recuento 18:33: sin cambios (`terms` 2, `residence_terms` 0).
-2. ~~Fecha de vigencia.~~ **Hoy, 27/11** (dueño).
-   - Sale todo `staging` de una vez, incluido el popup.
-   - Las opciones A y B quedan sin uso.
-3. Fecha visible en `/terms`. Dirá «27 de noviembre»; el mail dirá `[FECHA]`.
-   - Los consentimientos nuevos guardarán `2026-11-27` desde la publicación.
-   - Recomendación: dejarla. Es la fecha del cambio.
-4. Publicar antes de la fecha mails, footer y copys.
-5. Publicar el popup nuevo. Teclado sin probar en teléfono real.
+```bash
+git push origin eca0a46:main
+```
 
-Nota: en preapertura rige la sección «Términos de la preapertura» de `/terms`.
-El resto aplica al abrir.
+Es el único comando vigente. 47 commits sobre `main`, sin merge.
 
-## Destinatarios en prod (SQL de solo lectura, 2026-11-27)
+Después:
+
+1. [Yo] Verifico en `estured.com` `/terms`, `/terms/residencias`, `/email/*.png` y logs.
+2. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de `eca0a46`.
+
+Queda fuera: `9966802` (campos nuevos en 45 archivos, sin validar).
+
+## Validación de `eca0a46`
+
+| Control | Resultado |
+|---|---|
+| Typecheck, lint, build, `npm audit` | Pasan |
+| Suite completa | 3143 pasan, 1 falla, 10 salteados |
+| Archivos con fallo | `expireContactEstablished`, `expireNegotiationProposals` |
+| Esos 2 en `main` (`4f82924`) | Fallan igual: datos demo de Lucía |
+| Deploy de staging | `READY` |
+
+## Base de prod (solo lectura)
+
+- Columnas de la migración 0112: presentes.
+- Solicitudes de reserva: 0.
+- Cuentas: 1 estudiante, creada 27/11 18:42. La sesión de Meta la informa como prueba del dueño.
+- Solicitudes de residencia sin descartar: 0.
+- **Cron:** las 6 respuestas guardadas son `401`. Revisar `cron_secret` en Vault antes de abrir.
+- Cron y push en dispositivo: sin probar.
+
+## Decisiones tomadas
+
+- Las 2 cuentas de la mañana eran pruebas del dueño. Ya no están.
+- Rige el 27/11 (dueño). Sin destinatarios reales: no se enviaron mails.
+- Fecha visible en `/terms`: 27 de noviembre. Coincide.
+- En preapertura rige la sección «Términos de la preapertura» de `/terms`. El resto aplica al abrir.
+- Las ramas `publicar/web-*` quedan sin uso. No correr sus comandos.
+- *Instant Rollback* también devuelve los textos legales anteriores.
+
+## Destinatarios contados a la mañana
 
 | `consent_type` | Personas | Mail |
 |---|---|---|
-| `terms` | 2 (rol estudiante) | 1 |
+| `terms` | 2 (pruebas del dueño) | 1 |
 | `residence_terms` | 0 | 2: sin destinatarios |
 
-- Cuentas con ambos: 0.
-- Solicitudes de residencia: 2, ambas `discarded`. Sin consentimiento.
-
-## Envío propuesto (requiere tu OK)
+## Envío, si hay destinatarios (requiere OK)
 
 - Cupo Resend: 100 por día. Usados al consultar: 13. Se reinicia 20:59 (Argentina).
 - Cupo mensual: 13 de 3000.
@@ -45,64 +68,7 @@ El resto aplica al abrir.
 - Con más de 70 destinatarios: tandas de 70 por día. Quedan 30 para mails automáticos.
 - La fecha debe ser posterior a la última tanda.
 
-## Antes de la fecha (opcional)
-
-Sin migraciones ni cambios en `/terms`. Ramas locales, armadas desde `main`.
-
-| Opción | Commit | Incluye | Validado |
-|---|---|---|---|
-| A | `f42a798` (`publicar/web-sin-popup-2026-11-27`) | Mails, footer, copys, vista previa | typecheck, lint, build, 61 tests |
-| B | `d112f52` (`publicar/web-2026-11-27`) | A + popup y campos (DR75) | typecheck, lint, build, 61 tests |
-
-- Ninguna se vio en una URL. Sin suite completa.
-- Las dos suman la corrección de la vista previa (`f8b5a33`). Los 61 tests son de `lib/share` y de esa imagen.
-- Las dos contienen `publicar/mails-2026-11-27` (`89f8544`), de otra sesión.
-- Usá un solo comando: A o B. No hace falta publicar la rama de mails aparte.
-- Si esa rama o `main` avanzan, [Yo] rearmo y valido.
-- Popup: otra sesión sigue activa. Commits posteriores a `16961d0` quedan fuera.
-- `docs/00` en B queda como en la rama de mails. DR75 llega con `staging`.
-
-Pasos:
-
-1. [Yo] Confirmo que `main` sigue en `4f82924`.
-2. [Vos] Corré **uno** de los dos:
-
-```bash
-git push origin f42a798:main
-```
-
-```bash
-git push origin d112f52:main
-```
-
-3. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de ese commit.
-4. [Yo] Mergeo `main` en `staging` y pusheo. Con B hay conflictos: `MEMORY.md`, `app/fields.css`, `app/surfaces.css`.
-
-Orden de commits sobre `main`:
-
-1. Mails (6, hasta `89f8544`).
-2. Footer: `24debb8`, `803a092`.
-3. Copys y banderas: `7a568f2`, `173e78d`, `cf80a1e`, `58db926`.
-4. Solo B: `7e23978`, `adfc509`, `6b98145`, `2516f07`, `2a6a416`, `16961d0`.
-
-## Solo en la fecha
-
-Commits de «pesos y pago», ya en `staging`:
-`038f5dd`, `93a8758`, `d5883f9`, `e8ca556`, `6ed5f8f`, `ebe3fb8`.
-
-1. [Yo] Cuento destinatarios otra vez. Envío a quienes se registraron después, con tu OK.
-2. [Yo] Verifico que `staging` contiene `main`.
-3. [Yo] Listo lo que haya sin terminar en `staging`. Si hay algo, armo una rama.
-4. [Yo] Valido el commit exacto en un worktree limpio, con la suite completa.
-5. [Vos] `git push origin <commit validado>:main`. Publica todo hasta ese commit.
-6. [Yo] Verifico en `estured.com` `/terms` y `/terms/residencias`.
-
-- Migración 0112: aplicada en prod.
-- El runbook marca sin cargar el secreto del cron en Vault. Sin él, el cron no se prueba.
-- Cron y push en dispositivo: sin probar.
-- *Instant Rollback* también devuelve los textos legales anteriores.
-
-## Verificación del 2026-11-27
+## Verificación previa a publicar
 
 | URL | `/terms` | `/terms/residencias` |
 |---|---|---|
