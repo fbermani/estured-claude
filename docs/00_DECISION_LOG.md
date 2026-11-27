@@ -2098,4 +2098,4 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Supuestos reversibles** (`docs/13` §4): las listas salen de conocimiento general, sin ranking oficial completo. Las carreras ya guardadas siguen en la lista. «Sin scroll» se mide desde 1280×720 sin errores en pantalla; los textos legales quedan fuera.
 
-**Estado:** en `staging`. (d) cubre `Input`, `Textarea` y `Select`; faltan migrar los campos propios de admin, residencia y algunos de estudiante.
+**Estado:** en `staging`. (d) cubre los formularios de llenado, incluidos admin, residencia y estudiante (`9966802`). Supuesto reversible: buscadores, filtros, trampas anti-bot, el enlace de invitación y dos selectores en línea quedan como estaban.

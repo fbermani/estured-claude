@@ -101,7 +101,7 @@ export function LinkRequestSection({ residences, requests }: { residences: { id:
             <summary className="cursor-pointer text-sm font-semibold text-ink-soft hover:text-ink">Mi residencia no está</summary>
             <form action={missingAction} className="mt-3 space-y-3">
               <Input label="Nombre de tu residencia" name="residence_name" maxLength={120} required />
-              <Input label="Contacto de la residencia (opcional)" name="contact" maxLength={120} hint="Un mail o teléfono para que podamos invitarla a EstuRed." />
+              <Input label="Contacto (opcional)" name="contact" maxLength={120} hint="Mail o teléfono de la residencia, para invitarla a EstuRed." />
               <Button type="submit" variant="outline" size="sm" disabled={missingPending}>
                 {missingPending ? "Enviando…" : "Avisar a EstuRed"}
               </Button>
