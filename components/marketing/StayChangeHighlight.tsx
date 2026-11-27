@@ -148,7 +148,7 @@ export function StayChangeHighlight({ variant, studentCta = "register" }: { vari
   }
 
   return (
-    <section id="quiero-cambiar" aria-labelledby="quiero-cambiar-residences-title" className="scroll-mt-24 bg-forest-ink text-white">
+    <section id="quiero-cambiar" aria-labelledby="quiero-cambiar-residences-title" className="scroll-mt-24 surface-forest bg-forest-ink text-white">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
           <Reveal>

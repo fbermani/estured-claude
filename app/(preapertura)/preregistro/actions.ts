@@ -213,6 +213,7 @@ export async function saveProfile(_prev: ProfileState, formData: FormData): Prom
       country: formData.get("country"),
       province: formData.get("province"),
       university: formData.get("university"),
+      university_other: formData.get("university_other"),
       career: formData.get("career"),
       career_other: formData.get("career_other"),
       entry: formData.get("entry"),

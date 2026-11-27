@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Sin capa a propósito: el título interno le gana a `text-ink`, `placeholder:*` y `py-*` del campo. */
+@import "./fields.css";
+@import "./surfaces.css";
 
 /* Tailwind v4 escanea todo el repo salvo lo ignorado por git: se excluyen carpetas sin clases de la app (auditoría 2026-11-19, R19-07). */
 @source not "../scratchpad";

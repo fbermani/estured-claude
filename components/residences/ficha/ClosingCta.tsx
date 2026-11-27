@@ -9,7 +9,7 @@ export function ClosingCta({ description, cta }: { description: string; cta: Rea
   return (
     <section
       aria-labelledby="h-cierre"
-      className="mt-12 flex flex-col items-start gap-5 rounded-card bg-forest-ink px-5 py-7 text-paper min-[768px]:flex-row min-[768px]:items-center min-[768px]:justify-between min-[768px]:gap-8 min-[768px]:px-9 min-[768px]:py-9"
+      className="mt-12 flex flex-col items-start gap-5 rounded-card surface-forest bg-forest-ink px-5 py-7 text-paper min-[768px]:flex-row min-[768px]:items-center min-[768px]:justify-between min-[768px]:gap-8 min-[768px]:px-9 min-[768px]:py-9"
     >
       <div className="min-w-0">
         <h2 id="h-cierre" className="font-display text-3xl font-bold leading-[1.05] min-[768px]:text-4xl">

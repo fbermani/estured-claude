@@ -82,46 +82,48 @@ export const PROVINCE_OPTIONS = [
   "Tucumán",
 ] as const;
 
-/** Sugerencias (datalist) de universidad: es texto libre acotado, sin zona (DR43.3). */
-export const UNIVERSITY_SUGGESTIONS = [
+/**
+ * Las 15 universidades más conocidas de Buenos Aires (decisión del dueño, 2026-11-27). Cualquier otra se escribe a mano con
+ * «Otra»: el servidor acepta texto libre acotado (DR43.3).
+ */
+export const UNIVERSITY_OPTIONS = [
   "UBA",
   "UTN",
   "UADE",
   "UCA",
-  "Universidad Di Tella",
-  "Universidad de Belgrano",
-  "Universidad Austral",
   "Universidad de Palermo",
-  "UNA",
-  "UNDEF",
-  "UNIPE",
-  "UNTREF",
-  "UNSAM",
-  "UniCABA",
-  "ITBA",
+  "Universidad de Belgrano",
+  "UAI",
   "USAL",
   "UCES",
-  "UAI",
+  "Universidad Austral",
+  "Universidad Di Tella",
   "Universidad de San Andrés",
-  "UCEMA",
+  "ITBA",
+  "UNA",
   "Universidad Favaloro",
-  "Universidad Maimónides",
-  "UFLO",
-  "Universidad Kennedy",
 ] as const;
 
+/**
+ * Las 10 carreras más estudiadas en Buenos Aires (decisión del dueño, 2026-11-27). Lista cerrada: también es el filtro del
+ * servidor y de la banda pública de comunidad, así que no se renombran las que ya existen.
+ */
 export const CAREER_OPTIONS = [
   "Medicina",
-  "Derecho",
-  "Arquitectura",
   "Psicología",
-  "Economía",
+  "Derecho",
+  "Contador Público",
+  "Administración de Empresas",
+  "Enfermería",
+  "Arquitectura",
   "Ingeniería en Sistemas",
   "Diseño Gráfico",
+  "Economía",
 ] as const;
 
-/** Valor del select de carrera que habilita el campo de texto «¿Cuál?». */
+/** Valor de los select de universidad y carrera que habilita el campo para escribirla a mano. */
 export const OTHER_CAREER = "__otra__";
+export const OTHER_UNIVERSITY = "__otra__";
 
 /** Mes de ingreso: solo enero a abril o «Todavía no sé» (DR43.3). El año se asume (próxima temporada) en el servidor. */
 export const ENTRY_MONTH_OPTIONS = [

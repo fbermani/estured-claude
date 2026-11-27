@@ -8,7 +8,7 @@ const legalLink =
 /** Footer de la preapertura (DR42.2): firma, contacto y legales. Sin buscador ni «Guías». */
 export function PreaperturaFooter() {
   return (
-    <footer className="border-t border-line bg-forest-ink text-white">
+    <footer className="border-t border-line surface-forest bg-forest-ink text-white">
       <div className="mx-auto grid max-w-6xl gap-4 px-4 py-6 sm:px-6 md:grid-cols-[1.4fr_1fr]">
         <div>
           <BrandMark size={36} tone="dark" />

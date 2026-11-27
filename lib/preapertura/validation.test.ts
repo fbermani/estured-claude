@@ -84,7 +84,7 @@ describe("validateProfile", () => {
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.fieldErrors).toEqual({
-        first_name: "Completá tu nombre.", country: "Elegí tu país.", university: "Escribí tu universidad.",
+        first_name: "Completá tu nombre.", country: "Elegí tu país.", university: "Elegí tu universidad.",
         career: "Elegí tu carrera.", entry: "Elegí el mes de ingreso.", room_type: "Elegí el tipo de habitación.",
       });
     }

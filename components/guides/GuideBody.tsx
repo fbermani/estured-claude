@@ -99,7 +99,7 @@ function Blocks({ blocks, linkClass, textClass }: { blocks: GuideBlock[]; linkCl
 
 const CALLOUT: Record<string, { icon: string; box: string; icon_cls: string; text: string; link?: string }> = {
   checklist: { icon: "checklist", box: "border-forest/30 bg-forest-tint", icon_cls: "bg-forest text-white", text: "text-ink" },
-  "next-step": { icon: "arrow_circle_right", box: "border-transparent bg-forest-ink", icon_cls: "bg-white/15 text-white", text: "text-white/90", link: "text-white" },
+  "next-step": { icon: "arrow_circle_right", box: "border-transparent surface-forest bg-forest-ink", icon_cls: "bg-white/15 text-white", text: "text-white/90", link: "text-white" },
   idea: { icon: "lightbulb", box: "border-butter-fg/20 bg-butter", icon_cls: "bg-butter-fg text-white", text: "text-ink" },
   family: { icon: "family_restroom", box: "border-orange-700/20 bg-orange-tint", icon_cls: "bg-orange-700 text-white", text: "text-ink" },
 };

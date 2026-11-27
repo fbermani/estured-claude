@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { PreaperturaStage } from "@/components/preapertura/PreaperturaStage";
 import { HomeBackdrop } from "@/components/preapertura/HomeBackdrop";
 import { ProfileForm, type ProfileInitial } from "@/components/preapertura/ProfileForm";
-import { CAREER_OPTIONS, OTHER_CAREER } from "@/lib/preapertura/options";
+import { CAREER_OPTIONS, OTHER_CAREER, OTHER_UNIVERSITY, UNIVERSITY_OPTIONS } from "@/lib/preapertura/options";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
@@ -45,11 +45,13 @@ export default async function PerfilPage() {
   if (!row || row.role !== "student") redirect("/mi-lugar");
 
   const careerKnown = row.career != null && (CAREER_OPTIONS as readonly string[]).includes(row.career);
+  const universityKnown = row.university != null && (UNIVERSITY_OPTIONS as readonly string[]).includes(row.university);
   const initial: ProfileInitial = {
     firstName: row.first_name ?? "",
     country: row.country ?? "",
     province: row.province ?? "",
-    university: row.university ?? "",
+    university: row.university == null ? "" : universityKnown ? row.university : OTHER_UNIVERSITY,
+    universityOther: row.university != null && !universityKnown ? row.university : "",
     career: row.career == null ? "" : careerKnown ? row.career : OTHER_CAREER,
     careerOther: row.career != null && !careerKnown ? row.career : "",
     entry: row.entry_unsure ? "unsure" : row.entry_month ? String(row.entry_month) : "",
@@ -62,7 +64,7 @@ export default async function PerfilPage() {
   };
 
   return (
-    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-profile-title" size="form" fullOnMobile initialFocus="#pre-first_name">
+    <PreaperturaStage preview={<HomeBackdrop />} labelledBy="pre-profile-title" size="xl" fullOnMobile initialFocus="#pre-first_name">
       <ProfileForm
         initial={initial}
         age={ageByBirthDate(row.birth_date)}

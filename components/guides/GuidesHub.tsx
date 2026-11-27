@@ -89,7 +89,7 @@ export function GuidesHub({
 
   return (
     <>
-      <header className="relative overflow-hidden bg-forest-ink text-white">
+      <header className="relative overflow-hidden surface-forest bg-forest-ink text-white">
         <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-white/[0.06]" />
                 <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
           <p className="inline-flex items-center gap-1.5 text-xs font-bold text-white/80">

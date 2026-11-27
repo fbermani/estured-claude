@@ -25,7 +25,7 @@ export default async function FundadorasPage() {
       preview={<ResidencesBackdrop />}
       labelledBy="pre-fund-title"
       describedBy="pre-fund-text"
-      size="mid"
+      size="lg"
       initialFocus='a[href="/register/residence"]'
     >
       <FoundersContent state={founderState(inputs)} closure={getFounderClosure()} counter={studentCounter(count)} />

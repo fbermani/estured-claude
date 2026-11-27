@@ -1,0 +1,74 @@
+/* Campos con título adentro (decisión del dueño, 2026-11-27): `Input`, `Textarea` y `Select` de components/ui/Input.tsx.
+   El título arranca centrado dentro del campo; con foco o contenido queda chico arriba. Solo se mueve con `transform`. */
+.field-float {
+  position: relative;
+}
+.field-float > label {
+  position: absolute;
+  left: 15.5px;
+  right: 40px;
+  top: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-ink-soft);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 150ms var(--ease-out-fresh);
+}
+.field-float > :is(input, select) {
+  padding-top: 20px;
+  padding-bottom: 2px;
+}
+.field-float > textarea {
+  padding-top: 26px;
+  padding-bottom: 8px;
+}
+/* Fondo propio en el área de texto: lo escrito pasa por debajo del título al desplazar. */
+.field-float > textarea ~ label {
+  right: 16px;
+  background: var(--color-cream);
+}
+.field-float:focus-within > label,
+.field-float[data-static] > label,
+.field-float > :is(input, textarea):not(:placeholder-shown) ~ label {
+  transform: translateY(-10px) scale(0.76);
+  font-weight: 700;
+}
+.field-float > input:autofill ~ label {
+  transform: translateY(-10px) scale(0.76);
+  font-weight: 700;
+}
+/* Un `select` siempre está «lleno», salvo que la opción elegida sea la vacía. */
+.field-float > select ~ label {
+  transform: translateY(-10px) scale(0.76);
+  font-weight: 700;
+}
+.field-float:not(:focus-within) > select:has(> option[value=""]:checked) ~ label {
+  transform: none;
+  font-weight: 400;
+}
+.field-float:not(:focus-within) > select:has(> option[value=""]:checked) {
+  color: transparent;
+}
+.field-float > select option {
+  color: var(--color-ink);
+}
+/* El ejemplo (placeholder) aparece recién al enfocar: en reposo ese lugar es del título. */
+.field-float > :is(input, textarea)::placeholder {
+  color: transparent;
+}
+.field-float > :is(input, textarea):focus::placeholder {
+  color: var(--color-muted);
+}
+.field-float > input[type="date"] {
+  min-width: 0;
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-float > label {
+    transition: none;
+  }
+}

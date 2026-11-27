@@ -78,7 +78,7 @@ export function MiLugarContent({ data, devAccount = false }: { data: MiLugarData
       </LiveBand>
 
       {data.registrationNumber != null && (
-        <div className="grid justify-items-center gap-1.5 bg-forest-ink px-5 py-6 text-paper">
+        <div className="grid justify-items-center gap-1.5 surface-forest bg-forest-ink px-5 py-6 text-paper">
           <p>Tu número de registro</p>
           <p className="pre-number font-display font-bold text-gold tabular-nums">{data.registrationNumber}</p>
         </div>

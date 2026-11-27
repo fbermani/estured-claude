@@ -31,7 +31,7 @@ export function FaqBand({
 }) {
   const footer = faqBandFooter(total, items.length);
   return (
-    <div className="rounded-card bg-forest-ink px-4 py-6 text-paper min-[768px]:px-9 min-[768px]:py-9">
+    <div className="rounded-card surface-forest bg-forest-ink px-4 py-6 text-paper min-[768px]:px-9 min-[768px]:py-9">
       <ChapterHeading id={headingId} number={number} tone="dark">
         Preguntas que más nos hacen
       </ChapterHeading>

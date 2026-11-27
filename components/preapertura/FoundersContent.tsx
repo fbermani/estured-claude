@@ -50,6 +50,23 @@ function Urgency({ state, closure }: { state: FounderState; closure: FounderClos
   );
 }
 
+/** Sello del perfil verificado, arriba a la derecha, con la etiqueta de que la verificación no tiene costo. */
+function VerifiedSeal() {
+  return (
+    <div className="grid shrink-0 justify-items-center">
+      <span className="grid size-24 rotate-[-6deg] content-center justify-items-center rounded-full border-[3px] border-gold bg-forest-ink text-center shadow-float outline-1 -outline-offset-8 outline-dashed outline-gold/70">
+        <Icon name="verified" className="text-gold" />
+        <span className="mt-0.5 font-display text-xs font-bold leading-tight text-white">
+          Perfil
+          <br />
+          Verificado
+        </span>
+      </span>
+      <span className="-mt-2 rounded-full bg-butter px-3 py-1 text-center text-xs font-bold text-butter-fg shadow-card">Sin costo de verificación</span>
+    </div>
+  );
+}
+
 /**
  * Contenido del popup de fundadoras (SPEC pantalla 6, vistazo). Todo real: cupo, cierre (solo si `FOUNDERS_CLOSE_AT` está definida)
  * y contador de estudiantes (solo desde 25). Sin planes, precios ni comisión; «gratis» es el perfil verificado de la residencia.
@@ -57,15 +74,20 @@ function Urgency({ state, closure }: { state: FounderState; closure: FounderClos
 export function FoundersContent({ state, closure, counter }: { state: FounderState; closure: FounderClosure; counter: StudentCounter }) {
   const closed = closure.kind === "closed";
   return (
-    <div>
-      <div className="grid gap-3 bg-forest-ink px-5 pb-6 pt-4 text-white sm:px-9 sm:pb-7 sm:pt-5">
-        <BackNav href="/" tone="dark">
-          Volver al inicio
-        </BackNav>
-        <span className="inline-flex items-center gap-2 justify-self-start rounded-full bg-gold py-1.5 pl-1.5 pr-4 text-sm font-bold text-forest-ink">
-          <Icon name="workspace_premium" className="rounded-full bg-forest-ink p-1 text-base text-gold" />
-          Residencias fundadoras
-        </span>
+    <div className="grid grid-cols-[minmax(0,1fr)] @min-[820px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid content-start gap-3 surface-forest bg-forest-ink px-5 pb-6 pt-4 text-white sm:px-9 sm:pb-7 sm:pt-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="grid justify-items-start gap-2">
+            <BackNav href="/" tone="dark">
+              Volver al inicio
+            </BackNav>
+            <span className="inline-flex items-center gap-2 rounded-full bg-gold py-1.5 pl-1.5 pr-4 text-sm font-bold text-forest-ink">
+              <Icon name="workspace_premium" className="rounded-full bg-forest-ink p-1 text-base text-gold" />
+              Residencias fundadoras
+            </span>
+          </div>
+          <VerifiedSeal />
+        </div>
         <h1 id="pre-fund-title" className="font-display text-[clamp(28px,7vw,40px)] leading-[1.05] tracking-[-0.03em]">
           Menos mensajes repetidos, mejor gestión. <span className="mt-1 block text-gold">Sin costo para tu residencia.</span>
         </h1>
@@ -75,7 +97,7 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
         <Urgency state={state} closure={closure} />
       </div>
 
-      <div className="grid gap-4 px-5 pb-6 pt-5 sm:px-9 sm:pb-8 sm:pt-6">
+      <div className="grid content-center gap-3.5 px-5 pb-6 pt-5 sm:px-8 sm:py-5">
         <div className="grid gap-2">
           <Button href="/register/residence" variant="secondary" size="lg" className="w-full text-base shadow-orange">
             Quiero que me contacten
@@ -97,14 +119,14 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
           </p>
         </div>
 
-        <p className="flex items-center gap-2 justify-self-start rounded-field border-[1.5px] border-forest/25 bg-forest-tint px-3 py-2.5 text-sm font-bold text-forest-700">
-          <Icon name="verified" className="text-xl" />
-          Perfil Verificado sin costo
+        <p className="flex items-center gap-2.5 rounded-field border-[1.5px] border-forest/25 bg-forest-tint px-3.5 py-2.5 text-[15px] font-bold text-forest-700">
+          <Icon name="support_agent" className="text-2xl" />
+          Te ayudamos a configurar tu cuenta
         </p>
 
         <ul className="border-t border-line">
           {[...BENEFITS, ...(closed ? [] : FOUNDER_BENEFITS)].map((b) => (
-            <li key={b.title} className="flex flex-wrap items-baseline gap-x-2 border-b border-line py-2.5 text-[15px]">
+            <li key={b.title} className="flex flex-wrap items-baseline gap-x-2 border-b border-line py-2 text-[15px]">
               <span aria-hidden="true" className="mr-0.5 inline-block h-0.5 w-3.5 self-center bg-gold" />
               <b className="font-bold text-ink">{b.title}</b>
               <span className="text-sm text-ink-soft">{b.text}</span>

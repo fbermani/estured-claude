@@ -17,7 +17,7 @@ const legalLink =
  */
 export function Footer({ hideSignup = false, staffView = false }: { hideSignup?: boolean; staffView?: boolean } = {}) {
   return (
-    <footer className="border-t border-line bg-forest-ink text-white">
+    <footer className="border-t border-line surface-forest bg-forest-ink text-white">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-4 gap-y-4 px-4 py-6 sm:px-6 md:grid-cols-[1.1fr_1.5fr_1.4fr] md:gap-x-6">
         <div className="col-span-2 md:col-span-1">
           <BrandMark size={32} tone="dark" />

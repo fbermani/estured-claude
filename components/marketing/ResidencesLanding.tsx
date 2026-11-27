@@ -101,7 +101,7 @@ export function ResidencesLanding({ schema = true }: { schema?: boolean }) {
           }}
         />
       )}
-      <section className="relative overflow-hidden bg-forest-ink text-white">
+      <section className="relative overflow-hidden surface-forest bg-forest-ink text-white">
         {/* Resplandor decorativo — le da profundidad al fondo oscuro en vez de un verde plano */}
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-orange/20 blur-3xl" aria-hidden />
         <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-forest-600/40 blur-3xl" aria-hidden />

@@ -16,11 +16,11 @@ const SIZES = {
   mid: "sm:max-w-[660px]",
   /** «Mi lugar»: 820 px. */
   lugar: "sm:max-w-[820px]",
-  /** Paso 2 (formulario + vista previa): 880 px. */
-  form: "sm:max-w-[880px]",
-  /** Paso 1 y registro familiar (panel lateral + formulario): 920 px. */
-  wide: "sm:max-w-[920px]",
+  /** Paso 1 y registro familiar (panel lateral + formulario): 1040 px. */
+  wide: "sm:max-w-[1040px]",
   lg: "sm:max-w-[980px]",
+  /** Paso 2: dos columnas de campos + vista previa, sin scroll en escritorio. */
+  xl: "sm:max-w-[1180px]",
 } as const;
 
 /**
@@ -141,7 +141,7 @@ export function PreaperturaDialog({
     <div
       ref={wrapperRef}
       onKeyDown={onKeyDown}
-      className={`pointer-events-none fixed inset-0 z-[60] flex justify-center sm:items-center sm:p-12 ${
+      className={`pre-wrap pointer-events-none fixed inset-0 z-[60] flex justify-center sm:items-center sm:p-12 ${
         fullOnMobile ? "pre-full items-stretch p-2.5" : "items-end p-2.5"
       } ${asideBeside ? "min-[1100px]:gap-5" : ""}`}
     >
@@ -150,7 +150,7 @@ export function PreaperturaDialog({
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}
-        className={`animate-dialog-center pointer-events-auto relative w-full sm:max-h-[calc(100dvh-96px)] ${
+        className={`pre-box animate-dialog-center pointer-events-auto relative w-full sm:max-h-[calc(100dvh-96px)] ${
           fullOnMobile ? "h-full sm:h-auto" : "max-h-[calc(100dvh-92px)]"
         } ${SIZES[size]}`}
       >
@@ -158,7 +158,7 @@ export function PreaperturaDialog({
           <button
             type="button"
             onClick={onDevClose}
-            className={`${fullOnMobile ? "right-3 top-3 sm:-top-12 sm:right-0" : "-top-12 right-0"} absolute z-10 inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]`}
+            className={`${fullOnMobile ? "right-3 top-3 sm:-top-12 sm:right-0" : "-top-12 right-0"} pre-devclose absolute z-10 inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-paper bg-forest-ink px-4 text-sm font-bold whitespace-nowrap text-paper shadow-float focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)]`}
           >
             <Icon name="close" className="text-lg" />
             Cerrar (solo dev)

@@ -59,7 +59,7 @@ export function PreaperturaStage({
   children: ReactNode;
   labelledBy: string;
   describedBy?: string;
-  size?: "sm" | "entry" | "md" | "mid" | "lugar" | "form" | "wide" | "lg";
+  size?: "sm" | "entry" | "md" | "mid" | "lugar" | "wide" | "lg" | "xl";
   initialFocus?: string;
   aside?: ReactNode;
   /** La lateral va al lado de la caja desde 1100 px (ver `PreaperturaDialog`). */

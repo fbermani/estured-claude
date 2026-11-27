@@ -82,7 +82,7 @@ export function FounderCta({ state, closure, variant }: { state: FounderState; c
   return (
     <Link
       href="/fundadoras"
-      className={`group rounded-card border-2 border-gold bg-forest-ink text-white shadow-float transition duration-200 ease-out-fresh focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)] motion-safe:hover:-translate-y-0.5 ${
+      className={`group rounded-card border-2 border-gold surface-forest bg-forest-ink text-white shadow-float transition duration-200 ease-out-fresh focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink focus-visible:shadow-[0_0_0_2px_var(--color-paper)] motion-safe:hover:-translate-y-0.5 ${
         side
           ? "pre-halo pointer-events-auto relative hidden w-[340px] shrink-0 content-start gap-2.5 p-[22px] min-[1100px]:grid"
           : "pre-found grid gap-2 px-4 py-3.5 text-center min-[1100px]:hidden"

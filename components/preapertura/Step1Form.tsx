@@ -75,13 +75,13 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
   if (loggedIn && state.status !== "success") return <AlreadyIn />;
 
   return (
-    <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
+    <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-5">
       <BackNav href="/">Volver al inicio</BackNav>
       <h1 id="pre-signup-title" className="mt-1 font-display text-3xl leading-tight tracking-tight text-ink">
         Sumate en un minuto
       </h1>
       {!invitation && (
-        <div className="mt-4">
+        <div className="mt-3">
           <RoleTabs current="student" />
         </div>
       )}
@@ -121,7 +121,7 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
           const data = new FormData(event.currentTarget);
           startTransition(() => formAction(data));
         }}
-        noValidate className="mt-4 grid gap-4">
+        noValidate className="mt-4 grid gap-3">
         {invitation && <input type="hidden" name="invitacion" value={invitation.token} />}
         <Input
           id="pre-email"
@@ -138,38 +138,38 @@ export function Step1Form({ invitation, loggedIn }: { invitation: { token: strin
           value={invitation ? invitation.email : email}
           onChange={(event) => setEmail(event.target.value)}
           hint={errorHint(errors, "email", "pre", invitation ? "El mail de tu invitación no se puede cambiar." : undefined)}
-          className="aria-invalid:border-danger-fg read-only:bg-cream-2"
           {...errorProps(errors, "email", "pre")}
         />
-        <PasswordField
-          value={password}
-          onChange={setPassword}
-          error={errors?.password}
-          errorId="pre-password-error"
-          hint="Mínimo 8 caracteres."
-        />
-        <Input
-          id="pre-birth"
-          name="birth_date"
-          label="Fecha de nacimiento"
-          type="date"
-          autoComplete="bday"
-          required
-          value={birth}
-          onChange={(event) => setBirth(event.target.value)}
-          hint={
-            minor ? (
-              <span className="flex items-start gap-1.5 text-sm font-semibold text-info-fg">
-                <Icon name="info" className="text-lg" />
-                Tenés menos de 18 años.
-              </span>
-            ) : (
-              errorHint(errors, "birth_date", "pre", invitation ? undefined : "Necesitamos saber si ya cumpliste 18. Si sos menor, tu familiar te invita.")
-            )
-          }
-          className="aria-invalid:border-danger-fg"
-          {...errorProps(errors, "birth_date", "pre")}
-        />
+        <div className="grid items-start gap-3 @min-[960px]:grid-cols-2">
+          <PasswordField
+            value={password}
+            onChange={setPassword}
+            error={errors?.password}
+            errorId="pre-password-error"
+            hint="Mínimo 8 caracteres."
+          />
+          <Input
+            id="pre-birth"
+            name="birth_date"
+            label="Fecha de nacimiento"
+            type="date"
+            autoComplete="bday"
+            required
+            value={birth}
+            onChange={(event) => setBirth(event.target.value)}
+            hint={
+              minor ? (
+                <span className="flex items-start gap-1.5 text-sm font-semibold text-info-fg">
+                  <Icon name="info" className="text-lg" />
+                  Tenés menos de 18 años.
+                </span>
+              ) : (
+                errorHint(errors, "birth_date", "pre", invitation ? undefined : "Necesitamos saber si ya cumpliste 18. Si sos menor, tu familiar te invita.")
+              )
+            }
+            {...errorProps(errors, "birth_date", "pre")}
+          />
+        </div>
 
         {minor ? (
           <div role="status" className="grid gap-2.5 rounded-field border-l-4 border-orange bg-orange-tint p-4">

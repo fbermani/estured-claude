@@ -41,7 +41,7 @@ export function RenewalFeePaymentForm({ renewalOfferId }: { renewalOfferId: stri
       </p>
       <form action={formAction} className="mt-4 space-y-4">
         <Input label="Nombre completo o razón social" name="payer_billing_name" required />
-        <Input label="CUIT/CUIL (opcional)" name="payer_billing_cuit" />
+        <Input label="CUIT/CUIL (opcional)" name="payer_billing_cuit" inputMode="numeric" />
         <Select label="Condición frente al IVA" name="payer_iva_condition" defaultValue="consumidor_final">
           {IVA_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

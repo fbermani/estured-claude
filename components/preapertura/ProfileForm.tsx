@@ -19,9 +19,10 @@ import {
   INTEREST_OPTIONS,
   MAX_CHIPS,
   OTHER_CAREER,
+  OTHER_UNIVERSITY,
   PROVINCE_OPTIONS,
   ROOM_TYPE_OPTIONS,
-  UNIVERSITY_SUGGESTIONS,
+  UNIVERSITY_OPTIONS,
   flagFor,
 } from "@/lib/preapertura/options";
 import { profileProgress } from "@/lib/preapertura/validation";
@@ -34,6 +35,7 @@ export type ProfileInitial = {
   country: string;
   province: string;
   university: string;
+  universityOther: string;
   career: string;
   careerOther: string;
   entry: string;
@@ -46,7 +48,6 @@ export type ProfileInitial = {
 };
 
 const INITIAL_STATE: ProfileState = { status: "idle" };
-const FIELD_CLASS = "min-h-12 aria-invalid:border-danger-fg";
 
 /**
  * «Completá tu perfil» (DR67): nombre, país, universidad, carrera, mes de ingreso y habitación son obligatorios; hábitos,
@@ -69,6 +70,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
   const [country, setCountry] = useState(initial.country);
   const [province, setProvince] = useState(initial.province);
   const [university, setUniversity] = useState(initial.university);
+  const [universityOther, setUniversityOther] = useState(initial.universityOther);
   const [career, setCareer] = useState(initial.career);
   const [careerOther, setCareerOther] = useState(initial.careerOther);
   const [entry, setEntry] = useState(initial.entry);
@@ -89,6 +91,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
   }, [state, router]);
 
   const isArgentina = country === ARGENTINA;
+  const universityShown = university === OTHER_UNIVERSITY ? universityOther.trim() : university;
   const careerShown = career === OTHER_CAREER ? careerOther.trim() : career;
   const provinceShown = isArgentina ? province : "";
   const countryShown = country === "Otro país" ? "otro país" : country;
@@ -101,13 +104,13 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
     tags: [...habits, ...interests],
     fromLong: provinceShown ? `${provinceShown}, Argentina` : countryShown,
     roomType: roomType as PreviewData["roomType"],
-    university: university.trim(),
+    university: universityShown,
     entry,
   };
   const percent = profileProgress({
     name: Boolean(name.trim()),
     country: Boolean(country),
-    university: Boolean(university.trim()),
+    university: Boolean(universityShown),
     career: Boolean(careerShown),
     entry: Boolean(entry),
     roomType: Boolean(roomType),
@@ -124,17 +127,22 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
   const summary = [roomLabel, preview.university, entryLabel].filter(Boolean).join(", ");
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] @min-[860px]:grid-cols-[minmax(0,1fr)_300px]">
-      <div className="p-5 @min-[640px]:px-9 @min-[640px]:py-8">
-        <BackNav href="/mi-lugar">Volver a Mi lugar</BackNav>
+    <div className="grid grid-cols-[minmax(0,1fr)] @min-[1080px]:grid-cols-[minmax(0,1fr)_290px]">
+      <div className="p-5 @min-[640px]:px-7 @min-[640px]:py-5">
+        <div className="@min-[760px]:flex @min-[760px]:items-center @min-[760px]:gap-4">
+          <BackNav href="/mi-lugar">Volver a Mi lugar</BackNav>
+          <h1 id="pre-profile-title" className="mt-1 font-display text-3xl leading-tight tracking-tight text-ink @min-[760px]:mt-0 @min-[760px]:text-2xl">
+            Completá tu perfil
+          </h1>
+          <div className="hidden min-w-0 flex-1 @min-[760px]:block [&>div]:mt-0">
+            <ProfileMeter percent={percent} />
+          </div>
+        </div>
         {devAccount && <DevAccountNotice className="mt-1" />}
-        <h1 id="pre-profile-title" className="mt-1 font-display text-3xl leading-tight tracking-tight text-ink">
-          Completá tu perfil
-        </h1>
-        <p className="mt-1 text-ink-soft">Lo necesitamos para mostrarte residencias que te sirvan.</p>
+        <p className="mt-1 text-ink-soft @min-[760px]:hidden">Lo necesitamos para mostrarte residencias que te sirvan.</p>
 
         {/* Móvil: resumen fijo arriba que se despliega y muestra las dos tarjetas. */}
-        <details className="group sticky top-0 z-[3] -mx-5 mt-3 border-b border-line bg-paper px-5 @min-[640px]:-mx-9 @min-[640px]:px-9 @min-[860px]:hidden">
+        <details className="group sticky top-0 z-[3] -mx-5 mt-3 border-b border-line bg-paper px-5 @min-[640px]:-mx-7 @min-[640px]:px-7 @min-[1080px]:hidden">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 text-sm text-ink-soft focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-forest-ink [&::-webkit-details-marker]:hidden">
             <FlagAvatar initial={preview.name ? preview.name[0].toUpperCase() : "?"} flag={preview.flag || undefined} />
             <span className="min-w-0 truncate">
@@ -149,7 +157,9 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
           </div>
         </details>
 
-        <ProfileMeter percent={percent} />
+        <div className="@min-[760px]:hidden">
+          <ProfileMeter percent={percent} />
+        </div>
 
         {failed && state.code === "no_session" ? (
           <FormAlert title="Tu sesión venció." alertRef={alertRef} className="mt-3.5">
@@ -178,8 +188,9 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
           const data = new FormData(event.currentTarget);
           startTransition(() => formAction(data));
         }}
-        noValidate className="mt-4 grid gap-4">
-          <div className="grid gap-3.5 @min-[560px]:grid-cols-2">
+        noValidate className="mt-4 grid gap-4 @min-[760px]:grid-cols-2 @min-[760px]:items-start @min-[760px]:gap-x-6 @min-[760px]:gap-y-3">
+          <div className="grid min-w-0 content-start gap-3">
+          <div className="grid gap-2.5 @min-[560px]:grid-cols-2">
             <Input
               id="pre-first_name"
               name="first_name"
@@ -190,7 +201,6 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               value={name}
               onChange={(event) => setName(event.target.value)}
               hint={errorHint(errors, "first_name", "pre")}
-              className={FIELD_CLASS}
               {...errorProps(errors, "first_name", "pre")}
             />
             <Select
@@ -204,7 +214,6 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                 if (event.target.value !== ARGENTINA) setProvince("");
               }}
               hint={errorHint(errors, "country", "pre")}
-              className={FIELD_CLASS}
               {...errorProps(errors, "country", "pre")}
             >
               <option value="">Elegí un país</option>
@@ -222,7 +231,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                 value={province}
                 onChange={(event) => setProvince(event.target.value)}
                 hint={errorHint(errors, "province", "pre")}
-                className={FIELD_CLASS}
+                className="@min-[560px]:col-span-2"
                 {...errorProps(errors, "province", "pre")}
               >
                 <option value="">Elegí tu provincia</option>
@@ -233,28 +242,24 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                 ))}
               </Select>
             )}
-            <div>
-              <Input
-                id="pre-university"
-                name="university"
-                label="Universidad"
-                required
-                list="pre-unis"
-                placeholder="Ej.: UBA"
-                maxLength={120}
-                autoComplete="off"
-                value={university}
-                onChange={(event) => setUniversity(event.target.value)}
-                hint={errorHint(errors, "university", "pre")}
-                className={FIELD_CLASS}
-                {...errorProps(errors, "university", "pre")}
-              />
-              <datalist id="pre-unis">
-                {UNIVERSITY_SUGGESTIONS.map((u) => (
-                  <option key={u} value={u} />
-                ))}
-              </datalist>
-            </div>
+            <Select
+              id="pre-university"
+              name="university"
+              label="Universidad"
+              required
+              value={university}
+              onChange={(event) => setUniversity(event.target.value)}
+              hint={errorHint(errors, "university", "pre")}
+              {...errorProps(errors, "university", "pre")}
+            >
+              <option value="">Elegí tu universidad</option>
+              {UNIVERSITY_OPTIONS.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+              <option value={OTHER_UNIVERSITY}>Otra…</option>
+            </Select>
             <Select
               id="pre-career"
               name="career"
@@ -263,7 +268,6 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               value={career}
               onChange={(event) => setCareer(event.target.value)}
               hint={errorHint(errors, "career", "pre")}
-              className={FIELD_CLASS}
               {...errorProps(errors, "career", "pre")}
             >
               <option value="">Elegí tu carrera</option>
@@ -272,21 +276,37 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
                   {c}
                 </option>
               ))}
-              <option value={OTHER_CAREER}>Otra carrera…</option>
+              <option value={OTHER_CAREER}>Otra…</option>
             </Select>
+            {university === OTHER_UNIVERSITY && (
+              <Input
+                id="pre-university_other"
+                name="university_other"
+                label="¿Qué universidad?"
+                required
+                maxLength={120}
+                autoComplete="off"
+                autoCapitalize="words"
+                value={universityOther}
+                onChange={(event) => setUniversityOther(event.target.value)}
+                hint={errorHint(errors, "university_other", "pre")}
+                className="col-start-1"
+                {...errorProps(errors, "university_other", "pre")}
+              />
+            )}
             {career === OTHER_CAREER && (
               <Input
                 id="pre-career_other"
                 name="career_other"
-                label="¿Cuál?"
+                label="¿Qué carrera?"
                 required
-                placeholder="Ej.: Ciencias de la Educación"
                 maxLength={120}
                 autoComplete="off"
+                autoCapitalize="sentences"
                 value={careerOther}
                 onChange={(event) => setCareerOther(event.target.value)}
                 hint={errorHint(errors, "career_other", "pre")}
-                className={FIELD_CLASS}
+                className="@min-[560px]:col-start-2"
                 {...errorProps(errors, "career_other", "pre")}
               />
             )}
@@ -308,6 +328,30 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
             ))}
           </Group>
 
+          <Group legend="¿Ya estás en una residencia?" id="in_residence">
+            <ChoiceChip type="radio" name="in_residence" value="no" checked={!inResidence} onChange={() => setInResidence(false)}>
+              No
+            </ChoiceChip>
+            <ChoiceChip type="radio" name="in_residence" value="si" checked={inResidence} onChange={() => setInResidence(true)}>
+              Sí
+            </ChoiceChip>
+          </Group>
+          {inResidence && (
+            <Input
+              id="pre-current_residence"
+              name="current_residence"
+              label="Nombre de la residencia"
+              maxLength={120}
+              autoComplete="off"
+              value={currentResidence}
+              onChange={(event) => setCurrentResidence(event.target.value)}
+              hint={errorHint(errors, "current_residence", "pre")}
+              {...errorProps(errors, "current_residence", "pre")}
+            />
+          )}
+          </div>
+
+          <div className="grid min-w-0 content-start gap-3">
           <p className="text-sm text-ink-soft">Hábitos, intereses y aparecer en la comunidad son opcionales.</p>
 
           <Group legend="Tus hábitos" hint="Elegí 2" error={errors?.habits} id="habits">
@@ -348,37 +392,13 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
             })}
           </Group>
 
-          <Group legend="¿Ya estás en una residencia?" id="in_residence">
-            <ChoiceChip type="radio" name="in_residence" value="no" checked={!inResidence} onChange={() => setInResidence(false)}>
-              No
-            </ChoiceChip>
-            <ChoiceChip type="radio" name="in_residence" value="si" checked={inResidence} onChange={() => setInResidence(true)}>
-              Sí
-            </ChoiceChip>
-          </Group>
-          {inResidence && (
-            <Input
-              id="pre-current_residence"
-              name="current_residence"
-              label="¿Cuál?"
-              placeholder="Nombre de la residencia"
-              maxLength={120}
-              autoComplete="off"
-              value={currentResidence}
-              onChange={(event) => setCurrentResidence(event.target.value)}
-              hint={errorHint(errors, "current_residence", "pre")}
-              className={FIELD_CLASS}
-              {...errorProps(errors, "current_residence", "pre")}
-            />
-          )}
-
           <CheckRow
             name="community"
             checked={community}
             onChange={setCommunity}
             disabled={isMinor}
             describedBy={isMinor ? "pre-community-note" : undefined}
-            className="border-[1.5px] border-line-2 bg-cream p-3.5 text-[15px] font-semibold text-ink"
+            className="border-[1.5px] border-line-2 bg-cream p-3 text-sm font-semibold text-ink"
           >
             Mostrar mi perfil (nombre, edad, país, carrera, hábitos e intereses) en la comunidad de la web
             {isMinor && (
@@ -387,8 +407,9 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               </small>
             )}
           </CheckRow>
+          </div>
 
-          <div className="flex">
+          <div className="flex @min-[760px]:col-span-2 @min-[760px]:justify-end">
             <SubmitButton isPending={isPending}
               block={false}
               idle={
@@ -404,7 +425,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
       </div>
 
       {/* Escritorio: columna derecha fija con las dos tarjetas en vivo. */}
-      <aside aria-label="Vista previa" className="hidden border-l border-line bg-cream p-5 @min-[860px]:block">
+      <aside aria-label="Vista previa" className="hidden border-l border-line bg-cream p-5 @min-[1080px]:block">
         <div className="sticky top-5 grid content-start gap-2.5">
           <p className="text-sm font-bold text-ink-soft">Así te van a ver</p>
           <ProfileCardLive data={preview} />

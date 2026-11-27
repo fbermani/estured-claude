@@ -16,7 +16,7 @@ function Line({ w }: { w: string }) {
 export function DashboardPreview({ firstName }: { firstName?: string | null }) {
   return (
     <div className="grid min-h-full grid-cols-[210px_minmax(0,1fr)] bg-cream max-sm:grid-cols-[minmax(0,1fr)]">
-      <div className="grid content-start gap-1 bg-forest-ink p-4 text-white max-sm:hidden">
+      <div className="grid content-start gap-1 surface-forest bg-forest-ink p-4 text-white max-sm:hidden">
         <span className="px-2 py-1.5">
           <BrandMark size={30} />
         </span>

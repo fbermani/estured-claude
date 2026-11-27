@@ -32,7 +32,7 @@ function SuccessPreapertura({ founder, devEmail }: { founder: FounderPlace | und
   }, []);
   return (
     <div>
-      <div className="grid justify-items-center gap-3 bg-forest-ink px-5 py-7 text-center text-white sm:px-9">
+      <div className="grid justify-items-center gap-3 surface-forest bg-forest-ink px-5 py-7 text-center text-white sm:px-9">
         <span aria-hidden="true" className="grid size-14 place-items-center rounded-full bg-gold text-forest-ink">
           <Icon name="mark_email_read" className="text-3xl" />
         </span>

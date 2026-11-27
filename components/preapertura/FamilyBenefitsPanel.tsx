@@ -9,7 +9,7 @@ export function FamilyBenefitsPanel() {
   return (
     <aside
       aria-label="Por qué acompañar con EstuRed"
-      className="grid grid-cols-[minmax(0,1fr)] content-start gap-3.5 overflow-hidden rounded-card bg-forest-ink p-5 text-white @min-[860px]:gap-5 @min-[860px]:p-9"
+      className="grid grid-cols-[minmax(0,1fr)] content-start gap-3.5 overflow-hidden rounded-card surface-forest bg-forest-ink p-5 text-white @min-[860px]:gap-5 @min-[860px]:p-9"
     >
       <div className="justify-self-start">
         <EarlyAccessPill>Acceso anticipado</EarlyAccessPill>

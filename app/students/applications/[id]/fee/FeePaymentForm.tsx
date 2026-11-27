@@ -58,7 +58,7 @@ export function FeePaymentForm({
       )}
       <form action={formAction} className="mt-4 space-y-4">
         <Input label="Nombre completo o razón social" name="payer_billing_name" required defaultValue={defaults?.name} />
-        <Input label="CUIT/CUIL o DNI (opcional)" name="payer_billing_cuit" defaultValue={defaults?.taxId} />
+        <Input label="CUIT/CUIL o DNI (opcional)" name="payer_billing_cuit" inputMode="numeric" defaultValue={defaults?.taxId} />
         <Select label="Condición frente al IVA" name="payer_iva_condition" defaultValue={defaults?.vatCondition || "consumidor_final"}>
           {IVA_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

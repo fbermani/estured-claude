@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { DemoSwitcherGate } from "@/components/dev/DemoSwitcherGate";
 import { isDemoLoginEnabled } from "@/lib/demoLogin";
 import "./globals.css";
+import { FormKeyboardFlow } from "@/components/ui/FormKeyboardFlow";
 import { SITE_URL } from "@/lib/siteUrl";
 import { siteJsonLd } from "@/lib/seo/siteJsonLd";
 
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body className="antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteJsonLd() }} />
         {children}
+        <FormKeyboardFlow />
         {isDemoLoginEnabled() && (
           // Suspense evita que la lectura de cookies() del switcher (solo
           // dev) fuerce rendering dinámico en toda página pública que use

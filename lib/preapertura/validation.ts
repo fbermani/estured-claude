@@ -11,6 +11,7 @@ import {
   INTEREST_OPTIONS,
   MAX_CHIPS,
   OTHER_CAREER,
+  OTHER_UNIVERSITY,
   PROVINCE_OPTIONS,
   ROOM_TYPE_OPTIONS,
   type RoomType,
@@ -125,6 +126,7 @@ export type ProfileRaw = {
   country?: unknown;
   province?: unknown;
   university?: unknown;
+  university_other?: unknown;
   career?: unknown;
   career_other?: unknown;
   entry?: unknown;
@@ -165,13 +167,16 @@ export function validateProfile(raw: ProfileRaw, context: { isMinor: boolean; no
     else province = provinceText;
   }
 
-  const universityText = clean(raw.university);
+  const universityChoice = clean(raw.university);
+  const writtenByHand = universityChoice === OTHER_UNIVERSITY;
+  const universityText = writtenByHand ? clean(raw.university_other) : universityChoice;
+  const universityField = writtenByHand ? "university_other" : "university";
   let university: string | null = null;
   if (universityText) {
     if (universityText.length < 2 || universityText.length > 120 || !FREE_TEXT_RE.test(universityText)) {
-      errors.university = "Revisá la universidad: entre 2 y 120 caracteres.";
+      errors[universityField] = "Revisá la universidad: entre 2 y 120 caracteres.";
     } else university = universityText;
-  } else errors.university = "Escribí tu universidad.";
+  } else errors[universityField] = writtenByHand ? "Escribí tu universidad." : "Elegí tu universidad.";
 
   const careerChoice = clean(raw.career);
   let career: string | null = null;

@@ -210,7 +210,7 @@ export function HowItWorksSteps({ steps }: { steps: Step[] }) {
                       </picture>
                     </div>
                   </div>
-                  <div className={`grid flex-1 content-start gap-2 bg-forest-ink p-[18px] pb-5 lg:flex-none lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:[&>*]:invisible"}`}>
+                  <div className={`grid flex-1 content-start gap-2 surface-forest bg-forest-ink p-[18px] pb-5 lg:flex-none lg:px-6 lg:pb-6 lg:pt-[22px] ${front ? "" : "lg:[&>*]:invisible"}`}>
                     <span className="text-xs font-bold text-amber-soft-300">Paso {i + 1}</span>
                     <h3 className="text-xl text-white lg:text-[22px]">{s.title}</h3>
                     <p className="text-[15px] leading-relaxed text-forest-tint">{s.description}</p>

@@ -122,14 +122,14 @@ export function PasswordField({
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId ?? `${id}-hint`}
         hint={shownHint ?? <span id={`${id}-hint`} />}
-        className="pr-14 aria-invalid:border-danger-fg"
+        className="pr-14"
       />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
         aria-pressed={visible}
-        className="absolute right-1 top-[26px] grid size-11 place-items-center rounded-field text-ink-soft hover:text-ink focus-visible:outline-[3px] focus-visible:outline-offset-0 focus-visible:outline-forest-ink"
+        className="absolute right-1 top-1.5 grid size-11 place-items-center rounded-field text-ink-soft hover:text-ink focus-visible:outline-[3px] focus-visible:outline-offset-0 focus-visible:outline-forest-ink"
       >
         <Icon name={visible ? "visibility_off" : "visibility"} className="text-2xl" />
       </button>

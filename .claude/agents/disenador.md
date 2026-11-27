@@ -46,6 +46,10 @@ Resumen en pocas líneas: qué diseñaste y por qué, rutas de los archivos (moc
 
 ## Reglas de diseño permanentes (polish Hallmark, 2026-11-08)
 
+- **Fondos oscuros (2026-11-27, dueño):** nunca un verde plano. Todo panel grande `bg-forest-ink` suma `surface-forest` (`app/surfaces.css`): textura, curvas abstractas y luz. Reemplaza «sin gradientes de lavado» en estos paneles.
+- **Formularios (2026-11-27, dueño):** `Input`/`Select`/`Textarea` con el título adentro (`app/fields.css`), alto 56 px, teclado según el dato y botón «Siguiente» en celular (`FormKeyboardFlow`). Sin campos crudos nuevos.
+- **Popups en escritorio (2026-11-27, dueño):** sin scroll desde 1280×720 (legales excluidos).
+
 Se aplican a todo diseño nuevo o rediseño. Donde choquen con las líneas de arriba, mandan estas (las fuentes reales de la app son Bricolage Grotesque para títulos y Hanken Grotesk para texto; los tokens de color son `forest`, `orange`, `cream`, `ink`; la mención a Manrope/petrol/sage como sistema vigente quedó vieja).
 
 **Tokens y color**
