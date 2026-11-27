@@ -53,14 +53,14 @@ export function buildStudentWelcomeEmail(input: {
 }): { subject: string; html: string } {
   const bodyHtml = [
     emailParagraph("Hola:"),
-    emailParagraph("Creaste tu cuenta en EstuRed. Todavía no abrimos: te avisamos por mail."),
+    emailParagraph("Creaste tu cuenta en EstuRed. Todavía no abrimos: te avisamos por mail y por WhatsApp."),
     highlight(input.registrationNumber),
     heading("¿Por qué EstuRed?"),
-    emailParagraph("Cuando abramos, reservar por EstuRed te da más que reservar por fuera:"),
+    emailParagraph(`Cuando abramos, <b style="color:${C.forest700}">reservar por EstuRed te da más que reservar por fuera</b>:`),
     reasons(),
     heading(input.isMinor ? "Completá tu perfil" : "Completá tu perfil y sumate a la comunidad"),
-    emailParagraph("Con tu perfil completo, vamos a poder recomendarte mejor."),
-    emailParagraph("En la comunidad vas a ver quiénes viven en cada residencia antes de elegir. Cada estudiante decide qué mostrar."),
+    emailParagraph("Con tu perfil completo, vas a tener más chances de reservar tu residencia elegida."),
+    emailParagraph("En la comunidad vas a ver quiénes viven en cada residencia antes de elegir."),
     room(),
     input.isMinor ? emailParagraph("Por tu edad, tu perfil no aparece en la comunidad.") : PUBLIC_CARD,
     emailButton(input.profileUrl, "Completar mi perfil"),

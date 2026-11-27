@@ -16,7 +16,7 @@ describe("plantilla común de los mails", () => {
   it("usa imágenes PNG con URL absoluta y texto alternativo, que existen en public/", () => {
     const html = renderEmail({ ...base, hero: "invitacion" });
     const images = [...html.matchAll(/<img [^>]*>/g)].map((m) => m[0]);
-    expect(images).toHaveLength(2);
+    expect(images).toHaveLength(3); // marca, cabecera e ícono de Instagram
     for (const img of images) {
       expect(img).toContain(`src="${SITE_URL}/email/`);
       expect(img).toMatch(/\.png"/);
@@ -28,6 +28,7 @@ describe("plantilla común de los mails", () => {
     const html = renderEmail({ ...base, hero: "cuenta" });
     expect(html).toContain("Seguinos en Instagram:");
     expect(html).toContain("@estured.residencias</a>");
+    expect(html).toMatch(/<img [^>]*\/email\/instagram\.png[^>]*>@estured\.residencias<\/a>/);
     expect(html.split("instagram.com/estured.residencias").length - 1).toBe(1);
   });
   it("se entiende sin imágenes: la marca va escrita", () => {
