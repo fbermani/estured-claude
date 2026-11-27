@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
  * Teclado del celular en todos los formularios (decisión del dueño, 2026-11-27). Solo en pantallas táctiles:
  * la tecla Enter pasa al campo siguiente (en el último envía) y un botón «Siguiente» queda sobre el teclado, también en los
  * teclados numéricos (que no tienen Enter). El foco se mueve dentro del mismo gesto, así el teclado no se baja.
- * Se excluyen las búsquedas (`type="search"`, `role="search"`) y cualquier formulario con `data-no-keyboard-flow`.
+ * Se excluyen las búsquedas (`type="search"`, `role="search"`), los filtros `method="get"` y cualquier formulario con `data-no-keyboard-flow`.
  */
 const FIELDS = "input, select, textarea";
 const SKIPPED_TYPES = new Set(["hidden", "checkbox", "radio", "file", "submit", "button", "reset", "image", "range", "color"]);
@@ -28,6 +28,8 @@ function flowForm(target: EventTarget | null): HTMLFormElement | null {
   if (target instanceof HTMLInputElement && target.type === "search") return null;
   const form = target.closest("form");
   if (!form || form.closest('[role="search"], [data-no-keyboard-flow]')) return null;
+  // Los filtros son formularios `method="get"`: Enter aplica la búsqueda.
+  if (form.getAttribute("method")?.toLowerCase() === "get") return null;
   return form;
 }
 
@@ -104,6 +106,7 @@ export function FormKeyboardFlow() {
       type="button"
       // Sin esto, tocar el botón le saca el foco al campo y el teclado se cierra.
       onPointerDown={(event) => event.preventDefault()}
+      onMouseDown={(event) => event.preventDefault()}
       onClick={() => {
         const form = button.field.closest("form");
         if (form) nextField(button.field, form)?.focus();

@@ -188,6 +188,16 @@ describe("validateProfile", () => {
     });
   });
 
+  it("universidad «Otra»: exige el texto escrito a mano y lo guarda", () => {
+    const empty = validateProfile({ ...complete, university: "__otra__", university_other: "" }, adult);
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) expect(Object.keys(empty.fieldErrors)).toEqual(["university_other"]);
+    expect(validateProfile({ ...complete, university: "__otra__", university_other: "Universidad de Prueba" }, adult)).toMatchObject({
+      ok: true,
+      value: { university: "Universidad de Prueba" },
+    });
+  });
+
   it("«¿Ya estás en una residencia?» pide el nombre; con «no» se descarta", () => {
     expect(validateProfile({ ...complete, in_residence: "si", current_residence: "" }, adult).ok).toBe(false);
     expect(validateProfile({ ...complete, in_residence: "no", current_residence: "Residencia X" }, adult)).toMatchObject({ ok: true, value: { currentResidence: null } });

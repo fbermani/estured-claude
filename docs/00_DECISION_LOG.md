@@ -2082,3 +2082,20 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 **Supuestos reversibles** (`docs/13` §4, 2026-11-27): las alertas se ordenan por el tiempo que falta: 36, 24, 12 y 6 horas antes del vencimiento (equivalen a las 12, 24, 36 y 42 horas de un plazo de 48). Si el cron se atrasa, sale solo la última alerta que corresponda. En el plazo nuevo de 24 horas salen solo las de 12 y 6 horas antes (el aviso del plazo nuevo reemplaza a las anteriores). Canales: app, push y mail; WhatsApp queda fuera hasta DR67 (a).
 
 **Estado:** implementado en `staging` (2026-11-27). Migración 0112. Mail sin probar (staging no tiene cron ni clave de Resend).
+
+### DR75: popup, campos y fondos (2026-11-27)
+
+**Fuente:** decisión del dueño, tras revisar staging. Modifica DR43.3, DR67 y la regla de diseño «sin gradientes de lavado».
+
+| # | Decisión |
+|---|---|
+| DR75 (a) | **Fondos:** nunca planos, sobre todo el verde. Textura, relieve, formas abstractas o gradiente. |
+| DR75 (b) | **Registro del estudiante:** «Tu familia puede acompañarte» reemplaza a «Gratis. Sin tarjeta.» en el panel lateral. |
+| DR75 (c) | **Perfil:** 15 universidades y 10 carreras de Buenos Aires. Ambos campos ofrecen «Otra» con texto libre. |
+| DR75 (d) | **Formularios de toda la app:** título dentro del campo, alto 56 px, teclado según el dato y «Siguiente» en celular. |
+| DR75 (e) | **Popups:** sin scroll en escritorio. |
+| DR75 (f) | **`/fundadoras`:** sello «Perfil Verificado» arriba a la derecha, con «Sin costo de verificación». Suma «Te ayudamos a configurar tu cuenta». |
+
+**Supuestos reversibles** (`docs/13` §4): las listas salen de conocimiento general, sin ranking oficial completo. Las carreras ya guardadas siguen en la lista. «Sin scroll» se mide desde 1280×720 sin errores en pantalla; los textos legales quedan fuera.
+
+**Estado:** en `staging`. (d) cubre `Input`, `Textarea` y `Select`; faltan migrar los campos propios de admin, residencia y algunos de estudiante.

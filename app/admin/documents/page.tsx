@@ -127,7 +127,7 @@ export default async function AdminDocumentsPage({
         </button>
       </form>
       <div className="mb-4 hidden flex-wrap items-center gap-3 md:flex">
-        <form className="flex items-center gap-2">
+        <form method="get" className="flex items-center gap-2">
           <input
             type="text"
             name="q"
