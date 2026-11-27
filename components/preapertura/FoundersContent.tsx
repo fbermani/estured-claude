@@ -62,7 +62,7 @@ function VerifiedSeal() {
           Verificado
         </span>
       </span>
-      <span className="-mt-2 max-w-[8.5rem] rounded-field bg-butter px-3 py-1 text-center text-xs font-bold leading-tight text-butter-fg shadow-card sm:max-w-none sm:rounded-full">Sin costo de verificación</span>
+      <span className="relative z-10 -mt-1 max-w-[8.5rem] sm:-mt-2 rounded-field bg-butter px-3 py-1 text-center text-xs font-bold leading-tight text-butter-fg shadow-card sm:max-w-none sm:rounded-full">Sin costo de verificación</span>
     </div>
   );
 }
