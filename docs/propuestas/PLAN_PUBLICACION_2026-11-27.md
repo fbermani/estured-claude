@@ -51,10 +51,11 @@ Sin migraciones ni cambios en `/terms`. Ramas locales, armadas desde `main`.
 
 | Opción | Commit | Incluye | Validado |
 |---|---|---|---|
-| A | `f9e3b57` (`publicar/web-sin-popup-2026-11-27`) | Mails, footer, copys | typecheck, lint, build, 43 tests |
-| B | `bf98b95` (`publicar/web-2026-11-27`) | A + popup y campos (DR75) | typecheck, lint, build, 67 tests |
+| A | `f42a798` (`publicar/web-sin-popup-2026-11-27`) | Mails, footer, copys, vista previa | typecheck, lint, build, 61 tests |
+| B | `d112f52` (`publicar/web-2026-11-27`) | A + popup y campos (DR75) | typecheck, lint, build, 61 tests |
 
 - Ninguna se vio en una URL. Sin suite completa.
+- Las dos suman la corrección de la vista previa (`f8b5a33`). Los 61 tests son de `lib/share` y de esa imagen.
 - Las dos contienen `publicar/mails-2026-11-27` (`89f8544`), de otra sesión.
 - Usá un solo comando: A o B. No hace falta publicar la rama de mails aparte.
 - Si esa rama o `main` avanzan, [Yo] rearmo y valido.
@@ -67,15 +68,15 @@ Pasos:
 2. [Vos] Corré **uno** de los dos:
 
 ```bash
-git push origin f9e3b57:main
+git push origin f42a798:main
 ```
 
 ```bash
-git push origin bf98b95:main
+git push origin d112f52:main
 ```
 
 3. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de ese commit.
-4. [Yo] Mergeo `main` en `staging` y pusheo. Simulado con B: sin conflictos.
+4. [Yo] Mergeo `main` en `staging` y pusheo. Con B hay conflictos: `MEMORY.md`, `app/fields.css`, `app/surfaces.css`.
 
 Orden de commits sobre `main`:
 

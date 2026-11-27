@@ -21,7 +21,7 @@ Demo: selector "Simular usuario" (solo con `DEMO_LOGIN_ENABLED=true` en `.env.lo
 
 El detalle de ciclos anteriores (62–87, preapertura, ficha «placa porteña», DR12–DR48, auditorías) está en `docs/archive/MEMORY_HISTORICO_2026-11-19.md` §B. Lo vigente:
 
-- **Salida de «pesos y pago» (2026-11-27):** plan en `docs/propuestas/PLAN_PUBLICACION_2026-11-27.md`; sin enviar ni publicar. Prod: `terms` 2, `residence_terms` 0. Ramas **locales** sin `/terms`: `publicar/web-sin-popup-2026-11-27` (`f9e3b57`) y `publicar/web-2026-11-27` (`bf98b95`, con popup).
+- **Salida de «pesos y pago» (2026-11-27):** plan en `docs/propuestas/PLAN_PUBLICACION_2026-11-27.md`; sin enviar ni publicar. Prod: `terms` 2, `residence_terms` 0. Ramas **locales** sin `/terms`: `publicar/web-sin-popup-2026-11-27` (`f42a798`) y `publicar/web-2026-11-27` (`d112f52`, con popup), ambas con la corrección de la vista previa.
   - Las 2 cuentas son pruebas del dueño (recuento 18:33). **Rige hoy 27/11:** sale todo `staging`; las ramas A y B quedan sin uso. Mails sin enviar (sin destinatarios reales). Runbook sin actualizar (tenía cambios sin commitear de otra sesión).
 - **Popup y campos (2026-11-27, `staging`; producción no).** Verde con textura (`app/surfaces.css`), campos de 56 px con título adentro (`app/fields.css`), «Siguiente» en celular (`FormKeyboardFlow`), popups sin scroll en escritorio, 15 universidades y 10 carreras con «Otra», sello en fundadoras.
   - Pendiente: ~117 campos crudos sin migrar a `Input`/`Select` (admin, residencia y algunos de estudiante). Teclado sin probar en teléfono real.
