@@ -6,7 +6,7 @@ import { useId, type ComponentPropsWithoutRef } from "react";
  * cuando un texto lleva números). El salto al campo siguiente lo hace `components/ui/FormKeyboardFlow.tsx`.
  */
 const fieldClasses =
-  "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3.5 text-base text-ink placeholder:text-muted transition-colors duration-200 ease-fresh focus:border-forest focus:outline-2 focus:outline-forest-tint aria-invalid:border-danger-fg read-only:bg-cream-2 disabled:bg-cream-2 disabled:text-muted";
+  "w-full rounded-field border-[1.5px] border-field-border bg-cream px-3.5 text-base text-ink placeholder:text-muted transition-colors duration-200 ease-fresh focus:border-forest focus:outline-2 focus:outline-forest-tint aria-invalid:border-danger-fg disabled:bg-cream-2 disabled:text-muted";
 
 /** Tipos que el navegador siempre dibuja con contenido propio: el título queda arriba desde el inicio. */
 const ALWAYS_FILLED = new Set(["date", "time", "datetime-local", "month", "week", "file", "color", "range"]);
@@ -85,7 +85,7 @@ export function Input({
         // `placeholder` siempre presente: `:placeholder-shown` es lo que dice si el campo está vacío.
         placeholder={props.placeholder ?? (label ? " " : undefined)}
         id={id}
-        className={`${fieldClasses} h-14 ${control}`}
+        className={`${fieldClasses} h-14 read-only:bg-cream-2 ${control}`}
       />
     </FieldWrapper>
   );
@@ -107,7 +107,7 @@ export function Textarea({
         {...props}
         placeholder={props.placeholder ?? (label ? " " : undefined)}
         id={id}
-        className={`${fieldClasses} min-h-24 py-3 ${control}`}
+        className={`${fieldClasses} min-h-24 py-3 read-only:bg-cream-2 ${control}`}
       />
     </FieldWrapper>
   );

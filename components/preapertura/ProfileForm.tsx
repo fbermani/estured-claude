@@ -328,27 +328,30 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
             ))}
           </Group>
 
-          <Group legend="¿Ya estás en una residencia?" id="in_residence">
-            <ChoiceChip type="radio" name="in_residence" value="no" checked={!inResidence} onChange={() => setInResidence(false)}>
-              No
-            </ChoiceChip>
-            <ChoiceChip type="radio" name="in_residence" value="si" checked={inResidence} onChange={() => setInResidence(true)}>
-              Sí
-            </ChoiceChip>
-          </Group>
-          {inResidence && (
-            <Input
-              id="pre-current_residence"
-              name="current_residence"
-              label="Nombre de la residencia"
-              maxLength={120}
-              autoComplete="off"
-              value={currentResidence}
-              onChange={(event) => setCurrentResidence(event.target.value)}
-              hint={errorHint(errors, "current_residence", "pre")}
-              {...errorProps(errors, "current_residence", "pre")}
-            />
-          )}
+          <div className="flex flex-wrap items-end gap-3">
+            <Group legend="¿Ya estás en una residencia?" id="in_residence">
+              <ChoiceChip type="radio" name="in_residence" value="no" checked={!inResidence} onChange={() => setInResidence(false)}>
+                No
+              </ChoiceChip>
+              <ChoiceChip type="radio" name="in_residence" value="si" checked={inResidence} onChange={() => setInResidence(true)}>
+                Sí
+              </ChoiceChip>
+            </Group>
+            {inResidence && (
+              <Input
+                id="pre-current_residence"
+                name="current_residence"
+                label="Nombre de la residencia"
+              className="min-w-[220px] flex-1"
+                maxLength={120}
+                autoComplete="off"
+                value={currentResidence}
+                onChange={(event) => setCurrentResidence(event.target.value)}
+                hint={errorHint(errors, "current_residence", "pre")}
+                {...errorProps(errors, "current_residence", "pre")}
+              />
+            )}
+          </div>
           </div>
 
           <div className="grid min-w-0 content-start gap-3">
@@ -407,9 +410,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               </small>
             )}
           </CheckRow>
-          </div>
-
-          <div className="flex @min-[760px]:col-span-2 @min-[760px]:justify-end">
+          <div className="flex @min-[760px]:justify-end">
             <SubmitButton isPending={isPending}
               block={false}
               idle={
@@ -420,6 +421,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               }
               pending="Guardando…"
             />
+          </div>
           </div>
         </form>
       </div>
