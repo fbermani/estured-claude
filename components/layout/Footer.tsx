@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { Icon } from "@/components/ui/Icon";
-import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { FooterContact } from "@/components/layout/FooterContact";
 import { OPERATOR_SECTION_HREF } from "@/lib/legal/operator";
 import { LEGAL_TEXTS_UPDATED_LABEL } from "@/lib/legal/versions";
 
@@ -11,34 +11,25 @@ const legalLink =
   "inline-flex min-h-11 items-center rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
 
 /**
- * B2: firma de marca + 2 grupos de links + legal en una línea.
+ * B2: firma de marca con contacto + 2 grupos de links + legal en una línea.
  * `staffView`: lo usan las pantallas de quien administra una residencia; saca «Crear cuenta», «Soporte» y el botón de
  * arrepentimiento, que son de estudiantes y a ese rol lo devolvían al panel sin avisar.
  */
 export function Footer({ hideSignup = false, staffView = false }: { hideSignup?: boolean; staffView?: boolean } = {}) {
   return (
     <footer className="border-t border-line bg-forest-ink text-white">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-7 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr]">
-        <div>
-          <BrandMark size={36} tone="dark" />
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-4 gap-y-4 px-4 py-6 sm:px-6 md:grid-cols-[1.1fr_1.5fr_1.4fr] md:gap-x-6">
+        <div className="col-span-2 md:col-span-1">
+          <BrandMark size={32} tone="dark" />
           <span className="sr-only">EstuRed</span>
           <p className="mt-2 max-w-sm text-sm text-white/70">
-            La convivencia también se elige. Residencias estudiantiles
-            verificadas en CABA, con solicitudes registradas y comprobante
-            de reserva.
+            La convivencia también se elige. Residencias estudiantiles verificadas presencialmente en CABA.
           </p>
-          <ul className="mt-2 space-y-1 text-sm text-white/80">
-            {["Residencias verificadas presencialmente", "Solicitudes registradas en la plataforma", "Comprobante de Reserva Confirmada"].map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <Icon name="check" className="mt-0.5 text-base text-amber-soft-300" />
-                {t}
-              </li>
-            ))}
-          </ul>
+          <FooterContact className="mt-1" />
         </div>
         <nav aria-label="Explorar">
           <p className="text-sm font-bold text-white/60">Explorar</p>
-          <ul className="mt-1 text-sm text-white/80">
+          <ul className="mt-1 text-sm text-white/80 lg:grid lg:grid-cols-2 lg:gap-x-4">
             <li>
               <Link href="/search" className={link}>
                 Buscar residencias
@@ -82,7 +73,7 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
         </nav>
         <nav aria-label="Ayuda">
           <p className="text-sm font-bold text-white/60">Ayuda</p>
-          <ul className="mt-1 text-sm text-white/80">
+          <ul className="mt-1 text-sm text-white/80 lg:grid lg:grid-cols-2 lg:gap-x-4">
             {!staffView && (
               <li>
                 <Link href="/students/support" className={`${link} gap-1.5 font-semibold text-white`}>
@@ -106,14 +97,8 @@ export function Footer({ hideSignup = false, staffView = false }: { hideSignup?:
                 Qué pagás y cuándo
               </Link>
             </li>
-            <li className="py-1">
-              Contacto:{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                {CONTACT_EMAIL}
-              </a>
-            </li>
-            <li className="text-xs text-white/60">¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.</li>
           </ul>
+          <p className="mt-1 text-xs text-white/60">¿Tenés una reserva y algo no coincide? Abrí un caso desde tu panel.</p>
         </nav>
       </div>
       <div className="border-t border-white/10">

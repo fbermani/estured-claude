@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/ui/BrandMark";
-import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { FooterContact } from "@/components/layout/FooterContact";
 
 const legalLink =
   "inline-flex min-h-11 items-center rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:min-h-8";
@@ -15,15 +15,7 @@ export function PreaperturaFooter() {
           <span className="sr-only">EstuRed</span>
           <p className="mt-2 max-w-sm text-sm text-white/80">La convivencia también se elige.</p>
         </div>
-        <p className="text-sm text-white/80">
-          Contacto:{" "}
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="rounded-sm underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            {CONTACT_EMAIL}
-          </a>
-        </p>
+        <FooterContact />
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
