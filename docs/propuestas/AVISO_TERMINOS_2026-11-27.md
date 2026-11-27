@@ -4,6 +4,10 @@
 
 Cubre DR72 (cotización fija) y DR73 (un caso en Soporte frena el vencimiento). Compara `main` (`4f82924`) con `staging`.
 
+## Para revisar
+
+Las condiciones para residencias no mencionan la regla del caso en Soporte. Solo está en `/terms` §22.
+
 ## Antes de enviar
 
 1. Elegí la fecha de vigencia. Reemplazá `[FECHA]` en los dos mails.
@@ -11,6 +15,17 @@ Cubre DR72 (cotización fija) y DR73 (un caso en Soporte frena el vencimiento). 
 3. Publicá en `main` en esa fecha, no antes. Al publicar, los textos nuevos quedan visibles.
 4. Avisá a las residencias por email. Lo exige la sección 13 de sus condiciones.
 5. Poné los destinatarios en copia oculta.
+
+## Destinatarios
+
+Elegilos por consentimiento (`consents.consent_type`), no por rol.
+
+| Mail | Consentimiento | Incluye |
+|---|---|---|
+| 1 | `terms` | Preregistrados, estudiantes, familias y staff de residencias |
+| 2 | `residence_terms` | Responsables de residencias |
+
+Quien tenga los dos recibe los dos. Falta contar destinatarios en prod.
 
 ## Mail 1: estudiantes y familias
 
@@ -34,7 +49,7 @@ Actualizamos los Términos y condiciones de EstuRed. Los cambios rigen desde el 
 
 **2. Un caso en Soporte sobre el pago frena el vencimiento**
 
-- Antes: abrir un reclamo no suspendía nada, salvo decisión de EstuRed.
+- Antes: un reclamo no suspendía nada, salvo decisión manual de EstuRed.
 - Ahora hay una excepción: los casos sobre el pago de la reserva a la residencia.
 - Mientras ese caso siga abierto, la solicitud no vence.
 - Al cerrarlo, puede correr un plazo nuevo de 24 horas.
@@ -67,14 +82,18 @@ Actualizamos las Condiciones para residencias de EstuRed. Los cambios rigen desd
 - Si cobrás en dólares, vale el monto en dólares de la solicitud.
 - Solo una propuesta de ajuste aceptada puede cambiar el importe.
 
-**Cambia también el vencimiento de las solicitudes**
+Desde el [FECHA] vas a ver ese texto en https://estured.com/terms/residencias.
 
-- Un caso en Soporte sobre el pago de la reserva frena ese vencimiento.
+**Además: cómo cambia el vencimiento de las solicitudes**
+
+Esta regla figura en la sección 22 de los Términos y condiciones.
+
+- Un caso en Soporte sobre el pago de la reserva frena el vencimiento.
 - La solicitud no vence mientras el caso siga abierto.
 - Al cerrarlo, puede correr un plazo nuevo de 24 horas.
 - Corre si el plazo ya venció y no hay «Pago recibido».
 
-Desde el [FECHA] vas a ver el texto completo en https://estured.com/terms/residencias.
+Desde el [FECHA] la vas a ver en https://estured.com/terms.
 
 ¿Dudas? Escribinos a hola@estured.com.
 
