@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { loadMetaPixel, resolveMetaPixelId, trackMetaEvent } from "@/lib/analytics/metaPixel";
+import { loadMetaPixel, loadMetaPixelWithConsent, resolveMetaPixelId, trackMetaEvent } from "@/lib/analytics/metaPixel";
 
 describe("Meta Pixel: inerte por defecto", () => {
   it("sin ID no hay pixel", () => {
@@ -71,6 +71,20 @@ describe("Meta Pixel: inerte por defecto", () => {
     expect(loadMetaPixel("1234567890", win as never, {} as never)).toBe(false);
     trackMetaEvent("PageView", undefined, win as never);
     trackMetaEvent("CompleteRegistration", "preregistro_estudiante", win as never);
+    expect(fbq).not.toHaveBeenCalled();
+  });
+
+  it("cuenta cada pantalla: permite el PageView repetido y sigue sin el envío automático (que saltearía las exclusiones)", () => {
+    const win: { fbq?: { disablePushState?: boolean; allowDuplicatePageViews?: boolean } } = {};
+    const doc = { createElement: vi.fn(() => ({ async: false, src: "" })), getElementsByTagName: vi.fn(() => []) };
+    loadMetaPixel("1234567890", win as never, doc as never);
+    expect(win.fbq?.allowDuplicatePageViews).toBe(true);
+    expect(win.fbq?.disablePushState).toBe(true);
+  });
+
+  it("sin ID (visitante excluido, por ejemplo un menor) no habilita el envío aunque el pixel ya esté cargado", () => {
+    const fbq = vi.fn();
+    expect(loadMetaPixelWithConsent(null, "granted", { fbq } as never, {} as never)).toBe(false);
     expect(fbq).not.toHaveBeenCalled();
   });
 
