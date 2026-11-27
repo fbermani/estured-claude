@@ -751,7 +751,7 @@ export default async function StudentResidencyPage({ searchParams }: { searchPar
       {community && (community.totalResidents > 0 || community.totalAvailable > 0) && residence && (
         <section id="comunidad" className="mt-8 scroll-mt-24">
           <h2 className="text-xl font-bold text-ink">Comunidad actual</h2>
-          <p className="mt-2 text-sm text-ink-soft">{isFamilyOnly ? `Los compañeros de residencia de ${subjectName}` : "Tus compañeros de residencia"} — cada uno decide qué mostrar.</p>
+          <p className="mt-2 text-sm text-ink-soft">{isFamilyOnly ? `Los compañeros de residencia de ${subjectName}` : "Tus compañeros de residencia"}.</p>
           <div className="mt-4">
             <ReservationSelectionProvider>
               <CommunityBrowser summary={community} slug={residence.slug} isGuest={false} allowSelection={false} />

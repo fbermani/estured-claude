@@ -68,17 +68,18 @@ export type ExampleProfile = {
   tone: "mint" | "peach" | "lilac" | "sky" | "butter";
 };
 
+/** La mayoría es de Argentina, Venezuela, Perú, Brasil y Ecuador, las comunidades más usuales (dueño, 2026-11-27). Solo banderas latinoamericanas. */
 export const EXAMPLE_PROFILES: readonly ExampleProfile[] = [
-  { name: "Martina", age: 19, from: "Uruguay", flag: "🇺🇾", career: "Medicina", tags: ["Madrugo", "Lectura"], tone: "mint" },
-  { name: "Joaquín", age: 21, from: "Argentina", flag: "🇦🇷", career: "Ingeniería en Sistemas", tags: ["Hago deporte", "Música"], tone: "sky" },
+  { name: "Martina", age: 19, from: "Argentina", flag: "🇦🇷", career: "Medicina", tags: ["Madrugo", "Lectura"], tone: "mint" },
+  { name: "Joaquín", age: 21, from: "Venezuela", flag: "🇻🇪", career: "Ingeniería en Sistemas", tags: ["Hago deporte", "Música"], tone: "sky" },
   { name: "Valeria", age: 20, from: "Perú", flag: "🇵🇪", career: "Arquitectura", tags: ["Me gusta cocinar", "Arte"], tone: "peach" },
-  { name: "Tomás", age: 18, from: "Paraguay", flag: "🇵🇾", career: "Derecho", tags: ["Prefiero la calma", "Cine"], tone: "lilac" },
-  { name: "Agustina", age: 22, from: "Colombia", flag: "🇨🇴", career: "Psicología", tags: ["Muy sociable", "Idiomas"], tone: "butter" },
-  { name: "Bruno", age: 20, from: "Brasil", flag: "🇧🇷", career: "Diseño Gráfico", tags: ["Arte", "Música"], tone: "mint" },
-  { name: "Camila", age: 19, from: "Chile", flag: "🇨🇱", career: "Economía", tags: ["Madrugo", "Hago deporte"], tone: "sky" },
-  { name: "Diego", age: 23, from: "Bolivia", flag: "🇧🇴", career: "Medicina", tags: ["Me gusta cocinar", "Cine"], tone: "peach" },
-  { name: "Sofía", age: 18, from: "Ecuador", flag: "🇪🇨", career: "Medicina", tags: ["Lectura", "Idiomas"], tone: "lilac" },
-  { name: "Mateo", age: 21, from: "Argentina", flag: "🇦🇷", career: "Economía", tags: ["Muy sociable", "Hago deporte"], tone: "butter" },
+  { name: "Bruno", age: 20, from: "Brasil", flag: "🇧🇷", career: "Diseño Gráfico", tags: ["Arte", "Música"], tone: "lilac" },
+  { name: "Sofía", age: 18, from: "Ecuador", flag: "🇪🇨", career: "Medicina", tags: ["Lectura", "Idiomas"], tone: "butter" },
+  { name: "Mateo", age: 21, from: "Argentina", flag: "🇦🇷", career: "Economía", tags: ["Muy sociable", "Hago deporte"], tone: "mint" },
+  { name: "Agustina", age: 22, from: "Colombia", flag: "🇨🇴", career: "Psicología", tags: ["Muy sociable", "Idiomas"], tone: "sky" },
+  { name: "Camila", age: 19, from: "Venezuela", flag: "🇻🇪", career: "Economía", tags: ["Madrugo", "Hago deporte"], tone: "peach" },
+  { name: "Diego", age: 23, from: "Perú", flag: "🇵🇪", career: "Medicina", tags: ["Me gusta cocinar", "Cine"], tone: "lilac" },
+  { name: "Tomás", age: 18, from: "Ecuador", flag: "🇪🇨", career: "Derecho", tags: ["Prefiero la calma", "Cine"], tone: "butter" },
 ];
 
 /**

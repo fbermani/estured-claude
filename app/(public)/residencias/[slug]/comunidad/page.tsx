@@ -51,7 +51,7 @@ export default async function ResidenceCommunityPage({ params }: { params: Promi
         </Link>
         <h1 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">Comunidad actual de la residencia</h1>
         <p className="mt-1 text-ink-soft">
-          Conocé a tus futuros compañeros — cada estudiante decide qué mostrar. {residence.public_area}, CABA.
+          Conocé a tus futuros compañeros. {residence.public_area}, CABA.
         </p>
 
         {!sessionUser && (

@@ -202,7 +202,7 @@ function ResidentCell({ card, index, isGuest }: { card: CommunityProfileCard; in
               <Link href="/login" className="font-semibold text-forest-700 hover:underline">
                 Iniciá sesión
               </Link>{" "}
-              para ver la edad, carrera, intereses y hábitos que este residente eligió compartir.
+              para ver su edad, carrera, intereses y hábitos.
             </p>
           ) : (
             <>
@@ -524,7 +524,6 @@ export function CommunityBrowser({
           label="Residentes"
           value={summary.totalResidents}
           unit="actuales"
-          hint="Cada uno decide qué mostrar."
         />
         {summary.totalAvailable > 0 && (
           <MetricCard

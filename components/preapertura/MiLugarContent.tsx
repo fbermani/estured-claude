@@ -2,13 +2,14 @@ import Link from "next/link";
 import { signOut } from "@/app/(public)/login/actions";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { DevAccountNotice } from "@/components/preapertura/DevAccountNotice";
 import { LiveBand } from "@/components/preapertura/LiveBand";
 import { INSTAGRAM_URL } from "@/lib/constants/contact";
 import type { MiLugarData } from "@/lib/preapertura/miLugar";
 
 const STEPS = [
-  { icon: "photo_camera", title: "Seguinos en Instagram.", text: "Mostramos las visitas." },
+  { icon: "instagram", title: "Seguinos en Instagram.", text: "Mostramos las visitas." },
   { icon: "notifications", title: "Esperá el aviso.", text: "Te escribimos apenas abramos." },
 ] as const;
 
@@ -103,7 +104,7 @@ export function MiLugarContent({ data, devAccount = false }: { data: MiLugarData
         <ol className="grid gap-2 text-left">
           {STEPS.map((step) => (
             <li key={step.title} className="flex items-center gap-3 rounded-field border-[1.5px] border-line px-3 py-2.5 text-[15px] text-ink">
-              <Icon name={step.icon} className="shrink-0 text-forest-700" />
+              {step.icon === "instagram" ? <InstagramIcon size={24} className="text-forest-700" /> : <Icon name={step.icon} className="shrink-0 text-forest-700" />}
               <span>
                 <b>{step.title}</b> {step.text}
               </span>
@@ -122,7 +123,7 @@ export function MiLugarContent({ data, devAccount = false }: { data: MiLugarData
               : "bg-orange text-paper shadow-orange hover:bg-orange-600"
           }`}
         >
-          <Icon name="photo_camera" />
+          <InstagramIcon />
           Seguir @estured.residencias
         </a>
 

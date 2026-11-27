@@ -62,14 +62,14 @@ export function CommunitySummary({
             />
           ) : (
             <p className="rounded-card border border-line bg-paper px-5 py-4 text-sm text-ink-soft shadow-card">
-              Hoy viven {total} {total === 1 ? "residente" : "residentes"} y todavía nadie eligió mostrar su perfil.
+              Hoy viven {total} {total === 1 ? "residente" : "residentes"} y todavía no hay perfiles publicados.
             </p>
           )}
 
           <p className="flex items-start gap-1.5 text-[12.5px] leading-relaxed text-ink-faint">
             <Icon name="info" className="text-base" />
             <span>
-              Se muestran solo los perfiles que cada estudiante eligió compartir. Pueden cambiar antes de tu ingreso. La
+              Los perfiles pueden cambiar antes de tu ingreso. La
               disponibilidad por habitación está en{" "}
               <Link href="#tarifas" className="font-semibold text-forest-700 hover:underline">
                 Tarifas

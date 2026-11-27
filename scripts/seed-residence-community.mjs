@@ -96,6 +96,7 @@ const LAST_NAMES = [
   "Kowalski", "Lima", "Machado", "Ninci", "Ojeda", "Prieto", "Quintero", "Reyes", "Serrano", "Tapia",
   "Uzal", "Vidal", "Wagner", "Ximénez", "Yáñez", "Zapata", "Bianchi", "Carrizo",
 ];
+// Solo Latinoamérica; Argentina, Brasil, Ecuador, Venezuela y Perú van dos veces (dueño, 2026-11-27).
 const NATIONALITIES = [
   { nat: "Argentina", cities: ["Rosario", "Córdoba", "Mendoza", "Salta", "Mar del Plata", "Tucumán"] },
   { nat: "Brasil", cities: ["São Paulo", "Río de Janeiro", "Curitiba", "Porto Alegre"] },
@@ -106,12 +107,12 @@ const NATIONALITIES = [
   { nat: "Bolivia", cities: ["La Paz", "Santa Cruz"] },
   { nat: "Paraguay", cities: ["Asunción"] },
   { nat: "México", cities: ["Ciudad de México", "Guadalajara"] },
-  { nat: "España", cities: ["Madrid", "Barcelona"] },
-  { nat: "Alemania", cities: ["Berlín", "Múnich"] },
-  { nat: "Reino Unido", cities: ["Londres", "Manchester"] },
-  { nat: "Francia", cities: ["París", "Lyon"] },
-  { nat: "Italia", cities: ["Roma", "Milán"] },
-  { nat: "Estados Unidos", cities: ["Nueva York", "Chicago"] },
+  { nat: "Venezuela", cities: ["Caracas", "Maracaibo"] },
+  { nat: "Argentina", cities: ["Neuquén", "Santa Fe"] },
+  { nat: "Venezuela", cities: ["Valencia", "Mérida"] },
+  { nat: "Brasil", cities: ["Belo Horizonte", "Salvador"] },
+  { nat: "Perú", cities: ["Trujillo", "Cusco"] },
+  { nat: "Ecuador", cities: ["Cuenca", "Quito"] },
   { nat: "Ecuador", cities: ["Quito", "Guayaquil"] },
 ];
 const CAREERS = [
@@ -130,8 +131,7 @@ const HABITS_POOL = [
 ];
 const FLAG_BY_NATIONALITY = {
   Argentina: "🇦🇷", Brasil: "🇧🇷", Chile: "🇨🇱", Colombia: "🇨🇴", Uruguay: "🇺🇾", Perú: "🇵🇪",
-  Bolivia: "🇧🇴", Paraguay: "🇵🇾", México: "🇲🇽", España: "🇪🇸", Alemania: "🇩🇪",
-  "Reino Unido": "🇬🇧", Francia: "🇫🇷", Italia: "🇮🇹", "Estados Unidos": "🇺🇸", Ecuador: "🇪🇨",
+  Bolivia: "🇧🇴", Paraguay: "🇵🇾", México: "🇲🇽", Venezuela: "🇻🇪", Ecuador: "🇪🇨",
 };
 
 function normalize(s) {

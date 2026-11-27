@@ -73,7 +73,7 @@ export default async function ActivateInvitePage({ searchParams }: { searchParam
           <Icon name="how_to_reg" className="text-base" /> Invitación personal
         </p>
         <h1 className="mt-3 text-2xl font-bold text-ink">{peek.residenceName} te invitó a vincular tu estadía</h1>
-        <p className="mt-2 text-sm text-ink-soft">Al activarla, figurás como residente. Tu perfil sigue privado: vos elegís qué se muestra.</p>
+        <p className="mt-2 text-sm text-ink-soft">Al activarla, figurás como residente. Tu perfil sigue privado.</p>
 
         <div className="mt-6">
           {!guard.ok ? (

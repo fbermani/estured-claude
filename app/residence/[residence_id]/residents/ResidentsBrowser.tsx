@@ -1246,7 +1246,7 @@ export function ResidentsBrowser({
       )}
 
       <p className="mt-4 text-xs text-ink-faint">
-        Cada residente decide si aparece en la comunidad y qué datos muestra; la residencia no puede cambiarlo.
+        La residencia no puede cambiar quién aparece en la comunidad ni qué datos se ven.
         Quien no activó su perfil se ve como «Plaza ocupada». Acá solo gestionás la operación de tu residencia.
       </p>
     </div>

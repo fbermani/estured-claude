@@ -16,8 +16,8 @@ const COPY = {
     lede: "En cada ficha ves las habitaciones. Con tu cuenta, también los perfiles de la comunidad.",
     points: [
       { icon: "bed", title: "Habitaciones y precios", text: "Los ves en cada ficha. Enviar tu solicitud de reserva no te asegura el lugar." },
-      { icon: "groups", title: "Quiénes viven ahí", text: "Carrera, universidad e intereses, según lo que cada residente elige mostrar." },
-      { icon: "shield_person", title: "Los menores no aparecen", text: "Quienes son menores de edad no se muestran en la comunidad, y cada residente decide qué compartir." },
+      { icon: "groups", title: "Quiénes viven ahí", text: "Carrera, universidad e intereses de la comunidad." },
+      { icon: "shield_person", title: "Los menores no aparecen", text: "Quienes son menores de edad no se muestran en la comunidad." },
     ],
     cta: { href: "/search", label: "Buscar residencias" },
   },
@@ -27,8 +27,8 @@ const COPY = {
     lede: "Fotos, precios, reglamento y comunidad en un link.",
     points: [
       { icon: "send", title: "Compartila por WhatsApp", text: "Con un mensaje ya listo, que podés editar." },
-      { icon: "diversity_3", title: "Tu comunidad a la vista", text: "Con su cuenta, el estudiante ve qué estudian y qué les interesa, si lo muestran." },
-      { icon: "tune", title: "Vos y tus residentes controlan qué se ve", text: "Cada residente elige qué mostrar. Quienes son menores no aparecen." },
+      { icon: "diversity_3", title: "Tu comunidad a la vista", text: "Con su cuenta, el estudiante ve qué estudian y qué les interesa." },
+      { icon: "shield_person", title: "Los menores no aparecen", text: "Quienes son menores de edad no se muestran en la comunidad." },
     ],
     cta: { href: "/register/residence", label: "Sumá tu residencia, es gratis" },
   },
@@ -97,7 +97,7 @@ export function CommunityPreview({ variant }: { variant: "students" | "residence
               </div>
               <figcaption className="flex items-start gap-1.5 border-t border-line px-3.5 py-2.5 text-xs text-ink-faint">
                 <Icon name="lock" className="text-base" />
-                Captura real de la app con datos de ejemplo. Cada residente elige qué mostrar; quienes son menores no aparecen.
+                Captura real de la app con datos de ejemplo. Quienes son menores no aparecen.
               </figcaption>
             </figure>
           </Reveal>

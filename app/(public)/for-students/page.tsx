@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     q: "¿EstuRed verifica a los estudiantes?",
-    a: "No. Verificamos residencias, no personas. Vos elegís qué mostrás en tu perfil.",
+    a: "No. Verificamos residencias, no personas.",
   },
   {
     q: "¿Qué pasa si algo no coincide con lo publicado?",

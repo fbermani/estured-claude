@@ -133,7 +133,7 @@ export function CommunityProfilesPreview({
             <Icon name="lock" className="text-3xl text-forest" />
             <p className="font-display text-lg font-bold text-ink">Creá tu cuenta para ver quiénes son</p>
             <p className="max-w-[340px] text-[12.5px] text-ink-faint">
-              Nombres, carreras e intereses de quienes eligen mostrarlos. Es gratis y no te compromete a nada.
+              Nombres, carreras e intereses de la comunidad. Es gratis y no te compromete a nada.
             </p>
             {!preview && (
               <>

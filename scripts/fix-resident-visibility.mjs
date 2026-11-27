@@ -44,12 +44,7 @@ const FLAG_BY_NATIONALITY = {
   Bolivia: "🇧🇴",
   Paraguay: "🇵🇾",
   México: "🇲🇽",
-  España: "🇪🇸",
-  Alemania: "🇩🇪",
-  "Reino Unido": "🇬🇧",
-  Francia: "🇫🇷",
-  Italia: "🇮🇹",
-  "Estados Unidos": "🇺🇸",
+  Venezuela: "🇻🇪",
   Ecuador: "🇪🇨",
 };
 

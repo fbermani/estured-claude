@@ -18,7 +18,7 @@ export const VERIFIED_FEATURES: PlanFeature[] = [
 export const PREMIUM_FEATURES: PlanFeature[] = [
   { label: "Habitaciones y plazas", detail: "Cargás tus habitaciones y camas, y ves la ocupación de cada una.", icon: "meeting_room" },
   { label: "Residentes", detail: "Registrás altas, salidas y notas, y respondés los avisos de «Quiero cambiar».", icon: "groups" },
-  { label: "Comunidad visible", detail: "Los estudiantes conocen a quienes viven en tu residencia, según lo que cada residente elige mostrar.", icon: "diversity_3" },
+  { label: "Comunidad visible", detail: "Los estudiantes conocen a quienes viven en tu residencia.", icon: "diversity_3" },
   { label: "Elección de plaza", detail: "El estudiante puede indicar una plaza libre al enviar su solicitud de reserva; la residencia confirma.", icon: "bed" },
   { label: "Renovaciones", detail: "Gestioná renovaciones de tus residentes actuales sin tener que perseguir confirmaciones.", icon: "sync_alt" },
 ];
