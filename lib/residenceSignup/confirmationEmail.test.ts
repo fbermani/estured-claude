@@ -25,7 +25,7 @@ describe("mail de confirmación de la solicitud de residencia", () => {
   });
   it("escapa lo que escribió la persona (no se inyecta HTML en el mail)", () => {
     const { html } = buildResidenceConfirmationEmail({ ...base, residenceName: '<img src=x onerror="a">', contactName: "<b>Ana</b>", address: "Calle <script>1</script>", place: "cupo" });
-    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<img src=x");
     expect(html).not.toContain("<script>");
     expect(html).toContain("&lt;img src=x onerror=&quot;a&quot;&gt;");
     expect(escapeHtml(`a&b<c>"d'`)).toBe("a&amp;b&lt;c&gt;&quot;d&#39;");

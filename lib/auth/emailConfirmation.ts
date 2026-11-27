@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { emailButton, emailParagraph, renderEmail } from "@/lib/email/layout";
 import { sanitizeAddress, sendEmail } from "@/lib/email/sendEmail";
 import { getAppUrl } from "@/lib/appUrl";
 
@@ -24,12 +25,13 @@ export async function sendSignupConfirmationEmail(admin: SupabaseClient, email: 
       return false;
     }
     const link = `${getAppUrl()}${CONFIRM_EMAIL_PATH}?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink`;
-    const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1d2722;line-height:1.55">
-<p style="font-size:20px;font-weight:700;margin:0 0 16px">EstuRed</p>
-<p>Confirmá tu email para activar tu cuenta.</p>
-<p><a href="${link}" style="display:inline-block;background:#0c3a2c;color:#fffdf8;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:700">Confirmar mi email</a></p>
-<p style="font-size:13px;color:#5b665f">El enlace sirve una sola vez. Si no creaste una cuenta en EstuRed, ignorá este email.</p>
-</div>`;
+    const html = renderEmail({
+      preheader: "Un paso para activar tu cuenta.",
+      title: "Confirmá tu email",
+      hero: "cuenta",
+      bodyHtml: [emailParagraph("Confirmá tu email para activar tu cuenta."), emailButton(link, "Confirmar mi email")].join("\n"),
+      footerNote: "El enlace sirve una sola vez. Si no creaste una cuenta en EstuRed, ignorá este email.",
+    });
     return await sendEmail({ to: email, subject: "Confirmá tu email en EstuRed", html });
   } catch (e) {
     console.error("[email-confirm] failed:", e instanceof Error ? e.message : e);
