@@ -6,3 +6,4 @@ export const CONTACT_EMAIL = "hola@estured.com";
 
 /** Perfil de Instagram de EstuRed (DR67). */
 export const INSTAGRAM_URL = "https://instagram.com/estured.residencias";
+export const INSTAGRAM_HANDLE = "@estured.residencias";
