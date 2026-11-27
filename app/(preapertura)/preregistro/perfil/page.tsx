@@ -34,7 +34,8 @@ type Row = {
 export default async function PerfilPage() {
   const supabase = await getSupabaseServer();
   const user = supabase ? await getSafeUser(supabase) : null;
-  if (!user) redirect("/preregistro");
+  // Se llega también desde el mail de bienvenida, a veces en otro navegador: sin sesión se ingresa y se vuelve acá.
+  if (!user) redirect(`/login?next=${encodeURIComponent("/preregistro/perfil")}`);
 
   const admin = getSupabaseAdmin();
   if (!admin) redirect("/mi-lugar");
