@@ -76,8 +76,7 @@ describe("bloqueo de la residencia sin aceptación del reglamento (DR14)", () =>
     const payment = await recordResidencePaymentReceived(db.client, {
       applicationId: "app-1",
       actorUserId: "ricardo",
-      receivedAmountArs: null,
-      receivedAmountUsd: 100,
+      paymentCurrency: "USD",
       paymentMethodLabel: "Transferencia",
       confirmationAccepted: true,
       receiptFile: null,

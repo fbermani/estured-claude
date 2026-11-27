@@ -6,6 +6,7 @@ import { ContactDeadlineNote } from "@/components/applications/ContactDeadlineNo
 import { formatDateTime } from "@/lib/dates/format";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
 import type { StudentPaymentCardView } from "@/lib/applications/loadStudentPaymentCard";
+import { DIRECT_CONTACT_MINOR_TEXT, DIRECT_CONTACT_STUDENT_TEXT } from "@/lib/applications/reservationCollectionChoice";
 import { StudentPaymentActions } from "@/app/students/applications/[id]/payment/StudentPaymentActions";
 
 /** Aviso de seguridad (DR63 (g)) y TP-06 (DR65 (c)): EstuRed no recibe este dinero ni revisa los datos de cobro de la residencia. */
@@ -23,7 +24,8 @@ function SupportButton({ label = "Escribir a Soporte" }: { label?: string }) {
 /**
  * Tarjeta del pago de la reserva en el detalle de la solicitud (DR63 (c), (d), (e), (l), (m)). Server Component: recibe la vista que
  * armó `loadStudentPaymentCard` (que ya comprobó que quien mira es el estudiante o el familiar pagador de un menor). Una sola acción
- * principal por pantalla: «Ya pagué». Con contacto directo solo hay un mensaje: el estudiante nunca ve un número ni escribe a la residencia.
+ * principal por pantalla: «Ya pagué». Con contacto directo (DR72 (f)): monto, plazo y la frase aprobada; el estudiante nunca ve un número
+ * ni escribe a la residencia.
  */
 export function StudentPaymentCard({ applicationId, view }: { applicationId: string; view: StudentPaymentCardView }) {
   const forFamily = view.actorRole === "family_payer";
@@ -39,18 +41,24 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
     );
   }
 
+  const amountBlock = (usd: number | null, ars: number | null) => (
+    <p className="text-sm text-ink">
+      {usd !== null && <span className="text-2xl font-bold tabular-nums">{formatUsd(usd)}</span>}
+      {ars !== null && <span className="ml-2 tabular-nums text-ink-soft">· {formatArs(ars)}</span>}
+      <span className="mt-1 block text-xs text-ink-faint">Monto de la reserva según las condiciones de la solicitud.</span>
+    </p>
+  );
+
   if (view.kind === "whatsapp_direct") {
     return (
       <Card className="mt-6 p-6">
         <h2 className="text-base font-bold text-ink">Pago de la reserva</h2>
-        <p className="mt-2 flex items-start gap-2 text-sm text-ink">
+        {view.amountUsd !== null && view.amountArs !== null && <div className="mt-3">{amountBlock(view.amountUsd, view.amountArs)}</div>}
+        <p className="mt-3 flex items-start gap-2 text-sm text-ink">
           <Icon name="chat" className="mt-0.5 shrink-0 text-lg text-forest-700" />
-          <span>
-            {view.isMinor && !forFamily
-              ? "La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar."
-              : "La residencia te va a indicar el monto final y cómo pagar."}
-          </span>
+          <span>{view.isMinor && !forFamily ? DIRECT_CONTACT_MINOR_TEXT : DIRECT_CONTACT_STUDENT_TEXT}</span>
         </p>
+        <ContactDeadlineNote deadlineAt={view.deadlineAt} className="mt-4" />
         <p className="mt-3 text-xs text-ink-faint">
           No transfieras dinero a datos que no te haya indicado la residencia. EstuRed no custodia ni garantiza este pago.
         </p>
@@ -58,13 +66,7 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
     );
   }
 
-  const amount = (
-    <p className="text-sm text-ink">
-      {view.amountUsd !== null && <span className="text-2xl font-bold tabular-nums">{formatUsd(view.amountUsd)}</span>}
-      {view.amountArs !== null && <span className="ml-2 tabular-nums text-ink-soft">· {formatArs(view.amountArs)}</span>}
-      <span className="mt-1 block text-xs text-ink-faint">Monto de la reserva según las condiciones de la solicitud.</span>
-    </p>
-  );
+  const amount = amountBlock(view.amountUsd, view.amountArs);
 
   if (view.stage === "reported") {
     return (

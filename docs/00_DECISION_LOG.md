@@ -2001,7 +2001,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 
 **Pendiente:** el job no avisa a la residencia, aunque `docs/07` §14.3 dice «notificar». Hoy solo hay aviso en su panel (`GAPS.md`).
 
-### DR70: monto fijo en «Pago recibido» (2026-11-25, sin implementar)
+### DR70: monto fijo en «Pago recibido» (2026-11-25)
 
 **Fuente:** decisión del dueño (opción A). Aclara DR63 (d).
 
@@ -2011,7 +2011,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR70 (b) | Si el monto no coincide, la residencia no confirma y abre un caso de Soporte. |
 | DR70 (c) | Las renovaciones siguen como hoy, con monto libre (dueño, 2026-11-26). |
 
-**Estado:** textos aprobados (`docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §4). Falta el código. El choque con §13.3 lo resolvió DR72.
+**Estado:** textos aprobados (`docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §4). (a) aplicado en la fase 2 (`staging`, 2026-11-27): el servidor guarda el monto acordado en la moneda elegida. (b) es la ayuda con enlace a Soporte; la residencia abre el caso a mano. El choque con §13.3 lo resolvió DR72.
 
 **Pendiente:** `docs/03` §16.3 pide «monto requerido para asegurar renovación, si aplica». La oferta no tiene ese campo (`GAPS.md`).
 
@@ -2040,7 +2040,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR72 (e) | El pago de la reserva en pesos queda fijo redondeado a múltiplos de 500 (§13.5). Vale para solicitudes nuevas. Las enviadas conservan su monto. El fee no cambia. |
 | DR72 (f) | Con contacto directo, la tarjeta de pago muestra el monto en USD y ARS y la fecha límite. Nunca un teléfono. Modifica DR63 (c) y (d). |
 
-**Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) aplicados en la fase 1 (`staging`, 2026-11-26); (f), en la fase 2. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
+**Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) aplicados en la fase 1 (`staging`, 2026-11-26); (f), en la fase 2 (`staging`, 2026-11-27). Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
 
 ### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26, sin implementar)
 

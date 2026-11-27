@@ -11,6 +11,7 @@ import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
 import { extensionForMime, resolveDocumentType, toTypedBlob } from "@/lib/files/sniffFile";
 import { safeFilename } from "@/lib/files/safeFilename";
 import { consentVersion } from "@/lib/legal/consentVersion";
+import { parseReservationPaymentCurrency, reportedAmountColumns, resolveAgreedReservationAmount } from "@/lib/reservations/agreedReservationAmount";
 
 export type RecordResidencePaymentReceivedResult =
   | { ok: true; reservationId: string; residenceId: string }
@@ -30,6 +31,9 @@ const ALLOWED_RECEIPT_TYPES = ["application/pdf", "image/jpeg", "image/png", "im
  * mueve `application_requests.status` a `converted_to_reservation`
  * (docs/06 §13.1: "la entidad reserva toma el control").
  *
+ * DR70 (a): la residencia no carga el monto. Solo elige la moneda en que le pagaron; el servidor guarda el monto acordado (el congelado en
+ * el pago o, si falta, el del snapshot) en esa moneda. Las renovaciones siguen con monto libre (DR70 (c)).
+ *
  * Extraído del server action (Ciclo 19, GAPS.md — gap de arquitectura
  * detectado en el Ciclo 14) para que la lógica de negocio sea testeable
  * sin `next/headers`: recibe todo por parámetro, ninguna dependencia de
@@ -41,8 +45,8 @@ export async function recordResidencePaymentReceived(
   params: {
     applicationId: string;
     actorUserId: string;
-    receivedAmountArs: number | null;
-    receivedAmountUsd: number | null;
+    /** `ARS` o `USD`. Llega del formulario sin validar: se valida acá. */
+    paymentCurrency: unknown;
     paymentMethodLabel: string;
     confirmationAccepted: boolean;
     receiptFile: File | null;
@@ -70,13 +74,35 @@ export async function recordResidencePaymentReceived(
     return { ok: false, error: "Tenés que confirmar que recibiste el pago." };
   }
   if (!params.paymentMethodLabel) return { ok: false, error: "Indicá el medio de pago." };
+  const currency = parseReservationPaymentCurrency(params.paymentCurrency);
+  if (!currency.ok) return { ok: false, error: currency.error };
 
   const { data: payment } = await admin
     .from("external_residence_payments")
-    .select("id, status")
+    .select("id, status, expected_amount_usd, expected_amount_ars")
     .eq("application_request_id", params.applicationId)
     .maybeSingle();
   if (!payment) return { ok: false, error: "No encontramos el registro de pago de esta solicitud." };
+
+  const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id;
+  const { data: snapshot } = await admin
+    .from("application_snapshots")
+    .select(
+      // TRANSITORIO: "*" degrada sin error mientras la migración 0061 (`empty_months_charge_usd`) no esté aplicada en todos los
+      // entornos. Una vez aplicada en dev y prod, pasar a columnas explícitas (incluida `empty_months_charge_usd`).
+      "*",
+    )
+    .eq("id", snapshotId)
+    .single();
+  if (!snapshot) return { ok: false, error: "No encontramos las condiciones finales de esta solicitud." };
+
+  // Todo se valida antes de la primera escritura (recibo incluido).
+  const agreed = resolveAgreedReservationAmount({
+    expectedUsd: payment.expected_amount_usd,
+    expectedArs: payment.expected_amount_ars,
+    snapshot: snapshot as Record<string, unknown>,
+  });
+  if (!agreed.ok) return { ok: false, error: agreed.error };
 
   // Recibo opcional (docs/03 §12.4: la residencia puede cargar evidencia propia).
   let receiptFileId: string | null = null;
@@ -129,18 +155,6 @@ export async function recordResidencePaymentReceived(
     receiptStoragePath = path;
   }
 
-  const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id;
-  const { data: snapshot } = await admin
-    .from("application_snapshots")
-    .select(
-      // TRANSITORIO: "*" degrada sin error mientras la migración 0061 (`empty_months_charge_usd`) no esté aplicada en todos los
-      // entornos. Una vez aplicada en dev y prod, pasar a columnas explícitas (incluida `empty_months_charge_usd`).
-      "*",
-    )
-    .eq("id", snapshotId)
-    .single();
-  if (!snapshot) return { ok: false, error: "No encontramos las condiciones finales de esta solicitud." };
-
   const now = new Date();
   const feeDeadline = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
@@ -181,8 +195,7 @@ export async function recordResidencePaymentReceived(
       .from("external_residence_payments")
       .update({
         status: "reported_received_by_residence",
-        amount_reported_usd: params.receivedAmountUsd ?? undefined,
-        amount_reported_ars: params.receivedAmountArs ?? undefined,
+        ...reportedAmountColumns(currency.value, agreed.value),
         payment_method_to_residence: params.paymentMethodLabel,
         residence_receipt_file_id: receiptFileId,
         reported_received_by_user_id: params.actorUserId,

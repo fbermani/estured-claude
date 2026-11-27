@@ -131,11 +131,34 @@ describe("loadStudentPaymentCard: los datos de cobro solo llegan a quien corresp
     const { client } = createInMemorySupabase(world({ status: "converted_to_reservation" }));
     expect(await loadStudentPaymentCard(client, { userId: "u-student", applicationId: "app-1" })).toBeNull();
   });
-  it("contacto directo: solo el mensaje, sin datos de cobro ni número", async () => {
-    const { client } = createInMemorySupabase(world({ collection_mode: "whatsapp_direct" }));
+  it("contacto directo: monto acordado y plazo, sin datos de cobro ni número (DR72 (f))", async () => {
+    const data = world(
+      { collection_mode: "whatsapp_direct", snapshot_original_id: "snap-1" },
+      { chosen_method: null, expected_amount_usd: null, expected_amount_ars: null, instructions_snapshot: null },
+    );
+    data.application_snapshots = [{ id: "snap-1", monthly_price_usd: 300, exchange_rate_ars_per_usd: 1520 }];
+    const { client } = createInMemorySupabase(data);
     const view = await loadStudentPaymentCard(client, { userId: "u-student", applicationId: "app-1" });
-    expect(view).toEqual({ kind: "whatsapp_direct", actorRole: "student", isMinor: false });
+    expect(view).toEqual({
+      kind: "whatsapp_direct",
+      actorRole: "student",
+      isMinor: false,
+      amountUsd: 300,
+      amountArs: 456000,
+      deadlineAt: "2030-01-01T00:00:00.000Z",
+    });
     expect(JSON.stringify(view)).not.toContain("CBU");
+  });
+  it("contacto directo sin snapshot legible: solo la frase y el plazo, sin inventar un monto", async () => {
+    const { client } = createInMemorySupabase(
+      world({ collection_mode: "whatsapp_direct" }, { expected_amount_usd: null, expected_amount_ars: null }),
+    );
+    expect(await loadStudentPaymentCard(client, { userId: "u-student", applicationId: "app-1" })).toMatchObject({
+      kind: "whatsapp_direct",
+      amountUsd: null,
+      amountArs: null,
+      deadlineAt: "2030-01-01T00:00:00.000Z",
+    });
   });
   it("sin camino definido y sin configuración legible: se trata como contacto directo (solicitud anterior a DR63)", async () => {
     const { client } = createInMemorySupabase(world({ collection_mode: null }));

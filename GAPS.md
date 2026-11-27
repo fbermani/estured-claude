@@ -34,6 +34,10 @@ La cotización queda fija al enviar la solicitud (DR72). Avisos, `/terms` (versi
 
 `fee/page.tsx` y `AgreedConditionsCard` redondean el fee guardado para mostrarlo; las renovaciones muestran otro redondeo. Unificar cuando se toque el fee. En solicitudes viejas, el pago de la reserva guardado sin redondear puede diferir del que muestra la tarjeta de condiciones (aceptado).
 
+## [ABIERTO — bajo] «Recibí otro monto»: el caso de Soporte se abre a mano (DR70 (b), 2026-11-27)
+
+«Pago recibido» enlaza a Soporte, pero el caso no viene precargado con la solicitud. La residencia tiene que describirla. Mejora posible: abrir el caso desde la solicitud con la categoría de pago.
+
 ## [ABIERTO — legal, antes de producción] Aviso de cambio de términos (DR72, 2026-11-26)
 
 `/terms` §30 promete avisar por email o en la app antes de que un cambio rija; las condiciones para residencias §13 prometen email con anticipación. No hay mecanismo de aviso ni de reaceptación. Antes de pasar `staging` a `main`, avisar a los usuarios. La fase 3 (DR73) traerá otra versión de `/terms`.

@@ -176,8 +176,7 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
     const result = await recordResidencePaymentReceived(admin, {
       applicationId: mainAppId,
       actorUserId: studentUserId, // no tiene residence_users para esta residencia
-      receivedAmountArs: 456000,
-      receivedAmountUsd: null,
+      paymentCurrency: "ARS",
       paymentMethodLabel: "Transferencia bancaria",
       confirmationAccepted: true,
       receiptFile: null,
@@ -192,8 +191,7 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
     const result = await recordResidencePaymentReceived(admin, {
       applicationId: mainAppId,
       actorUserId: ownerId,
-      receivedAmountArs: 456000,
-      receivedAmountUsd: null,
+      paymentCurrency: "ARS",
       paymentMethodLabel: "Transferencia bancaria",
       confirmationAccepted: true,
       receiptFile: null,
@@ -204,12 +202,28 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
     await admin.from("application_requests").update({ status: "residence_payment_pending" }).eq("id", mainAppId);
   });
 
+  it("rechaza sin la moneda en que se pagó (DR70 (a)) y no toca la solicitud", async () => {
+    for (const paymentCurrency of [null, "", "EUR"]) {
+      const result = await recordResidencePaymentReceived(admin, {
+        applicationId: mainAppId,
+        actorUserId: ownerId,
+        paymentCurrency,
+        paymentMethodLabel: "Transferencia bancaria",
+        confirmationAccepted: true,
+        receiptFile: null,
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error).toMatch(/moneda/i);
+    }
+    const { data: application } = await admin.from("application_requests").select("status").eq("id", mainAppId).single();
+    expect(application!.status).toBe("residence_payment_pending");
+  });
+
   it("registra el pago recibido y crea la reserva con el fee pendiente", async () => {
     const result = await recordResidencePaymentReceived(admin, {
       applicationId: mainAppId,
       actorUserId: ownerId,
-      receivedAmountArs: 456000,
-      receivedAmountUsd: null,
+      paymentCurrency: "ARS",
       paymentMethodLabel: "Transferencia bancaria",
       confirmationAccepted: true,
       receiptFile: null,
@@ -221,10 +235,13 @@ describe.skipIf(!hasCreds)("recordResidencePaymentReceived (integración)", () =
 
     const { data: payment } = await admin
       .from("external_residence_payments")
-      .select("status, payment_method_to_residence, reservation_id")
+      .select("status, payment_method_to_residence, reservation_id, amount_reported_ars, amount_reported_usd")
       .eq("id", residencePaymentId)
       .single();
     expect(payment!.status).toBe("reported_received_by_residence");
+    // DR70 (a): el monto lo pone el servidor (snapshot: USD 300 × 1520 = 456000), solo en la moneda elegida.
+    expect(Number(payment!.amount_reported_ars)).toBe(456000);
+    expect(payment!.amount_reported_usd).toBeNull();
     expect(payment!.payment_method_to_residence).toBe("Transferencia bancaria");
     expect(payment!.reservation_id).toBe(result.reservationId);
 

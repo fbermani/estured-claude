@@ -653,7 +653,7 @@ Ruta base: `/students`
 **DR63 (2026-11-20, `docs/00`): tarjeta de pago a la residencia.** Se muestra según el camino que la residencia eligió para esa solicitud.
 
 - **Cobro con medios habilitados:** monto final (USD y ARS), medio elegido, datos de cobro congelados con botón «Copiar» por dato, concepto, plazo de 48 horas con cuenta regresiva y el aviso de seguridad.
-- **Contacto directo por WhatsApp:** monto, plazo y el texto «La residencia te va a indicar el monto final y cómo pagar.» (DR66 (b): sin WhatsApp en el copy al estudiante; la residencia sigue contactándolo por WhatsApp) **Principio (DR63 (j) 2):** el estudiante nunca contacta a la residencia. La tarjeta no muestra un número ni un botón para escribirle. Para ayuda, ofrece «Hablar con Soporte» (`/students/support`).
+- **Contacto directo por WhatsApp (DR72 (f)):** monto acordado (USD y ARS) con «Monto de la reserva según las condiciones de la solicitud.», plazo y el texto «La residencia te contactará para coordinar la forma de pago con vos.» (menor: «La residencia contactará a tu familiar vinculado para coordinar la forma de pago.»; el familiar pagador ve la primera) (DR66 (b): sin WhatsApp en el copy al estudiante; la residencia sigue contactándolo por WhatsApp) **Principio (DR63 (j) 2):** el estudiante nunca contacta a la residencia. La tarjeta no muestra un número ni un botón para escribirle. Para ayuda, ofrece «Hablar con Soporte» (`/students/support`).
 - **Botón «Ya pagué»:** abre una confirmación con comprobante opcional, concepto, montos y medio. Al confirmar, la tarjeta pasa a «Avisaste que pagaste. Esperando que la residencia lo confirme.» y la cuenta regresiva se detiene.
 - **Aviso fijo (borrador):** «EstuRed no garantiza ni custodia el pago a la residencia. No transfieras fondos a datos que no llegaron por tu solicitud. EstuRed no es responsable de ningún pago ni del medio de pago elegido, y no custodia fondos. Los pagos posteriores a la reserva los acordás con la residencia.»
 - **Botón «No pude realizar el pago» (solo camino A, supuesto reversible):** abre una confirmación con motivo opcional corto (máximo 200 caracteres). Al confirmar, la tarjeta pasa a «Le avisamos a la residencia que no pudiste pagar. Te va a contactar o te va a habilitar otro medio.» (DR66 (b): sin WhatsApp en el copy al estudiante) La cuenta regresiva se detiene hasta que la residencia responda. Al responder, el plazo vuelve a 48 horas.
@@ -1448,7 +1448,7 @@ Ver sección 7.9. Bloqueante, requiere confirmación explícita antes de habilit
 
 ### 9.5. Modal "Pago recibido"
 
-Debe mostrar: estudiante, plaza, monto informado recibido, confirmación de que la plaza queda retenida, aviso de que falta fee EstuRed para comprobante, aceptación de responsabilidad.
+Debe mostrar: estudiante, plaza, monto acordado sin editar y «¿En qué moneda te pagaron?» (Pesos o Dólares) (DR70 (a), solo solicitudes), la ayuda «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» con enlace a Soporte, confirmación de que la plaza queda retenida, aviso de que falta fee EstuRed para comprobante, aceptación de responsabilidad.
 
 **CTA:** Confirmar pago recibido.
 

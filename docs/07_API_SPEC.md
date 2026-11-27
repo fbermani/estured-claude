@@ -1325,8 +1325,7 @@ Body:
 
 ```json
 {
-  "received_amount_ars": "string|null",
-  "received_amount_usd": "string|null",
+  "payment_currency": "ARS|USD", // DR70 (a): reemplaza a received_amount_ars / received_amount_usd
   "received_at": "ISO_DATE",
   "payment_method_label": "transfer|cash|virtual_wallet|bank_deposit|other", // DR63: pasa a las claves del catálogo (`lib/payments/paymentMethods.ts`)
   "receipt_document_id": "uuid|null",
@@ -1339,6 +1338,7 @@ Body:
 Validaciones:
 - solicitud debe estar `contact_established`, `conditions_accepted` o `residence_payment_pending`;
 - `confirmation_checkbox_accepted = true` es obligatorio;
+- **DR70 (a):** `payment_currency` es obligatorio (`ARS` o `USD`). El cliente no envía montos. El servidor guarda el monto acordado en esa moneda (`amount_reported_ars` o `amount_reported_usd`; la otra queda nula). El monto acordado es el congelado en `external_residence_payments` o, si falta (contacto directo), el del `snapshot_final`. Si no se puede determinar, no confirma. Solo solicitudes: las renovaciones siguen con monto libre (DR70 (c));
 - se crea registro en `consents` vinculado a esta operación.
 
 Transiciones:
@@ -1415,7 +1415,7 @@ Reglas:
 - congela `instructions_snapshot` desde los `details` **aprobados** de `residence_collection_accounts`. Los datos pendientes no se usan;
 - `instructions_snapshot` no es legible por la API (revoke de columna, `docs/06` §12.1). Lo lee una server action solo para el dueño de la residencia, el estudiante de esa solicitud y, si es menor, su familiar vinculado cuando es el pagador (solo lectura);
 - la residencia no cambia el monto fuera del proceso de propuesta de ajuste (`docs/04` §6.3);
-- con `whatsapp_direct`: igual que hoy. El estudiante ve solo «La residencia te va a indicar el monto final y cómo pagar» (DR66 (b)). Nunca recibe un número ni un botón para escribirle;
+- con `whatsapp_direct` (DR72 (f)): el estudiante ve el monto acordado en USD y ARS, la fecha límite y «La residencia te contactará para coordinar la forma de pago con vos» (menor: «La residencia contactará a tu familiar vinculado para coordinar la forma de pago»). Sin WhatsApp en el copy (DR66 (b)). Nunca recibe un número ni un botón para escribirle;
 - tras una propuesta de ajuste, el pase a `residence_payment_pending` es automático. El servidor aplica los valores por defecto de `docs/00` DR63 (k).
 
 **Implementación (Fase 4, supuestos reversibles):** el camino con medios exige ser el dueño (el staff no ve ni congela datos de cobro). El contacto directo lo puede hacer quien tenga `payments.residence`. El monto sale del snapshot y el cliente no lo envía. `collection_mode` queda en `application_requests`. Si solo hay medios y ninguno tiene datos aprobados, el servidor usa contacto directo. Tras una propuesta de ajuste, con medios disponibles, la residencia define el camino desde el detalle y el plazo de 48 horas se reinicia (`chooseResidencePaymentCollectionCore`).

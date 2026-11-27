@@ -9,7 +9,7 @@
 - [x] Regla de pesos decidida (DR72) y textos aprobados (`docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`).
 - [x] Fase 1 en `staging`: redondeo a 500, avisos, frases cortas, `/terms` y condiciones para residencias (versión 2026-11-26).
 - [ ] **Antes de `main`:** avisar a los usuarios el cambio de términos (`GAPS.md`). No pasar `staging` a `main` entre la fase 1 y la fase 3 sin ese aviso.
-- [ ] Fase 2: «Pago recibido» con monto fijo (DR70) y contacto directo con monto y fecha límite. Opus, esfuerzo alto.
+- [x] Fase 2 en `staging` (2026-11-27): «Pago recibido» con monto acordado y moneda (DR70), contacto directo con monto, fecha límite y frase aprobada (DR72 (f)). Sin revisar en pantalla. El dueño revisa las variantes del aviso (`TEXTOS_PESOS…` §4).
 - [ ] Fase 3: «Ya pagué» en contacto directo, Soporte frena el vencimiento (DR73) y alertas de 12/24/36/42 h (DR74, migración).
 - [ ] Apertura: 2,5 s, una vez por visita y toque para saltear (DR68 h). Esperar a que termine la sesión que la diagnostica.
 - [ ] Recordatorio a la residencia antes del día 45 (`GAPS.md`).

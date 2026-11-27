@@ -52,6 +52,11 @@ describe("buildCollectionView", () => {
   });
   it("pendiente en contacto directo: WhatsApp permitido", () => {
     expect(buildCollectionView({ ...base, status: "residence_payment_pending", collectionMode: "whatsapp_direct" })).toMatchObject({ phase: "chosen", whatsappAllowed: true });
+    // DR72 (f): con contacto directo la residencia ve el monto acordado, el mismo que ve el estudiante.
+    expect(buildCollectionView({ ...base, status: "residence_payment_pending", collectionMode: "whatsapp_direct" })?.chosen).toMatchObject({
+      amountUsd: 300,
+      amountArs: 450000,
+    });
   });
   it("pendiente sin camino: solicitud anterior (solo contacto directo) = contacto; con medios disponibles hay que elegir", () => {
     const legacy = buildCollectionChoiceContext({ modes: null, acceptedMethods: null, approved: [] });

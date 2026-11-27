@@ -5,7 +5,7 @@ El dueño aprobó cada texto. Reglas: `docs/00` DR70, DR72, DR73 y DR74.
 | Fase | Qué incluye | Estado |
 |---|---|---|
 | 1 | Redondeo, avisos, frases cortas, términos y condiciones (secciones 1, 2 y 3) | En `staging` |
-| 2 | «Pago recibido» y contacto directo (sección 4) | Sin código |
+| 2 | «Pago recibido» y contacto directo (sección 4) | En `staging` |
 | 3 | «Ya pagué» en contacto directo, Soporte, alertas y plazo nuevo (sección 5) | Sin código |
 
 ## 1. Aviso oficial de pesos (`docs/00` §13.3)
@@ -73,6 +73,13 @@ La frase sale junto con el monto, la fecha límite y la aclaración de la secci�
 | Tarjeta del estudiante menor | «La residencia contactará a tu familiar vinculado para coordinar la forma de pago.» |
 | Aviso de pago habilitado | La misma idea, en las tres variantes. |
 | Ayuda del panel de la residencia | Cita la frase que ve el estudiante. |
+
+**Variantes del aviso de pago habilitado (derivadas en la fase 2, pendientes de revisión del dueño):**
+
+- Estudiante: «La residencia te contactará para coordinar la forma de pago con vos. La solicitud sigue sujeta a confirmación.»
+- Estudiante menor: «La residencia contactará a tu familiar vinculado para coordinar la forma de pago. La solicitud sigue sujeta a confirmación.»
+- Familiar: «La residencia habilitó el pago de la reserva de {estudiante}. La residencia te contactará para coordinar la forma de pago con vos. La solicitud sigue sujeta a confirmación.» Título sin cambios: «{residencia} te va a indicar cómo pagar».
+- Ayuda de la residencia: «Ve el monto, el plazo y «La residencia te contactará para coordinar la forma de pago con vos». Vos le escribís con el botón de WhatsApp; el estudiante no te contacta.» Con menor: «El estudiante es menor: ve el monto, el plazo y «La residencia contactará a tu familiar vinculado para coordinar la forma de pago». Escribile solo al familiar.»
 
 ## 5. Fase 3: Soporte, alertas y plazo nuevo
 

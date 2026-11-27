@@ -43,6 +43,8 @@ export type FullApplication = {
   whatsappUrl: string | null;
   /** DR63 (d): cobro de la reserva de esta solicitud (sin datos de cobro). `null` si no aplica o sin la migración 0102. */
   collection: CollectionChoiceView | null;
+  /** DR70 (a): monto acordado de la reserva para «Pago recibido». Solo en `residence_payment_pending`; `null` si no se pudo determinar. */
+  agreedAmount: { usd: number; ars: number } | null;
   waitlistRelatedCount: number;
   isActive: boolean;
   /** DR3b: solicitud de un residente en proceso de mudanza. Nunca trae la residencia de origen ni el motivo (salvo la nota voluntaria). */
@@ -452,6 +454,7 @@ function ApplicationDetail({
           reservation={app.reservation}
           whatsappUrl={app.whatsappUrl}
           collection={app.collection}
+          agreedAmount={app.agreedAmount}
           paymentDeadlineAt={app.paymentDeadlineAt}
           allowed={allowed}
         />

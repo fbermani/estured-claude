@@ -4,8 +4,11 @@ import {
   buildCollectionChoiceContext,
   buildInstructionsSnapshot,
   collectionEnabledNotice,
+  DIRECT_CONTACT_MINOR_TEXT,
+  DIRECT_CONTACT_STUDENT_TEXT,
   resolveCollectionChoice,
   resolveExpectedAmounts,
+  studentCollectionPreview,
 } from "@/lib/applications/reservationCollectionChoice";
 
 const APPROVED = [
@@ -152,6 +155,30 @@ describe("collectionEnabledNotice", () => {
   });
   it("en contacto directo el menor ve al familiar", () => {
     expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: true }).body).toContain("familiar vinculado");
-    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: false }).body).toContain("te va a indicar el monto final y cómo pagar");
+  });
+  it("en contacto directo usa la frase aprobada (DR72 (f))", () => {
+    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: false }).body).toContain(DIRECT_CONTACT_STUDENT_TEXT);
+    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "student", isMinor: true }).body).toContain(DIRECT_CONTACT_MINOR_TEXT);
+    expect(collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience: "family", isMinor: true }).body).toContain("coordinar la forma de pago con vos");
+  });
+  it("ningún aviso de contacto directo habla de «monto final»", () => {
+    for (const audience of ["student", "family"] as const) {
+      for (const isMinor of [false, true]) {
+        const n = collectionEnabledNotice({ ...base, mode: "whatsapp_direct", audience, isMinor });
+        expect(`${n.title} ${n.body}`).not.toMatch(/monto final/i);
+      }
+    }
+  });
+});
+
+describe("textos de contacto directo", () => {
+  it("son los aprobados", () => {
+    expect(DIRECT_CONTACT_STUDENT_TEXT).toBe("La residencia te contactará para coordinar la forma de pago con vos.");
+    expect(DIRECT_CONTACT_MINOR_TEXT).toBe("La residencia contactará a tu familiar vinculado para coordinar la forma de pago.");
+  });
+  it("la ayuda de la residencia cita la frase que ve el estudiante", () => {
+    expect(studentCollectionPreview({ mode: "whatsapp_direct" }, false)).toContain(DIRECT_CONTACT_STUDENT_TEXT.slice(0, -1));
+    expect(studentCollectionPreview({ mode: "whatsapp_direct" }, true)).toContain(DIRECT_CONTACT_MINOR_TEXT.slice(0, -1));
+    expect(studentCollectionPreview({ mode: "whatsapp_direct" }, false)).toContain("el monto");
   });
 });

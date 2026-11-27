@@ -41,6 +41,9 @@ export type PaymentApplication = {
   contact_target: string | null;
   collection_mode: string | null;
   payment_deadline_at?: string | null;
+  /** Para el monto acordado del contacto directo (DR72 (f)). */
+  snapshot_final_id?: string | null;
+  snapshot_original_id?: string | null;
 };
 
 export type PaymentActorResolution =
@@ -53,7 +56,7 @@ const SCHEMA_MISSING = new Set(["42703", "PGRST204"]);
 export async function resolvePaymentActor(admin: SupabaseClient, userId: string, applicationId: string): Promise<PaymentActorResolution> {
   const { data: app, error } = await admin
     .from("application_requests")
-    .select("id, status, residence_id, student_profile_id, contact_target, collection_mode, payment_deadline_at")
+    .select("id, status, residence_id, student_profile_id, contact_target, collection_mode, payment_deadline_at, snapshot_final_id, snapshot_original_id")
     .eq("id", applicationId)
     .maybeSingle();
   if (error) {

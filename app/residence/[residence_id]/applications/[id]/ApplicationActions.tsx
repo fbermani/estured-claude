@@ -2,16 +2,17 @@
 
 import { PermissionNote } from "@/components/residences/PermissionGate";
 import { STAFF_PERMISSIONS, type ResidencePermission } from "@/lib/residences/permissions";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Select, Textarea, Input } from "@/components/ui/Input";
+import { Select, Textarea } from "@/components/ui/Input";
 import { REJECTION_REASONS } from "@/lib/applications/types";
 import { getVisibleStatus, type ReservationStatusInput } from "@/lib/applications/visibleStatus";
 import { describePaymentDeadline } from "@/lib/applications/paymentDeadline";
 import { Icon } from "@/components/ui/Icon";
 import { formatArs, formatUsd } from "@/lib/mock/exchange";
-import { COLLECTION_PATH_TITLES } from "@/lib/applications/reservationCollectionChoice";
+import { COLLECTION_PATH_TITLES, studentCollectionPreview } from "@/lib/applications/reservationCollectionChoice";
 import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { CollectionPaymentPanel } from "@/app/residence/[residence_id]/applications/[id]/CollectionPaymentPanel";
 import { PaymentReportPanel } from "@/app/residence/[residence_id]/applications/[id]/PaymentReportPanel";
@@ -89,9 +90,7 @@ function ChosenCollectionSummary({ collection }: { collection: CollectionChoiceV
       <p className="mt-0.5 text-xs">
         {chosen.mode === "enabled_methods"
           ? "Los datos de cobro quedaron fijados para esta solicitud."
-          : collection.isMinor
-            ? "El estudiante es menor: escribile solo al familiar vinculado."
-            : "El estudiante ve que le vas a indicar el monto y cómo pagar."}
+          : studentCollectionPreview({ mode: "whatsapp_direct" }, collection.isMinor)}
       </p>
     </div>
   );
@@ -104,6 +103,7 @@ export function ApplicationActions({
   reservation,
   whatsappUrl,
   collection = null,
+  agreedAmount = null,
   paymentDeadlineAt = null,
   allowed,
 }: {
@@ -114,6 +114,8 @@ export function ApplicationActions({
   whatsappUrl: string | null;
   /** DR63 (d): cómo se cobra la reserva de esta solicitud. `null` sin la migración 0102 (queda el flujo anterior). */
   collection?: CollectionChoiceView | null;
+  /** DR70 (a): monto acordado de la reserva. Se muestra sin editar en «Pago recibido»; sin monto no se ofrece confirmar. */
+  agreedAmount?: { usd: number; ars: number } | null;
   /** `application_requests.payment_deadline_at`: plazo de 48 h de `contact_established` (H06). */
   paymentDeadlineAt?: string | null;
   /** DR11: permisos de quien mira. Solo presentación: el servidor rechaza lo que no esté permitido. */
@@ -268,9 +270,41 @@ export function ApplicationActions({
             Solo confirmá esto cuando el pago ya esté efectivamente en tu cuenta o en tu poder. Habilita la
             reserva y el cobro del fee EstuRed — no se puede deshacer desde acá.
           </p>
+          <div className="mt-4 rounded-field bg-sand-100 px-4 py-3">
+            <p className="text-xs font-bold text-ink-soft">Monto acordado</p>
+            {agreedAmount ? (
+              <p className="mt-0.5 text-sm text-ink">
+                <span className="text-lg font-bold tabular-nums">{formatUsd(agreedAmount.usd)}</span>
+                <span className="ml-2 tabular-nums text-ink-soft">· {formatArs(agreedAmount.ars)}</span>
+              </p>
+            ) : (
+              <p role="alert" className="mt-0.5 text-sm text-danger-fg">
+                No pudimos determinar el monto de la reserva. Escribile a Soporte.
+              </p>
+            )}
+          </div>
+          <fieldset className="mt-4 min-w-0 border-0 p-0">
+            <legend className="text-sm font-medium text-ink">¿En qué moneda te pagaron?</legend>
+            <div className="mt-1.5 flex flex-wrap gap-x-6 gap-y-2">
+              {[
+                { value: "ARS", label: "Pesos" },
+                { value: "USD", label: "Dólares" },
+              ].map((o) => (
+                <label key={o.value} className="flex items-center gap-2 text-sm text-ink">
+                  <input type="radio" name="payment_currency" value={o.value} required className="h-4 w-4 accent-forest" />
+                  {o.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <p className="mt-3 text-xs text-ink-soft">
+            ¿Recibiste otro monto? No confirmes el pago y{" "}
+            <Link href={`/residence/${residenceId}/support`} className="font-semibold text-forest-700 underline underline-offset-2">
+              abrí un caso en Soporte
+            </Link>
+            .
+          </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Input label="Monto recibido (ARS)" name="received_amount_ars" type="number" min={0} />
-            <Input label="Monto recibido (USD)" name="received_amount_usd" type="number" min={0} />
             <Select label="Medio de pago" name="payment_method_label" required defaultValue="">
               <option value="" disabled>
                 Elegí una opción
@@ -314,7 +348,7 @@ export function ApplicationActions({
             fee EstuRed.
           </label>
 
-          <Button type="submit" disabled={!paymentConfirmed || isPaymentPending || !allowed.residencePayment} className="mt-4">
+          <Button type="submit" disabled={!agreedAmount || !paymentConfirmed || isPaymentPending || !allowed.residencePayment} className="mt-4">
             {isPaymentPending ? "Confirmando…" : "Marcar pago recibido"}
           </Button>
          </fieldset>

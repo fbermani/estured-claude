@@ -4,6 +4,8 @@ import { resolvePaymentActor, type PaymentActorRole } from "@/lib/applications/s
 import { isPaymentIssueOpen } from "@/lib/applications/paymentReportView";
 import { loadCollectionChoice } from "@/lib/applications/collectionChoiceDb";
 import { availableCollectionPaths } from "@/lib/applications/reservationCollectionChoice";
+import { resolveAgreedReservationAmount } from "@/lib/reservations/agreedReservationAmount";
+import type { PaymentApplication } from "@/lib/applications/studentPaymentAccess";
 
 /**
  * Lo que ve el ESTUDIANTE (o el familiar pagador de un menor) del pago de la reserva en el detalle de su solicitud (DR63 (c), (d), (j) 3).
@@ -13,7 +15,8 @@ import { availableCollectionPaths } from "@/lib/applications/reservationCollecti
  * de la residencia, nunca otros estudiantes, y solo con la solicitud en `residence_payment_pending`. Sin acceso devuelve `null`.
  * Serializable al cliente: los datos de cobro viajan SOLO a quien tiene derecho a verlos.
  *
- * Contacto directo (`whatsapp_direct`): solo el mensaje «La residencia te va a indicar el monto final y cómo pagar». Nunca un número ni un botón.
+ * Contacto directo (`whatsapp_direct`, DR72 (f)): monto acordado en USD y ARS, fecha límite y «La residencia te contactará para coordinar
+ * la forma de pago con vos». Nunca un número ni un botón.
  */
 
 export type StudentPaymentStage = "to_pay" | "reported" | "issue_open" | "disputed";
@@ -34,7 +37,15 @@ export type StudentPaymentCardView =
       hasProof: boolean;
       issueAt: string | null;
     }
-  | { kind: "whatsapp_direct"; actorRole: PaymentActorRole; isMinor: boolean }
+  | {
+      kind: "whatsapp_direct";
+      actorRole: PaymentActorRole;
+      isMinor: boolean;
+      /** Monto acordado (DR72 (f)). `null` si no se pudo determinar: la tarjeta muestra solo la frase. */
+      amountUsd: number | null;
+      amountArs: number | null;
+      deadlineAt: string | null;
+    }
   /** Tras una propuesta de ajuste la residencia todavía no definió cómo cobra. */
   | { kind: "choosing"; actorRole: PaymentActorRole; isMinor: boolean };
 
@@ -60,19 +71,50 @@ export function splitInstructionsSnapshot(snapshot: string | null): { label: str
   return { label: snapshot.slice(0, at).trim() || null, details: snapshot.slice(at + 1).trim() || null };
 }
 
+/** Vista del contacto directo: monto acordado (pago congelado o snapshot) y plazo. Ante un error de lectura, sin monto. */
+async function directContactView(
+  admin: SupabaseClient,
+  base: { actorRole: PaymentActorRole; isMinor: boolean },
+  application: PaymentApplication,
+): Promise<Extract<StudentPaymentCardView, { kind: "whatsapp_direct" }>> {
+  const view = { kind: "whatsapp_direct" as const, ...base, amountUsd: null, amountArs: null, deadlineAt: application.payment_deadline_at ?? null };
+  const snapshotId = application.snapshot_final_id ?? application.snapshot_original_id ?? null;
+  const [payment, snapshot] = await Promise.all([
+    admin.from("external_residence_payments").select("expected_amount_usd, expected_amount_ars").eq("application_request_id", application.id).maybeSingle(),
+    snapshotId
+      ? admin
+          .from("application_snapshots")
+          .select("reservation_payment_amount_usd, reservation_payment_amount_ars, monthly_price_usd, exchange_rate_ars_per_usd")
+          .eq("id", snapshotId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+  if (payment.error || snapshot.error) {
+    console.error("[student-payment-card] direct contact amount read failed:", payment.error?.code ?? snapshot.error?.code);
+    return view;
+  }
+  const agreed = resolveAgreedReservationAmount({
+    expectedUsd: payment.data?.expected_amount_usd ?? null,
+    expectedArs: payment.data?.expected_amount_ars ?? null,
+    snapshot: (snapshot.data as Record<string, unknown> | null) ?? null,
+  });
+  return agreed.ok ? { ...view, amountUsd: agreed.value.usd, amountArs: agreed.value.ars } : view;
+}
+
 export async function loadStudentPaymentCard(admin: SupabaseClient, params: { userId: string; applicationId: string }): Promise<StudentPaymentCardView | null> {
   const actor = await resolvePaymentActor(admin, params.userId, params.applicationId);
   if (!actor.ok || actor.application.status !== "residence_payment_pending") return null;
   const { role, isMinor, application } = actor;
 
   const mode = application.collection_mode;
-  if (mode === "whatsapp_direct") return { kind: "whatsapp_direct", actorRole: role, isMinor };
+  const base = { actorRole: role, isMinor };
+  if (mode === "whatsapp_direct") return directContactView(admin, base, application);
   if (mode !== "enabled_methods") {
     // Sin camino definido: solicitud anterior a DR63 (contacto directo) o pase automático tras una propuesta de ajuste (DR63 (k)).
     const load = await loadCollectionChoice(admin, application.residence_id);
-    if (load.kind !== "ok") return { kind: "whatsapp_direct", actorRole: role, isMinor };
+    if (load.kind !== "ok") return directContactView(admin, base, application);
     const { paths } = availableCollectionPaths(load.ctx);
-    if (paths.length === 1 && paths[0] === "whatsapp_direct") return { kind: "whatsapp_direct", actorRole: role, isMinor };
+    if (paths.length === 1 && paths[0] === "whatsapp_direct") return directContactView(admin, base, application);
     return { kind: "choosing", actorRole: role, isMinor };
   }
 

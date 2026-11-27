@@ -933,6 +933,8 @@ Al marcarlo, declara que:
 - la información de la solicitud es correcta y vigente;
 - acepta que se active el cobro del fee EstuRed.
 
+**DR70 (solicitudes):** el formulario muestra el monto acordado, sin editar. La residencia elige la moneda en que le pagaron y confirma. Si recibió otro monto, no confirma y abre un caso en Soporte. En renovaciones el monto sigue libre (DR70 (c)).
+
 Esta acción requiere confirmación explícita con aceptación de términos antes de completarse. Queda auditada.
 
 ---

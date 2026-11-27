@@ -10,6 +10,7 @@ import { estimatedFeeUsd } from "@/lib/reservations/initialPayment";
 import { ACTIVE_APPLICATION_STATUSES } from "@/lib/applications/types";
 import { loadReservationInfoByApplication } from "@/lib/applications/loadReservationInfo";
 import { loadCollectionViews } from "@/lib/applications/loadCollectionViews";
+import { resolveAgreedReservationAmount } from "@/lib/reservations/agreedReservationAmount";
 import { buildApplicantProfile, type ApplicantProfileSource } from "@/lib/applications/applicantProfile";
 import { movingSignalFor } from "@/lib/stayChange/copy";
 import { advanceGateMessage, stayChangeAdvanceAt } from "@/lib/stayChange/advanceGate";
@@ -67,10 +68,21 @@ export default async function ResidenceApplicationsPage({
   const { data: snapshots } = snapshotIds.length
     ? await admin
         .from("application_snapshots")
-        .select("id, monthly_price_usd, reservation_payment_amount_usd, fee_base_usd")
+        .select("id, monthly_price_usd, reservation_payment_amount_usd, reservation_payment_amount_ars, exchange_rate_ars_per_usd, fee_base_usd")
         .in("id", snapshotIds)
     : { data: [] };
   const snapshotById = new Map((snapshots ?? []).map((s) => [s.id, s]));
+
+  // DR70 (a): monto acordado para «Pago recibido» (el congelado en el pago o, si falta, el del snapshot). Lo mismo que guarda el servidor.
+  const pendingPaymentIds = rows.filter((a) => a.status === "residence_payment_pending").map((a) => a.id);
+  const { data: pendingPayments, error: pendingPaymentsError } = pendingPaymentIds.length
+    ? await admin
+        .from("external_residence_payments")
+        .select("application_request_id, expected_amount_usd, expected_amount_ars")
+        .in("application_request_id", pendingPaymentIds)
+    : { data: [], error: null };
+  if (pendingPaymentsError) console.error("[residence-applications] expected amounts read failed:", pendingPaymentsError.code);
+  const expectedByAppId = new Map((pendingPayments ?? []).map((p) => [p.application_request_id as string, p]));
 
   // H01: estado visible = solicitud + reserva asociada (la reserva manda).
   const reservationInfoByAppId = await loadReservationInfoByApplication(
@@ -259,6 +271,16 @@ export default async function ResidenceApplicationsPage({
           : null,
       whatsappUrl,
       collection: collectionViews.get(a.id) ?? null,
+      agreedAmount: (() => {
+        if (a.status !== "residence_payment_pending" || pendingPaymentsError) return null;
+        const expected = expectedByAppId.get(a.id);
+        const agreed = resolveAgreedReservationAmount({
+          expectedUsd: expected?.expected_amount_usd ?? null,
+          expectedArs: expected?.expected_amount_ars ?? null,
+          snapshot: (snapshot as Record<string, unknown> | null) ?? null,
+        });
+        return agreed.ok ? agreed.value : null;
+      })(),
       waitlistRelatedCount: a.room_type_id ? (waitlistCountByType.get(a.room_type_id) ?? 0) : 0,
       isActive: (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status),
       moving: movingByAppId.get(a.id) ?? null,

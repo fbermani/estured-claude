@@ -140,12 +140,19 @@ export function resolveExpectedAmounts(snapshot: {
   return { ok: true, value: { usd, ars: Math.round(ars * 100) / 100 } };
 }
 
+/**
+ * Frases aprobadas del contacto directo (DR72 (f), `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md` §4). Salen junto con el monto, la
+ * fecha límite y la aclaración del monto. Nunca un teléfono ni WhatsApp (DR66 (b)). El familiar pagador ve la del estudiante.
+ */
+export const DIRECT_CONTACT_STUDENT_TEXT = "La residencia te contactará para coordinar la forma de pago con vos.";
+export const DIRECT_CONTACT_MINOR_TEXT = "La residencia contactará a tu familiar vinculado para coordinar la forma de pago.";
+
 /** Texto de «Esto ve el estudiante» en la pantalla de la residencia, según el camino. Sin datos de cobro. */
 export function studentCollectionPreview(resolved: ResolvedCollection, isMinor: boolean): string {
   if (resolved.mode === "whatsapp_direct") {
     return isMinor
-      ? "El estudiante es menor: ve «La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar». Escribile solo al familiar."
-      : "Ve «La residencia te va a indicar el monto final y cómo pagar». Vos le escribís con el botón de WhatsApp; el estudiante no te contacta.";
+      ? `El estudiante es menor: ve el monto, el plazo y «${DIRECT_CONTACT_MINOR_TEXT.slice(0, -1)}». Escribile solo al familiar.`
+      : `Ve el monto, el plazo y «${DIRECT_CONTACT_STUDENT_TEXT.slice(0, -1)}». Vos le escribís con el botón de WhatsApp; el estudiante no te contacta.`;
   }
   return isMinor
     ? `Su familiar vinculado ve el monto, el plazo y los datos de cobro de ${resolved.methodLabel}. El estudiante no te contacta.`
@@ -184,13 +191,11 @@ export function collectionEnabledNotice(params: {
   if (audience === "family") {
     return {
       title: `${residenceName} te va a indicar cómo pagar`,
-      body: `La residencia habilitó el pago de la reserva de ${name} y te va a indicar el monto final y cómo pagar. ${tail}`,
+      body: `La residencia habilitó el pago de la reserva de ${name}. ${DIRECT_CONTACT_STUDENT_TEXT} ${tail}`,
     };
   }
   return {
     title: `${residenceName} habilitó el pago de tu reserva`,
-    body: isMinor
-      ? `La residencia le va a indicar a tu familiar vinculado el monto final y cómo pagar. ${tail}`
-      : `La residencia te va a indicar el monto final y cómo pagar. ${tail}`,
+    body: isMinor ? `${DIRECT_CONTACT_MINOR_TEXT} ${tail}` : `${DIRECT_CONTACT_STUDENT_TEXT} ${tail}`,
   };
 }

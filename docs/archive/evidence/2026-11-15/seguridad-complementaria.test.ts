@@ -550,8 +550,7 @@ describe.skipIf(!hasCreds)("auditoría complementaria 2026-11-15 (dev, fixtures 
       recordResidencePaymentReceived(admin, {
         applicationId: appA,
         actorUserId: o1,
-        receivedAmountArs: 456000,
-        receivedAmountUsd: null,
+        paymentCurrency: "ARS",
         paymentMethodLabel: "Transferencia bancaria (auditoría)",
         confirmationAccepted: true,
         receiptFile: null,

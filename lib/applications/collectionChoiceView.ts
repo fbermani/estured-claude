@@ -83,12 +83,14 @@ export function buildCollectionView(input: {
       whatsappAllowed: false,
     };
   }
+  // DR72 (f): con contacto directo el estudiante ve el monto acordado (el del snapshot); la residencia ve el mismo.
+  const direct = { mode: "whatsapp_direct" as const, methodLabel: null, amountUsd: base.amountUsd, amountArs: base.amountArs };
   if (input.collectionMode === "whatsapp_direct") {
-    return { ...base, phase: "chosen", chosen: { mode: "whatsapp_direct", methodLabel: null, amountUsd: null, amountArs: null }, whatsappAllowed: true };
+    return { ...base, phase: "chosen", chosen: direct, whatsappAllowed: true };
   }
   // Sin camino definido: solicitud anterior a DR63 (contacto directo) o pase automático tras una propuesta de ajuste (DR63 (k)).
   if (paths.length === 1 && paths[0] === "whatsapp_direct") {
-    return { ...base, phase: "chosen", chosen: { mode: "whatsapp_direct", methodLabel: null, amountUsd: null, amountArs: null }, whatsappAllowed: true };
+    return { ...base, phase: "chosen", chosen: direct, whatsappAllowed: true };
   }
   // DR66 (g): con «Otro», la residencia puede escribirle mientras define cómo cobrar.
   return { ...base, phase: "choose", chosen: null, whatsappAllowed: base.preferredAlternative };
