@@ -7,8 +7,11 @@ Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`. `[FECHA]` sigue sin completa
 
 ## Decisiones pendientes
 
-1. Fecha de vigencia. Recomendada: lunes 30/11.
-2. Confirmar que las 2 cuentas de prod son tus pruebas.
+1. ¿Las 2 cuentas de prod son tus pruebas?
+   - Sí: no hay destinatarios reales. El envío no condiciona la fecha. Elegila libre.
+   - Antecedente: el cambio de `/privacy` salió el mismo día, solo con pruebas registradas.
+   - No: enviá antes de la fecha.
+2. Fecha de vigencia.
 3. Fecha visible en `/terms`. Dirá «27 de noviembre»; el mail dirá `[FECHA]`.
    - Los consentimientos nuevos guardarán `2026-11-27` desde la publicación.
    - Recomendación: dejarla. Es la fecha del cambio.
@@ -32,7 +35,9 @@ El resto aplica al abrir.
 
 - Cupo Resend: 100 por día. Usados al consultar: 13. Se reinicia 20:59 (Argentina).
 - Cupo mensual: 13 de 3000.
-- Un mail por persona. Evita copia oculta y direcciones expuestas.
+- Canal: conector de Resend, un envío por persona. Reemplaza la copia oculta.
+- Para enviar, leo en prod las direcciones. Hasta hoy solo conté.
+- Alternativa: los mandás vos desde `hola@`, con copia oculta.
 - Remitente `EstuRed <no-reply@estured.com>`, respuesta a `hola@estured.com`.
 - Plantilla con la marca (`lib/email/layout.ts`).
 - Primero una prueba a `hola@`. Después el envío. Después control de entrega.
