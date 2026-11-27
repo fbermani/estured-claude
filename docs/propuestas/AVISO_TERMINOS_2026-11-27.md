@@ -25,7 +25,7 @@ Elegilos por consentimiento (`consents.consent_type`), no por rol.
 | 1 | `terms` | Preregistrados, estudiantes, familias y staff de residencias |
 | 2 | `residence_terms` | Responsables de residencias |
 
-Quien tenga los dos recibe los dos. En prod (2026-11-27): `terms` 2, `residence_terms` 0. Plan: `PLAN_PUBLICACION_2026-11-27.md`.
+Quien tenga los dos recibe los dos. En prod (2026-11-27): `terms` 2, `residence_terms` 0. Las 2 son pruebas del dueño: no hay a quién avisar hoy. Plan: `PLAN_PUBLICACION_2026-11-27.md`.
 
 ## Mail 1: estudiantes y familias
 
