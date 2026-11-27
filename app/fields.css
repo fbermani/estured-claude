@@ -56,6 +56,26 @@
 .field-float > select option {
   color: var(--color-ink);
 }
+/* Ya arriba y chico, el título usa todo el ancho del campo (antes de escalar ocupa 1/0,76). */
+.field-float:focus-within > label,
+.field-float[data-static] > label,
+.field-float > :is(input, textarea):not(:placeholder-shown) ~ label {
+  right: auto;
+  width: calc((100% - 28px) / 0.76);
+}
+.field-float > select:not(:has(> option[value=""]:checked)) ~ label {
+  right: auto;
+  width: calc((100% - 28px) / 0.76);
+}
+.field-float > textarea ~ label {
+  right: auto;
+  width: calc(100% - 28px);
+}
+.field-float:focus-within > textarea ~ label,
+.field-float > textarea:not(:placeholder-shown) ~ label {
+  width: calc((100% - 28px) / 0.76);
+}
+
 /* El ejemplo (placeholder) aparece recién al enfocar: en reposo ese lugar es del título. */
 .field-float > :is(input, textarea)::placeholder {
   color: transparent;

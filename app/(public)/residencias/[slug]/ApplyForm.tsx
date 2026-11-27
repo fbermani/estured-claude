@@ -238,7 +238,7 @@ export function ApplyForm({
           <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-end gap-3">
             <div>
               <Input
-                label="Fecha de ingreso deseada"
+                label="Fecha de ingreso"
                 id="apply-start-date"
                 name="desired_start_date"
                 type="date"
@@ -256,7 +256,7 @@ export function ApplyForm({
             </div>
             <div>
               <Input
-                label="Duración estimada (meses)"
+                label="Meses"
                 id="apply-duration"
                 name="initial_duration_months"
                 type="number"

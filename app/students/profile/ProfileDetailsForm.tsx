@@ -228,7 +228,7 @@ export function ProfileDetailsForm({
             </Select>
 
             <Input
-              label="Provincia o ciudad de origen (opcional)"
+              label="Ciudad de origen (opcional)"
               id="profile-origin-city"
               name="origin_city"
               placeholder="Ej: Córdoba, Mendoza, Lima…"
