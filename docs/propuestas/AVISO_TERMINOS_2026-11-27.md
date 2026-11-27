@@ -1,6 +1,6 @@
 # Aviso de cambios en los términos (versión 2026-11-27)
 
-**Estado:** texto aprobado por el dueño el 2026-11-27. Sin enviar. Falta la fecha de vigencia.
+**Estado:** texto aprobado por el dueño el 2026-11-27. Sin enviar. Fecha de vigencia: 27 de noviembre de 2026.
 
 Cubre DR72 (cotización fija) y DR73 (un caso en Soporte frena el vencimiento). Compara `main` (`4f82924`) con `staging`.
 
@@ -10,8 +10,8 @@ Las condiciones para residencias no mencionan la regla del caso en Soporte. Solo
 
 ## Antes de enviar
 
-1. Elegí la fecha de vigencia. Reemplazá `[FECHA]` en los dos mails.
-2. Enviá los mails antes de esa fecha (`/terms` §30).
+1. Fecha de vigencia: 27 de noviembre de 2026 (dueño).
+2. Enviá los mails antes de que rijan (`/terms` §30). Hoy no hay destinatarios reales.
 3. Publicá en `main` en esa fecha, no antes. Al publicar, los textos nuevos quedan visibles.
 4. Avisá a las residencias por email. Lo exige la sección 13 de sus condiciones.
 5. Poné los destinatarios en copia oculta.
@@ -33,7 +33,7 @@ Quien tenga los dos recibe los dos. En prod (2026-11-27): `terms` 2, `residence_
 
 Hola:
 
-Actualizamos los Términos y condiciones de EstuRed. Los cambios rigen desde el [FECHA].
+Actualizamos los Términos y condiciones de EstuRed. Los cambios rigen desde el 27 de noviembre de 2026.
 
 **1. La cotización queda fija al enviar tu solicitud de reserva**
 
@@ -59,7 +59,7 @@ También ajustamos la redacción de otras partes.
 
 Los cambios no afectan solicitudes ni reservas ya confirmadas. Si no estás de acuerdo, podés dejar de usar EstuRed.
 
-Desde el [FECHA] vas a ver el texto completo en https://estured.com/terms.
+Desde el 27 de noviembre de 2026 vas a ver el texto completo en https://estured.com/terms.
 
 ¿Dudas? Escribinos a hola@estured.com.
 
@@ -71,7 +71,7 @@ El equipo de EstuRed
 
 Hola:
 
-Actualizamos las Condiciones para residencias de EstuRed. Los cambios rigen desde el [FECHA].
+Actualizamos las Condiciones para residencias de EstuRed. Los cambios rigen desde el 27 de noviembre de 2026.
 
 **Sección 5: el importe de la reserva queda fijo**
 
@@ -82,7 +82,7 @@ Actualizamos las Condiciones para residencias de EstuRed. Los cambios rigen desd
 - Si cobrás en dólares, vale el monto en dólares de la solicitud.
 - Solo una propuesta de ajuste aceptada puede cambiar el importe.
 
-Desde el [FECHA] vas a ver ese texto en https://estured.com/terms/residencias.
+Desde el 27 de noviembre de 2026 vas a ver ese texto en https://estured.com/terms/residencias.
 
 **Además: cómo cambia el vencimiento de las solicitudes**
 
@@ -93,7 +93,7 @@ Esta regla figura en la sección 22 de los Términos y condiciones.
 - Al cerrarlo, puede correr un plazo nuevo de 24 horas.
 - Corre si el plazo ya venció y no hay «Pago recibido».
 
-Desde el [FECHA] la vas a ver en https://estured.com/terms.
+Desde el 27 de noviembre de 2026 la vas a ver en https://estured.com/terms.
 
 ¿Dudas? Escribinos a hola@estured.com.
 

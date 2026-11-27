@@ -1,7 +1,7 @@
 # Salida a producción de «pesos y pago» (DR72–DR74)
 
 **Estado al 2026-11-27:** plan armado. Nada enviado. Nada publicado en `main`.
-Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`. `[FECHA]` sigue sin completar.
+Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 
 `main` = `4f82924`. `staging` revisado = `16961d0`.
 
@@ -10,10 +10,9 @@ Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`. `[FECHA]` sigue sin completa
 1. ~~¿Las 2 cuentas de prod son tus pruebas?~~ **Sí** (dueño, 2026-11-27).
    - No hay destinatarios reales. Los mails no condicionan la fecha.
    - Recuento 18:33: sin cambios (`terms` 2, `residence_terms` 0).
-2. Fecha de vigencia. Recomendada: hoy, 27/11.
-   - Coincide con la fecha visible en `/terms`.
-   - Publica todo `staging` de una vez, incluido el popup.
-   - Antes: recontar y validar el commit exacto.
+2. ~~Fecha de vigencia.~~ **Hoy, 27/11** (dueño).
+   - Sale todo `staging` de una vez, incluido el popup.
+   - Las opciones A y B quedan sin uso.
 3. Fecha visible en `/terms`. Dirá «27 de noviembre»; el mail dirá `[FECHA]`.
    - Los consentimientos nuevos guardarán `2026-11-27` desde la publicación.
    - Recomendación: dejarla. Es la fecha del cambio.
