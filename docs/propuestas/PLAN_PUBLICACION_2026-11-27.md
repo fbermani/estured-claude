@@ -25,6 +25,7 @@ Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 | Logs de error y aviso del deploy | Sin registros |
 
 - Consola: errores en páginas con anti-bots (CSP `data:` y un 400 externo). Sin comparar con el deploy anterior.
+- La CSP citada en el error no es la de `estured.com`: viene del marco del anti-bots.
 - Sin probar: alta real, mail de bienvenida, teclado en teléfono, cron y push.
 
 Pendiente:
@@ -32,7 +33,6 @@ Pendiente:
 1. [Vos] Alta de prueba en `estured.com`. Confirmá que llega la bienvenida.
 2. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html`.
 3. [Vos] Cargá bien `cron_secret` en Vault. Las respuestas guardadas eran `401`.
-4. [Yo] Pasar esto al runbook cuando no tenga cambios sin commitear.
 
 ## Validación de `eca0a46`
 
