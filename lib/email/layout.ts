@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, INSTAGRAM_URL } from "@/lib/constants/contact";
+import { CONTACT_EMAIL, INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/constants/contact";
 import { SITE_URL } from "@/lib/siteUrl";
 
 /**
@@ -12,9 +12,15 @@ export const EMAIL_IMAGES = {
   invitacion: "invitacion.png",
   cuenta: "cuenta.png",
   bienvenida: "bienvenida.png",
+  habitacion: "habitacion.png",
 } as const;
 
-export type EmailHero = Exclude<keyof typeof EMAIL_IMAGES, "mark">;
+export type EmailHero = Exclude<keyof typeof EMAIL_IMAGES, "mark" | "habitacion">;
+
+/** URL absoluta de una imagen de `public/email/`. */
+export function emailImageUrl(key: keyof typeof EMAIL_IMAGES, siteUrl: string = SITE_URL): string {
+  return `${siteUrl.replace(/\/+$/, "")}/email/${EMAIL_IMAGES[key]}`;
+}
 
 export const EMAIL_COLORS = {
   ink: "#1d2722",
@@ -52,6 +58,11 @@ export function emailButton(url: string, label: string): string {
 </td></tr></table>`;
 }
 
+/** Invitación a seguir el Instagram: va en todos los mails (pedido del dueño, 2026-11-27). */
+export function instagramBlock(): string {
+  return `<p style="margin:0 0 14px;${FONT};font-size:15px;line-height:1.5;color:${C.ink}">Seguinos en Instagram: <a href="${INSTAGRAM_URL}" style="color:${C.orange};font-weight:700">${INSTAGRAM_HANDLE}</a></p>`;
+}
+
 export function renderEmail(input: {
   /** Resumen que la bandeja muestra junto al asunto. */
   preheader: string;
@@ -64,8 +75,7 @@ export function renderEmail(input: {
   /** Origen de las imágenes; por defecto, el sitio configurado. */
   siteUrl?: string;
 }): string {
-  const base = (input.siteUrl ?? SITE_URL).replace(/\/+$/, "");
-  const image = (key: keyof typeof EMAIL_IMAGES) => `${base}/email/${EMAIL_IMAGES[key]}`;
+  const image = (key: keyof typeof EMAIL_IMAGES) => emailImageUrl(key, input.siteUrl);
   const link = `color:${C.forest700};font-weight:700`;
   return `<!doctype html>
 <html lang="es">
@@ -91,8 +101,9 @@ export function renderEmail(input: {
 ${input.bodyHtml}
 </td></tr>
 <tr><td style="padding:18px 28px 24px;border-top:1px solid ${C.line};${FONT};font-size:13px;line-height:1.55;color:${C.inkFaint}">
+${instagramBlock()}
 <p style="margin:0 0 10px">${escapeHtml(input.footerNote)}</p>
-<p style="margin:0"><a href="mailto:${CONTACT_EMAIL}" style="${link}">${CONTACT_EMAIL}</a> &middot; <a href="${INSTAGRAM_URL}" style="${link}">Instagram</a><br>EstuRed &middot; Residencias estudiantiles en Buenos Aires</p>
+<p style="margin:0"><a href="mailto:${CONTACT_EMAIL}" style="${link}">${CONTACT_EMAIL}</a><br>EstuRed &middot; Residencias estudiantiles en Buenos Aires</p>
 </td></tr>
 </table>
 </td></tr></table>

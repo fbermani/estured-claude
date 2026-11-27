@@ -24,6 +24,12 @@ describe("plantilla común de los mails", () => {
     }
     for (const file of Object.values(EMAIL_IMAGES)) expect(existsSync(join(process.cwd(), "public/email", file))).toBe(true);
   });
+  it("invita a seguir el Instagram, con el usuario escrito", () => {
+    const html = renderEmail({ ...base, hero: "cuenta" });
+    expect(html).toContain("Seguinos en Instagram:");
+    expect(html).toContain("@estured.residencias</a>");
+    expect(html.split("instagram.com/estured.residencias").length - 1).toBe(1);
+  });
   it("se entiende sin imágenes: la marca va escrita", () => {
     expect(renderEmail({ ...base, hero: "cuenta" }).replace(/<img [^>]*>/g, "")).toContain("EstuRed");
   });

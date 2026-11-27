@@ -1,5 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
+import { INSTAGRAM_URL } from "@/lib/constants/contact";
+import { instagramBlock } from "@/lib/email/layout";
 
 /**
  * Remitente. Producción: definir `EMAIL_FROM` con una dirección de un dominio verificado en Resend (p. ej.
@@ -46,6 +48,13 @@ export function isEmailProviderConfigured(): boolean {
   return (process.env.RESEND_API_KEY ?? "").trim().length > 0;
 }
 
+/** Suma el Instagram a los mails que no usan la plantilla común (que ya lo trae). */
+export function withInstagram(html: string): string {
+  if (html.includes(INSTAGRAM_URL)) return html;
+  const block = instagramBlock();
+  return html.includes("</body>") ? html.replace("</body>", () => `${block}</body>`) : `${html}${block}`;
+}
+
 export async function sendEmail(entry: {
   to: string;
   subject: string;
@@ -71,7 +80,7 @@ export async function sendEmail(entry: {
     ...(replyTo ? { replyTo } : {}),
     to,
     subject: entry.subject,
-    html: entry.html,
+    html: withInstagram(entry.html),
   });
   if (error) {
     console.error("[email] envío falló:", error.name, error.message);

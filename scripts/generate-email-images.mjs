@@ -1,4 +1,4 @@
-// Genera las imágenes PNG de los mails en public/email/ a partir del logo y los tokens de marca.
+// Genera las imágenes PNG de los mails en public/email/: dibujos con el logo y los tokens de marca, y un recorte de la landing.
 // Uso: node scripts/generate-email-images.mjs   (determinista; no usa texto, así no depende de fuentes del sistema)
 import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -136,6 +136,11 @@ await mkdir(OUT, { recursive: true });
 for (const [name, svg] of [["fundadora", await founders()], ["invitacion", await invitation()], ["cuenta", await account()], ["bienvenida", await welcome()]]) {
   await sharp(Buffer.from(svg)).png({ palette: true, quality: 90 }).toFile(join(OUT, `${name}.png`));
 }
+// Recorte de una habitación doble de la captura real de la comunidad (residencia demo, datos de ejemplo).
+await sharp(join(ROOT, "public/landing/comunidad-desktop.webp"))
+  .extract({ left: 1160, top: 380, width: 520, height: 448 })
+  .png({ palette: true, quality: 90 })
+  .toFile(join(OUT, "habitacion.png"));
 // Marca crema para el encabezado (se muestra a 34×35; se exporta al triple).
 const header = `<svg xmlns="http://www.w3.org/2000/svg" width="102" height="105" viewBox="0 0 102 105">${await mark(0, 0.5, 102, ON_DARK)}</svg>`;
 await sharp(Buffer.from(header)).png().toFile(join(OUT, "marca.png"));
