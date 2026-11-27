@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { deleteResidenceCascade } from "@/lib/testing/deleteResidenceCascade";
 import { openSupportCase } from "@/lib/support/openSupportCase";
 import { updateSupportCaseStatus } from "@/lib/support/updateSupportCaseStatus";
+import { hashRateLimitKey } from "@/lib/security/rateLimit";
 
 /**
  * Docs/12 Fase 14 (soporte y resolución de conflictos) — Ciclo
@@ -29,6 +30,8 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
     adminActorId = adminUser!.id;
     const { data: studentUser } = await admin.from("users").select("id").eq("email", "lucia.fernandez@example.com").single();
     studentUserId = studentUser!.id;
+    // Tope de 5 casos por hora (0083): sin esto, repetir el archivo falla por el cupo y no por el código.
+    await admin.from("rate_limit_hits").delete().eq("bucket", "support_open_user").eq("key_hash", hashRateLimitKey(studentUserId));
 
     const { data: residence } = await admin
       .from("residences")
@@ -180,6 +183,8 @@ describe.skipIf(!hasCreds)("support_cases (integración)", () => {
       .from("notifications")
       .select("title")
       .eq("related_entity_id", opened.supportCaseId)
+      // Abrir el caso también avisa a cada admin con el mismo id: acá interesa el aviso de quien lo abrió.
+      .eq("user_id", studentUserId)
       .maybeSingle();
     expect(notification?.title).toBe("Tu caso de soporte se resolvió");
   });

@@ -6,6 +6,7 @@ import {
   studentAlertCopy,
   residenceLastAlertCopy,
   newWindowStudentCopy,
+  newWindowResidenceCopy,
   shouldOpenNewWindow,
   NEW_WINDOW_START_STAGE,
 } from "@/lib/applications/paymentDeadlineAlerts";
@@ -52,6 +53,12 @@ describe("nextAlertStage", () => {
 describe("textos", () => {
   it("formatea fecha y hora en Buenos Aires", () => {
     expect(deadlineParts(deadline)).toEqual({ fecha: "29/11", hora: "12:00" });
+  });
+  it("no duplica el punto después de la inicial", () => {
+    const input = { studentName: "Lucía F.", deadlineIso: deadline };
+    expect(residenceLastAlertCopy({ ...input, isMinor: false }).body).toContain("la reserva de Lucía F. Vence");
+    expect(newWindowResidenceCopy(input).body).toContain("el pago de Lucía F. Si ya");
+    expect(newWindowResidenceCopy({ ...input, studentName: "Lucía" }).body).toContain("el pago de Lucía. Si ya");
   });
   it("estudiante, familiar y menor", () => {
     const base = { stage: 1, residenceName: "Residencia Norte", studentName: "Lucía F.", deadlineIso: deadline };

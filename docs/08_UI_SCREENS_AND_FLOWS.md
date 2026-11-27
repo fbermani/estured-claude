@@ -1448,7 +1448,7 @@ Ver sección 7.9. Bloqueante, requiere confirmación explícita antes de habilit
 
 ### 9.5. Modal "Pago recibido"
 
-Debe mostrar: estudiante, plaza, monto acordado sin editar y «¿En qué moneda te pagaron?» (Pesos o Dólares) (DR70 (a), solo solicitudes), la ayuda «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» con enlace a Soporte, confirmación de que la plaza queda retenida, aviso de que falta fee EstuRed para comprobante, aceptación de responsabilidad.
+Debe mostrar: estudiante, plaza, monto acordado sin editar y «¿En qué moneda te pagaron?» (Pesos o Dólares) (DR70 (a), solo solicitudes), la ayuda «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» con enlace que abre el caso de pago de esa solicitud en la misma pantalla (DR73; es el que frena el plazo; con un caso abierto se muestra sin la invitación a abrirlo), confirmación de que la plaza queda retenida, aviso de que falta fee EstuRed para comprobante, aceptación de responsabilidad.
 
 **CTA:** Confirmar pago recibido.
 

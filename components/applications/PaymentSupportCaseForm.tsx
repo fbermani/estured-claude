@@ -12,6 +12,9 @@ const initialState: CaseState = { status: "idle" };
 export const PAYMENT_CASE_EXCEPTION =
   "Excepción: un caso sobre el pago de la reserva a la residencia frena el vencimiento de esa solicitud mientras siga abierto.";
 
+/** Id del campo del caso, para enfocarlo desde otro enlace de la misma pantalla. */
+export const PAYMENT_CASE_FIELD_ID = "payment-case-description";
+
 /**
  * «Abrir un caso en Soporte» sobre el pago de la reserva, desde la solicitud (DR73; decisión del dueño, 2026-11-27). Lo usan la tarjeta del
  * estudiante y el panel de la residencia, cada uno con su server action. Acción secundaria: se despliega al tocarla. Con un caso abierto
@@ -21,13 +24,20 @@ export function PaymentSupportCaseForm({
   action,
   caseOpen,
   disabled = false,
+  open: openProp,
+  onOpenChange,
 }: {
   action: (prev: CaseState, formData: FormData) => Promise<CaseState>;
   caseOpen: boolean;
   disabled?: boolean;
+  /** Opcionales: para desplegar el formulario desde otro enlace. Sin ellos, el estado es propio. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const [state, formAction, isPending] = useActionState(action, initialState);
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChange ?? setOpenState;
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   if (caseOpen || state.status === "saved") {
@@ -49,7 +59,7 @@ export function PaymentSupportCaseForm({
 
   return (
     <form action={formAction} className="mt-4 space-y-3 rounded-field border border-line-2 bg-sand-50 p-4">
-      <Textarea label="Contanos qué pasó con el pago" name="description" rows={4} required minLength={20} maxLength={2000} hint="No pongas datos bancarios." />
+      <Textarea label="Contanos qué pasó con el pago" id={PAYMENT_CASE_FIELD_ID} name="description" rows={4} required minLength={20} maxLength={2000} hint="No pongas datos bancarios." />
       <p className="text-xs text-ink-soft">
         EstuRed es una plataforma intermediaria: puede analizar y actuar en los casos que considere pertinente, pero no garantiza un
         resultado ni interviene en todos los reclamos. {PAYMENT_CASE_EXCEPTION}

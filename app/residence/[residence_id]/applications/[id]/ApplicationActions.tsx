@@ -5,6 +5,7 @@ import { STAFF_PERMISSIONS, type ResidencePermission } from "@/lib/residences/pe
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
+import { flushSync } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Select, Textarea } from "@/components/ui/Input";
 import { REJECTION_REASONS } from "@/lib/applications/types";
@@ -16,7 +17,7 @@ import { COLLECTION_PATH_TITLES, studentCollectionPreview } from "@/lib/applicat
 import type { CollectionChoiceView } from "@/lib/applications/collectionChoiceView";
 import { CollectionPaymentPanel } from "@/app/residence/[residence_id]/applications/[id]/CollectionPaymentPanel";
 import { PaymentReportPanel } from "@/app/residence/[residence_id]/applications/[id]/PaymentReportPanel";
-import { PaymentSupportCaseForm } from "@/components/applications/PaymentSupportCaseForm";
+import { PAYMENT_CASE_FIELD_ID, PaymentSupportCaseForm } from "@/components/applications/PaymentSupportCaseForm";
 import { openResidencePaymentCase } from "@/app/residence/[residence_id]/applications/[id]/payment/reportActions";
 import {
   markUnderReview,
@@ -50,6 +51,9 @@ function PermissionHint({ missing }: { missing: ResidencePermission[] }) {
 
 const initialState: ApplicationActionState = { status: "idle" };
 const initialPaymentState: MarkReceivedState = { status: "idle" };
+
+const SUPPORT_LINK_CLASS =
+  "font-semibold text-forest-700 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:cursor-not-allowed disabled:opacity-60";
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: "transfer", label: "Transferencia" },
@@ -136,6 +140,15 @@ export function ApplicationActions({
     initialPaymentState,
   );
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [caseFormOpen, setCaseFormOpen] = useState(false);
+
+  /** DR73: despliega el caso de pago de ESTA solicitud (el que frena el plazo) y lleva el foco a su campo. */
+  function openPaymentCaseForm() {
+    flushSync(() => setCaseFormOpen(true));
+    const field = document.getElementById(PAYMENT_CASE_FIELD_ID);
+    field?.focus({ preventScroll: true });
+    field?.scrollIntoView({ block: "center" });
+  }
 
   function runSimpleAction(action: () => Promise<ApplicationActionState>) {
     setSimpleError(null);
@@ -270,6 +283,8 @@ export function ApplicationActions({
             action={openResidencePaymentCase.bind(null, applicationId)}
             caseOpen={collection.paymentCaseOpen}
             disabled={!allowed.residencePayment}
+            open={caseFormOpen}
+            onOpenChange={setCaseFormOpen}
           />
         )}
         <form action={paymentFormAction} className="rounded-card border border-sand-200 bg-sand-50 p-4">
@@ -307,10 +322,22 @@ export function ApplicationActions({
             </div>
           </fieldset>
           <p className="mt-3 text-xs text-ink-soft">
-            ¿Recibiste otro monto? No confirmes el pago y{" "}
-            <Link href={`/residence/${residenceId}/support`} className="font-semibold text-forest-700 underline underline-offset-2">
-              abrí un caso en Soporte
-            </Link>
+            ¿Recibiste otro monto? No confirmes el pago
+            {collection?.paymentCaseOpen ? null : (
+              <>
+                {" "}
+                y{" "}
+                {collection ? (
+                  <button type="button" onClick={openPaymentCaseForm} className={SUPPORT_LINK_CLASS}>
+                    abrí un caso en Soporte
+                  </button>
+                ) : (
+                  <Link href={`/residence/${residenceId}/support`} className={SUPPORT_LINK_CLASS}>
+                    abrí un caso en Soporte
+                  </Link>
+                )}
+              </>
+            )}
             .
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">

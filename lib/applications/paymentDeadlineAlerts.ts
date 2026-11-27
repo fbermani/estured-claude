@@ -54,6 +54,9 @@ export function deadlineParts(deadlineIso: string): { fecha: string; hora: strin
   return { fecha, hora };
 }
 
+/** Cierra la oración sin duplicar el punto de la inicial («Lucía F.»). */
+const endSentence = (text: string) => (text.endsWith(".") ? text : `${text}.`);
+
 export type AlertAudience =
   /** Estudiante mayor: paga él. */
   | "student"
@@ -85,7 +88,7 @@ export function residenceLastAlertCopy(input: { studentName: string; deadlineIso
   const contact = input.isMinor ? "Podés escribirle al familiar vinculado para que pague." : "Podés escribirle para que pague.";
   return {
     title: "Una solicitud puede vencer",
-    body: `Todavía no se informó el pago de la reserva de ${input.studentName}. Vence el ${fecha} a las ${hora}. ${contact} Si ya recibiste el pago, marcá «Pago recibido».`,
+    body: `${endSentence(`Todavía no se informó el pago de la reserva de ${input.studentName}`)} Vence el ${fecha} a las ${hora}. ${contact} Si ya recibiste el pago, marcá «Pago recibido».`,
   };
 }
 
@@ -105,7 +108,7 @@ export function newWindowResidenceCopy(input: { studentName: string; deadlineIso
   const { fecha, hora } = deadlineParts(input.deadlineIso);
   return {
     title: "Plazo nuevo para una solicitud",
-    body: `Se cerró el caso de Soporte sobre el pago de ${input.studentName}. Si ya lo recibiste, marcá «Pago recibido» antes del ${fecha} a las ${hora}. Si no, la solicitud puede vencer.`,
+    body: `${endSentence(`Se cerró el caso de Soporte sobre el pago de ${input.studentName}`)} Si ya lo recibiste, marcá «Pago recibido» antes del ${fecha} a las ${hora}. Si no, la solicitud puede vencer.`,
   };
 }
 

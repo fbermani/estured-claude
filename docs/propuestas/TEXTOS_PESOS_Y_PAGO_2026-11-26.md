@@ -61,7 +61,7 @@ El dueño aprobó cada texto. Reglas: `docs/00` DR70, DR72, DR73 y DR74.
 
 - «Monto acordado», sin editar.
 - «¿En qué moneda te pagaron?», con «Pesos» o «Dólares».
-- Ayuda con enlace a Soporte: «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.»
+- Ayuda con enlace al caso de pago de la solicitud: «¿Recibiste otro monto? No confirmes el pago y abrí un caso en Soporte.» Con un caso abierto: «¿Recibiste otro monto? No confirmes el pago.»
 
 ### Contacto directo
 
