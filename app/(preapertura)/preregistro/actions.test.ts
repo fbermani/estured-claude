@@ -281,6 +281,31 @@ describe("número de registro (DR67, migración 0111)", () => {
   });
 });
 
+describe("registerStudentStep1: mail de bienvenida (DR67 (j))", () => {
+  const STEP1: Step1State = { status: "idle" };
+  const fields = (tag: string) => ({ email: emailOf(tag), password: PASSWORD, birth_date: "2000-05-02", accept_terms: "on" });
+
+  it("un alta correcta manda un solo mail de bienvenida, con el botón al perfil", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    const data = fields("bienvenida");
+    known.push(data.email);
+    expect((await registerStudentStep1(STEP1, form(data))).status).toBe("success");
+    expect(sent).toHaveLength(1);
+    expect(sent[0].to).toBe(data.email);
+    expect(sent[0].subject).toBe("¡Listo! Ya estás en EstuRed");
+    expect(sent[0].html).toContain("/preregistro/perfil");
+  });
+
+  it("si el mail falla, la cuenta queda creada igual", async (ctx) => {
+    if (!admin || !ready) return ctx.skip();
+    mailOk = false;
+    const data = fields("bienvenida-falla");
+    known.push(data.email);
+    expect((await registerStudentStep1(STEP1, form(data))).status).toBe("success");
+    expect(await userIdByEmail(data.email)).not.toBeNull();
+  });
+});
+
 describe("envío vacío: cuenta de prueba SOLO en desarrollo", () => {
   const EMPTY_STEP1 = { email: "", password: "", birth_date: "" };
   const EMPTY_FAMILY = { email: "", student_email: "", password: "" };
@@ -327,6 +352,7 @@ describe("envío vacío: cuenta de prueba SOLO en desarrollo", () => {
     const { data } = await admin.from("preapertura_estudiantes").select("role, consent_c, birth_date").eq("user_id", id!).single();
     expect(data).toMatchObject({ role: "student", consent_c: true, birth_date: "2000-01-15" });
     expect(JSON.stringify(state)).not.toMatch(/password|Dev-/);
+    expect(sent).toHaveLength(0); // una cuenta de prueba (`.test`) no manda la bienvenida
   });
 
   it("DESARROLLO: con cualquier campo escrito la validación normal sigue intacta (no se autogenera)", async (ctx) => {

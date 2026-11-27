@@ -8,17 +8,21 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { readAttribution } from "@/lib/attribution/server";
 import { getSafeUser } from "@/lib/supabase/safe-get-user";
 import { createAuditLog } from "@/lib/audit";
+import { CONTACT_EMAIL } from "@/lib/constants/contact";
+import { sendEmail } from "@/lib/email/sendEmail";
 import { validatePassword } from "@/lib/auth/password";
 import { COMMUNITY_RAIL_TAG } from "@/lib/preapertura/communityRailData";
 import { DEV_BIRTH_DATE, devAutoAccountsEnabled, devCredentials } from "@/lib/preapertura/devAccounts";
 import { isPreaperturaOn } from "@/lib/preapertura/flag";
 import { PREAPERTURA_CONSENT_VERSION, clientIpOf, createStudentAccount } from "@/lib/preapertura/accounts";
 import { INVITE_MESSAGES, resolveInvitation, type ResolvedInvitation } from "@/lib/preapertura/invitations";
+import { buildStudentWelcomeEmail } from "@/lib/preapertura/studentWelcomeEmail";
 import { PREAPERTURA_TOO_MANY_ATTEMPTS, profileSaveAllowed, signupAllowed } from "@/lib/preapertura/throttle";
 import { checkBirthDate, isPlausibleEmail, normalizeEmail, validateProfile } from "@/lib/preapertura/validation";
 import { clientIpFromHeaders } from "@/lib/receipts/verifyRateLimit";
 import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@/lib/security/turnstile";
 import { isMinorByBirthDate } from "@/lib/students/isMinorByBirthDate";
+import { SITE_URL } from "@/lib/siteUrl";
 import type { ProfileState, Step1State } from "@/lib/preapertura/formState";
 
 const UNAVAILABLE = "La preapertura todavía no está disponible. Probá de nuevo más tarde.";
@@ -26,6 +30,24 @@ const GENERIC = "No pudimos crear tu cuenta. Intentá de nuevo en unos minutos."
 
 function stepError(message: string, values: Step1State["values"], field?: string, code?: Step1State["code"]): Step1State {
   return { status: "error", message, values, ...(field ? { fieldErrors: { [field]: message } } : {}), ...(code ? { code } : {}) };
+}
+
+/**
+ * Mail de bienvenida (DR67 (j)). Mejor esfuerzo: nunca frena ni deshace el alta. Sin número guardado (migración 0111 sin aplicar) la
+ * consulta falla y el mail sale sin él. El link usa el sitio configurado, nunca el Host del pedido.
+ */
+async function sendStudentWelcome(admin: SupabaseClient, userId: string, email: string, isMinor: boolean): Promise<void> {
+  try {
+    const { data } = await admin.from("preapertura_estudiantes").select("registration_number").eq("user_id", userId).maybeSingle();
+    const registrationNumber = (data as { registration_number: number | null } | null)?.registration_number ?? null;
+    await sendEmail({
+      to: email,
+      replyTo: CONTACT_EMAIL,
+      ...buildStudentWelcomeEmail({ isMinor, registrationNumber, profileUrl: `${SITE_URL}/preregistro/perfil` }),
+    });
+  } catch (error) {
+    console.error("[preapertura] welcome mail failed:", error instanceof Error ? error.name : "sin detalle");
+  }
 }
 
 /**
@@ -102,6 +124,9 @@ export async function registerStudentStep1(_prev: Step1State, formData: FormData
     }
     return stepError(result.reason === "unavailable" ? UNAVAILABLE : GENERIC, values);
   }
+
+  // La cuenta de prueba autogenerada (`.test`) no manda mail.
+  if (!devAuto) await sendStudentWelcome(admin, result.userId, email, birth.isMinor);
 
   // Sesión iniciada: el cliente sigue a «Mi lugar» (DR67). Si el inicio de sesión fallara, la cuenta ya existe: se va a ingresar.
   const supabase = await getSupabaseServer();

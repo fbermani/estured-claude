@@ -11,6 +11,7 @@ export const EMAIL_IMAGES = {
   fundadora: "fundadora.png",
   invitacion: "invitacion.png",
   cuenta: "cuenta.png",
+  bienvenida: "bienvenida.png",
 } as const;
 
 export type EmailHero = Exclude<keyof typeof EMAIL_IMAGES, "mark">;

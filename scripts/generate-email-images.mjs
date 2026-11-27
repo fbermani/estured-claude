@@ -100,8 +100,40 @@ async function account() {
   return frame(C.cream2, body);
 }
 
+/** Persona sin rostro: círculo de color con cabeza y hombros. */
+function person(cx, cy, r, background, shape) {
+  const id = `p${cx}`;
+  return [
+    circle(cx, cy, r + 8, C.paper),
+    circle(cx, cy, r, background),
+    `<clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>`,
+    `<g clip-path="url(#${id})">`,
+    circle(cx, cy - r * 0.18, r * 0.34, shape),
+    `<ellipse cx="${cx}" cy="${cy + r * 0.82}" rx="${r * 0.66}" ry="${r * 0.56}" fill="${shape}"/>`,
+    `</g>`,
+  ].join("");
+}
+
+async function welcome() {
+  const body = [
+    circle(110, 80, 34, C.gold),
+    circle(1090, 320, 46, C.butter),
+    circle(1040, 70, 18, C.orange),
+    circle(190, 330, 16, C.forest),
+    person(270, 215, 82, C.orangeTint, C.orange),
+    person(930, 215, 82, C.butter, C.forest700),
+    person(430, 200, 100, C.forest, C.cream),
+    person(770, 200, 100, C.gold, C.forestInk),
+    // Centro: la marca, como un integrante más.
+    circle(600, 190, 134, C.paper),
+    circle(600, 190, 124, C.forestInk),
+    await mark(525, 115, 150, ON_DARK),
+  ].join("");
+  return frame(C.forestTint, body);
+}
+
 await mkdir(OUT, { recursive: true });
-for (const [name, svg] of [["fundadora", await founders()], ["invitacion", await invitation()], ["cuenta", await account()]]) {
+for (const [name, svg] of [["fundadora", await founders()], ["invitacion", await invitation()], ["cuenta", await account()], ["bienvenida", await welcome()]]) {
   await sharp(Buffer.from(svg)).png({ palette: true, quality: 90 }).toFile(join(OUT, `${name}.png`));
 }
 // Marca crema para el encabezado (se muestra a 34×35; se exporta al triple).
