@@ -12,7 +12,8 @@ describe("mail de bienvenida al estudiante", () => {
     expect(adult.html).toContain(`href="${profileUrl}"`);
     expect(adult.html).toContain("Completar mi perfil");
     expect(adult.html).toContain("/email/bienvenida.png");
-    expect(adult.html).toContain("Todavía no abrimos");
+    expect(adult.html).toContain("Todavía no abrimos: te avisamos por mail y por WhatsApp.");
+    expect(adult.html).toMatch(/<b [^>]*>reservar por EstuRed te da más que reservar por fuera<\/b>/);
     expect(adult.html).toContain("Si no fuiste vos");
   });
 
@@ -36,7 +37,7 @@ describe("mail de bienvenida al estudiante", () => {
 
   it("une el perfil con la comunidad y muestra una habitación, aclarando que son datos de ejemplo", () => {
     for (const text of [
-      "Con tu perfil completo, vamos a poder recomendarte mejor.",
+      "Con tu perfil completo, vas a tener más chances de reservar tu residencia elegida.",
       "quiénes viven en cada residencia",
       "/email/habitacion.png",
       "datos de ejemplo",
@@ -46,11 +47,12 @@ describe("mail de bienvenida al estudiante", () => {
     ]) {
       expect(adult.html).toContain(text);
     }
-    expect(adult.html.indexOf("¿Por qué EstuRed?")).toBeLessThan(adult.html.indexOf("recomendarte mejor"));
+    expect(adult.html.indexOf("¿Por qué EstuRed?")).toBeLessThan(adult.html.indexOf("más chances de reservar"));
   });
 
   it("no promete lo que no va a pasar: ni residencias mirando búsquedas ni pedidos de contacto", () => {
     for (const { html } of [adult, minor]) {
+      expect(html).not.toMatch(/decide qué mostrar/i);
       expect(html).not.toMatch(/tu búsqueda|sin tu nombre ni contacto|se interesa|vos decidís|nunca la ve/i);
       expect(html).not.toMatch(/garantiz|asegur|mediaci|solicit[áa]r|gratis/i);
     }

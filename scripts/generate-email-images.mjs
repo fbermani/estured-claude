@@ -141,6 +141,9 @@ await sharp(join(ROOT, "public/landing/comunidad-desktop.webp"))
   .extract({ left: 1160, top: 380, width: 520, height: 448 })
   .png({ palette: true, quality: 90 })
   .toFile(join(OUT, "habitacion.png"));
+// Ícono de Instagram (se muestra a 20×20; se exporta al triple). Mismo dibujo que components/ui/InstagramIcon.tsx.
+const instagram = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="${C.orange}" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.3" fill="${C.orange}" stroke="none"/></svg>`;
+await sharp(Buffer.from(instagram)).png().toFile(join(OUT, "instagram.png"));
 // Marca crema para el encabezado (se muestra a 34×35; se exporta al triple).
 const header = `<svg xmlns="http://www.w3.org/2000/svg" width="102" height="105" viewBox="0 0 102 105">${await mark(0, 0.5, 102, ON_DARK)}</svg>`;
 await sharp(Buffer.from(header)).png().toFile(join(OUT, "marca.png"));

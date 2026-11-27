@@ -13,9 +13,10 @@ export const EMAIL_IMAGES = {
   cuenta: "cuenta.png",
   bienvenida: "bienvenida.png",
   habitacion: "habitacion.png",
+  instagram: "instagram.png",
 } as const;
 
-export type EmailHero = Exclude<keyof typeof EMAIL_IMAGES, "mark" | "habitacion">;
+export type EmailHero = Exclude<keyof typeof EMAIL_IMAGES, "mark" | "habitacion" | "instagram">;
 
 /** URL absoluta de una imagen de `public/email/`. */
 export function emailImageUrl(key: keyof typeof EMAIL_IMAGES, siteUrl: string = SITE_URL): string {
@@ -59,8 +60,10 @@ export function emailButton(url: string, label: string): string {
 }
 
 /** Invitación a seguir el Instagram: va en todos los mails (pedido del dueño, 2026-11-27). */
-export function instagramBlock(): string {
-  return `<p style="margin:0 0 14px;${FONT};font-size:15px;line-height:1.5;color:${C.ink}">Seguinos en Instagram: <a href="${INSTAGRAM_URL}" style="color:${C.orange};font-weight:700">${INSTAGRAM_HANDLE}</a></p>`;
+export function instagramBlock(siteUrl: string = SITE_URL): string {
+  // El SVG no se ve en Gmail: el ícono es un PNG y va dentro del link, junto al usuario.
+  const icon = `<img src="${emailImageUrl("instagram", siteUrl)}" width="20" height="20" alt="" style="vertical-align:-4px;border:0;margin-right:6px">`;
+  return `<p style="margin:0 0 14px;${FONT};font-size:15px;line-height:1.5;color:${C.ink}">Seguinos en Instagram: <a href="${INSTAGRAM_URL}" style="color:${C.orange};font-weight:700;white-space:nowrap">${icon}${INSTAGRAM_HANDLE}</a></p>`;
 }
 
 export function renderEmail(input: {
@@ -101,7 +104,7 @@ export function renderEmail(input: {
 ${input.bodyHtml}
 </td></tr>
 <tr><td style="padding:18px 28px 24px;border-top:1px solid ${C.line};${FONT};font-size:13px;line-height:1.55;color:${C.inkFaint}">
-${instagramBlock()}
+${instagramBlock(input.siteUrl)}
 <p style="margin:0 0 10px">${escapeHtml(input.footerNote)}</p>
 <p style="margin:0"><a href="mailto:${CONTACT_EMAIL}" style="${link}">${CONTACT_EMAIL}</a><br>EstuRed &middot; Residencias estudiantiles en Buenos Aires</p>
 </td></tr>
