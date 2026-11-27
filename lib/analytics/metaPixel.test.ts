@@ -54,6 +54,26 @@ describe("Meta Pixel: inerte por defecto", () => {
     ]);
   });
 
+  it("en un link de invitación no carga el pixel (el token no sale hacia Meta)", () => {
+    for (const search of ["?invitacion=abc", "?utm_source=x&invitacion=abc", "?next=%2Fpreregistro%3Finvitacion%3Dabc"]) {
+      const win: Record<string, unknown> = { location: { search } };
+      const createElement = vi.fn();
+      const getElementsByTagName = vi.fn();
+      expect(loadMetaPixel("1234567890", win as never, { createElement, getElementsByTagName } as never)).toBe(false);
+      expect(createElement).not.toHaveBeenCalled();
+      expect(win.fbq).toBeUndefined();
+    }
+  });
+
+  it("con el pixel ya cargado, en un link de invitación no manda eventos", () => {
+    const fbq = vi.fn();
+    const win = { fbq, location: { search: "?invitacion=abc" } };
+    expect(loadMetaPixel("1234567890", win as never, {} as never)).toBe(false);
+    trackMetaEvent("PageView", undefined, win as never);
+    trackMetaEvent("CompleteRegistration", "preregistro_estudiante", win as never);
+    expect(fbq).not.toHaveBeenCalled();
+  });
+
   it("trackMetaEvent no hace nada sin pixel y solo manda un rótulo fijo con pixel", () => {
     expect(() => trackMetaEvent("Lead", "solicitud_fundadora", {})).not.toThrow();
     const fbq = vi.fn();

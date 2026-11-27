@@ -17,7 +17,7 @@ export function resolveMetaPixelId(env: Env): string | null {
 }
 
 type FbqFn = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; loaded: boolean; version: string; push: unknown; disablePushState?: boolean };
-type PixelWindow = { fbq?: FbqFn; _fbq?: FbqFn };
+type PixelWindow = { fbq?: FbqFn; _fbq?: FbqFn; location?: { search: string } };
 type PixelDocument = {
   createElement: (tag: string) => { async: boolean; src: string };
   getElementsByTagName: (tag: string) => ArrayLike<{ parentNode: { insertBefore: (node: unknown, ref: unknown) => unknown } | null }>;
@@ -25,12 +25,17 @@ type PixelDocument = {
 
 const SCRIPT_URL = "https://connect.facebook.net/en_US/fbevents.js";
 
+/** El link de invitación familiar lleva un token en la dirección y el pixel manda la dirección a Meta: ahí no se carga ni se envía nada. */
+function carriesInvitation(win: PixelWindow): boolean {
+  return Boolean(win.location?.search.includes("invitacion"));
+}
+
 /**
  * Carga el script oficial, apaga la configuración automática y hace `init`. Sin ID devuelve false y no toca el documento.
  * Idempotente: una segunda llamada no vuelve a inyectar. `PageView` NO se dispara acá (lo hace `MetaPixel` en cada navegación).
  */
 export function loadMetaPixel(pixelId: string | null, win: PixelWindow = window as unknown as PixelWindow, doc: PixelDocument = document as unknown as PixelDocument): boolean {
-  if (!pixelId) return false;
+  if (!pixelId || carriesInvitation(win)) return false;
   if (win.fbq) return true;
   const fbq = function (...args: unknown[]) {
     if (fbq.callMethod) fbq.callMethod(...args);
@@ -66,7 +71,7 @@ export function loadMetaPixelWithConsent(
 
 /** Dispara un evento estándar. Sin pixel cargado no hace nada. `name` es un rótulo fijo de pantalla, nunca un dato del usuario. */
 export function trackMetaEvent(event: MetaPixelEvent, name?: string, win: PixelWindow = typeof window === "undefined" ? {} : (window as unknown as PixelWindow)): void {
-  if (!win.fbq) return;
+  if (!win.fbq || carriesInvitation(win)) return;
   if (name) win.fbq("track", event, { content_name: name });
   else win.fbq("track", event);
 }
