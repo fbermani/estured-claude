@@ -52,7 +52,7 @@ export function FormKeyboardFlow() {
       setButton({ top: bottom - 52, field: current });
     };
 
-    const onFocus = (event: FocusEvent) => {
+    const onFocus = (event: Event) => {
       const form = flowForm(event.target);
       current = form ? (event.target as Field) : null;
       if (touch.matches && form && current instanceof HTMLInputElement) {
@@ -60,6 +60,10 @@ export function FormKeyboardFlow() {
         if (!current.getAttribute("enterkeyhint")) current.enterKeyHint = nextField(current, form) ? "next" : "done";
       }
       place();
+    };
+    // Un campo enfocado solo al abrir (popups) no vuelve a emitir `focusin` cuando la persona lo toca.
+    const onClick = (event: MouseEvent) => {
+      if (event.target === document.activeElement && event.target !== current && flowForm(event.target)) onFocus(event);
     };
     const onBlur = () => {
       current = null;
@@ -79,12 +83,14 @@ export function FormKeyboardFlow() {
     };
 
     document.addEventListener("focusin", onFocus);
+    document.addEventListener("click", onClick);
     document.addEventListener("focusout", onBlur);
     document.addEventListener("keydown", onKeyDown);
     window.visualViewport?.addEventListener("resize", place);
     window.visualViewport?.addEventListener("scroll", place);
     return () => {
       document.removeEventListener("focusin", onFocus);
+      document.removeEventListener("click", onClick);
       document.removeEventListener("focusout", onBlur);
       document.removeEventListener("keydown", onKeyDown);
       window.visualViewport?.removeEventListener("resize", place);
