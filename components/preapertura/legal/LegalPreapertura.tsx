@@ -145,6 +145,9 @@ export function PreaperturaPrivacyBody() {
           <b className="text-ink">Proveedores que nos dan servicio:</b> alojamiento de la base de datos y de la web, y envío de mails. Algunos
           guardan datos fuera de Argentina; al aceptar esta política consentís esa transferencia.
         </li>
+        <li>
+          <b className="text-ink">Meta (Facebook e Instagram):</b> solo si aceptás sus cookies. Recibe tu IP, datos de tu navegador, las páginas que visitás y si te registraste. Los usa para medir y mostrar anuncios. Puede guardarlos fuera de Argentina. No le mandamos tu nombre ni tu email.
+        </li>
       </ul>
       <p>Nunca vendemos tus datos ni los usamos para publicidad de terceros.</p>
       <h3 className={h3}>Menores de edad</h3>

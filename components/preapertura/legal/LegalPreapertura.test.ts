@@ -1,9 +1,26 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { PreaperturaTermsBody } from "@/components/preapertura/legal/LegalPreapertura";
+import { PreaperturaPrivacyBody, PreaperturaTermsBody } from "@/components/preapertura/legal/LegalPreapertura";
+import { PREAPERTURA_LEGAL } from "@/lib/legal/versions";
 
 const html = renderToStaticMarkup(createElement(PreaperturaTermsBody));
+const privacy = renderToStaticMarkup(createElement(PreaperturaPrivacyBody));
+
+describe("Privacidad de la preapertura: Meta (decisión del dueño 2026-11-27)", () => {
+  it("nombra a Meta, qué recibe, que depende de aceptar las cookies y qué no se le manda", () => {
+    expect(privacy).toContain("Meta (Facebook e Instagram):");
+    expect(privacy).toContain("solo si aceptás sus cookies");
+    expect(privacy).toContain("Recibe tu IP, datos de tu navegador, las páginas que visitás y si te registraste.");
+    expect(privacy).toContain("Puede guardarlos fuera de Argentina.");
+    expect(privacy).toContain("No le mandamos tu nombre ni tu email.");
+  });
+
+  it("la versión del texto es la del cambio", () => {
+    expect(PREAPERTURA_LEGAL).toEqual({ version: "2026-11-27", updatedLabel: "27 de noviembre de 2026" });
+    expect(privacy).toContain("27 de noviembre de 2026");
+  });
+});
 
 describe("Términos de la preapertura: describen la pantalla actual (DR67)", () => {
   it("avisa de los perfiles ilustrativos por el título de la sección, no por un rótulo que ya no existe", () => {
