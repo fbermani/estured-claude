@@ -44,7 +44,7 @@ Mockup **aprobado** el 2026-11-26. **Bloque A hecho** (2026-11-26, plan `docs/su
 - [ ] Menores visuales: en escritorio el aviso de cookies tapa 9 px de la banda; la deriva del carrusel va más rápido con muchos perfiles reales; los `text-*` sobre `<Icon>` no cambian el tamaño en la app.
 - [ ] Anterior al bloque: `lib/support/support.test.ts` falla (los avisos a admins comparten `related_entity_id` y el test usa `maybeSingle`).
 - [ ] Más adelante: con 25 o más registros reales, el contador no coincide con los números desde 11. Decidir.
-- [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos), mail de bienvenida.
+- [ ] **Bloque B (registro):** sin contraseña, canal y teléfono (migración), Google (callback + pantalla «completar», aviso en navegadores internos). Mail de bienvenida: hecho en `staging` el 2026-11-27 (DR67 (j)), falta publicar.
 - [ ] **Bloque C (WhatsApp API):** cuenta de Meta verificada, número, plantillas, opt-in; degrada sin configurar. Verificar precios en la fuente de Meta.
 - [ ] **Antes de enviar WhatsApp:** Privacidad, `lib/legal/termsText.ts`, `docs/21`, versión de consentimiento.
 - [ ] **Dueño:** cliente OAuth de Google (dev y prod) y número de WhatsApp.
