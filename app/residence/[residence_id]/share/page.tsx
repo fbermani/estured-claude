@@ -11,6 +11,7 @@ import { getResidenceMembership } from "@/lib/residences/access";
 import { can } from "@/lib/residences/permissions";
 import { loadShareTemplate } from "@/lib/share/shareMessage";
 import { loadShareData } from "@/lib/share/shareData";
+import { shareImagePreviewPath } from "@/lib/share/ogCard";
 import { DEFAULT_SHARE_TEMPLATE } from "@/lib/share/resolveShareMessage";
 
 export const metadata: Metadata = { title: "Compartir tu ficha" };
@@ -56,7 +57,7 @@ export default async function ResidenceSharePage({ params }: { params: Promise<{
           link={data.link}
           canEdit={canEdit}
           schemaReady={template.schemaReady}
-          previewImageUrl={data.published ? `/residencias/${encodeURIComponent(data.slug)}/opengraph-image` : null}
+          previewImageUrl={data.published ? shareImagePreviewPath(data.slug) : null}
           changeCoverHref={canEdit ? `/residence/${residenceId}/profile` : null}
         />
       )}

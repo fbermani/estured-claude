@@ -1,10 +1,15 @@
 /**
  * Pieza gráfica de la vista previa del link de la ficha (imagen Open Graph 1200×630, la que se ve al pegar el link en WhatsApp).
- * Funciones puras: tamaño del nombre en la placa, textos del precio y de la referencia en pesos. El JSX está en
- * `app/(public)/residencias/[slug]/_og/ShareCard.tsx` y la ruta en `opengraph-image.tsx`.
+ * Funciones puras: tamaño del nombre en la placa, textos del precio y de la referencia en pesos, y URL de la miniatura. El JSX está en
+ * `app/(public)/residencias/[slug]/_og/ShareCard.tsx` y las rutas en `opengraph-image.tsx` y `vista-previa/route.ts`.
  */
 
 export const OG_SIZE = { width: 1200, height: 630 } as const;
+
+/** URL de la imagen dentro de la app (la del `og:image` la arma Next y lleva sufijo: no escribirla a mano). */
+export function shareImagePreviewPath(slug: string): string {
+  return `/residencias/${encodeURIComponent(slug)}/vista-previa`;
+}
 
 /** Ancho útil del nombre dentro de la placa (px). */
 const PLATE_INNER_WIDTH = 748;

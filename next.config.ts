@@ -66,6 +66,10 @@ const nextConfig: NextConfig = {
     "/guias": ["./content/guias/**/*"],
     "/guias/[slug]": ["./content/guias/**/*"],
     "/sitemap.xml": ["./content/guias/**/*"],
+    // Tipografías, sello y marca de la imagen de vista previa de la ficha: se leen del disco en cada pedido.
+    // Las claves son globs (`*` cubre `[slug]`; los corchetes y paréntesis literales no coinciden).
+    "/residencias/*/opengraph-image*": ["./app/**/_og/*.{ttf,png,svg}"],
+    "/residencias/*/vista-previa": ["./app/**/_og/*.{ttf,png,svg}"],
   },
   // `beforeFiles`: `/` ya es una página real de `(public)`; sin esto la reescritura no le gana.
   async rewrites() {
