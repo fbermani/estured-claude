@@ -138,7 +138,7 @@ for (const [name, svg] of [["fundadora", await founders()], ["invitacion", await
 }
 // Recorte de una habitación doble de la captura real de la comunidad (residencia demo, datos de ejemplo).
 await sharp(join(ROOT, "public/landing/comunidad-desktop.webp"))
-  .extract({ left: 1160, top: 380, width: 520, height: 448 })
+  .extract({ left: 61, top: 317, width: 696, height: 396 })
   .png({ palette: true, quality: 90 })
   .toFile(join(OUT, "habitacion.png"));
 // Ícono de Instagram (se muestra a 20×20; se exporta al triple). Mismo dibujo que components/ui/InstagramIcon.tsx.
