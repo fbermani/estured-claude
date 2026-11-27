@@ -1015,7 +1015,7 @@ export function ResidenceProfileForm({
                 <div className="mt-2.5 flex flex-wrap items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <Input
-                      label="Nombre del documento"
+                      label="Documento"
                       value={stayDocDraft}
                       maxLength={MAX_OTHER_STAY_DOCUMENT_LENGTH}
                       onChange={(e) => {

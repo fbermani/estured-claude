@@ -130,7 +130,8 @@ export function PromotionsManager({
           <div className="grid gap-3 sm:grid-cols-2">
             <Input label="Nombre" value={label} maxLength={60} placeholder="Ej.: Promo invierno" onChange={(e) => setLabel(e.target.value)} />
             <Input
-              label={`Descuento sobre la renta (1% a ${PROMOTION_MAX_PERCENT}%)`}
+              label="Descuento (%)"
+              hint={`Sobre la renta, de 1% a ${PROMOTION_MAX_PERCENT}%.`}
               type="number"
               min={1}
               max={PROMOTION_MAX_PERCENT}
@@ -147,8 +148,8 @@ export function PromotionsManager({
               ))}
             </Select>
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Desde (opcional)" type="date" value={startsOn} onChange={(e) => setStartsOn(e.target.value)} />
-              <Input label="Hasta (opcional)" type="date" value={endsOn} onChange={(e) => setEndsOn(e.target.value)} />
+              <Input label="Desde" type="date" value={startsOn} onChange={(e) => setStartsOn(e.target.value)} />
+              <Input label="Hasta" hint="Fechas opcionales." type="date" value={endsOn} onChange={(e) => setEndsOn(e.target.value)} />
             </div>
           </div>
           <p className="text-xs text-ink-faint">
