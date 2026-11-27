@@ -204,12 +204,15 @@ describe.skipIf(!hasCreds)("recordNegotiationResponse (integración)", () => {
 
       const { data: finalSnapshot } = await admin
         .from("application_snapshots")
-        .select("snapshot_type, monthly_price_usd, fee_base_usd, estimated_estured_fee_ars")
+        .select("snapshot_type, monthly_price_usd, fee_base_usd, estimated_estured_fee_ars, reservation_payment_amount_usd, reservation_payment_amount_ars")
         .eq("id", application!.snapshot_final_id)
         .single();
       expect(finalSnapshot!.snapshot_type).toBe("final");
       expect(Number(finalSnapshot!.monthly_price_usd)).toBe(280); // el valor propuesto, no el original (300)
       expect(Number(finalSnapshot!.estimated_estured_fee_ars)).toBeGreaterThan(0);
+      // DR72 (e): 280 × 1520 = 425600 queda fijo redondeado a 500.
+      expect(Number(finalSnapshot!.reservation_payment_amount_usd)).toBe(280);
+      expect(Number(finalSnapshot!.reservation_payment_amount_ars)).toBe(425500);
 
       const { data: proposal } = await admin
         .from("application_negotiation_proposals")

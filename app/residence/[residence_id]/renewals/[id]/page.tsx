@@ -118,7 +118,7 @@ export default async function ResidenceRenewalDetailPage({
                     <dt className="text-ink-faint">Fee EstuRed estimado</dt>
                     <dd className="font-medium text-ink">
                       ≈ {formatArs(roundArs(Number(o.estimated_estured_fee_ars)))}
-                      <ExchangeRateNote />
+                      <ExchangeRateNote variant="renewal" />
                     </dd>
                   </div>
                   {["draft", "sent", "viewed"].includes(o.status) && (

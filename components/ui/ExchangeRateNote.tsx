@@ -2,17 +2,25 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
-/** Docs/08 §2.8 / docs/00 §13.3: texto exacto, obligatorio en toda conversión USD → ARS. */
-const EXCHANGE_RATE_DISCLAIMER =
-  "El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento.";
+/**
+ * Docs/00 §13.3 (DR72): texto oficial, obligatorio en toda conversión USD → ARS.
+ * `before`: precios antes de enviar la solicitud. `sent`: montos de una solicitud enviada. `renewal`: oferta de renovación.
+ */
+const EXCHANGE_RATE_DISCLAIMER = {
+  before:
+    "El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia.",
+  sent: "Estos pesos usan el dólar blue (valor venta) del día en que se envió la solicitud de reserva. Esa cotización queda fija para el pago de la reserva y el fee EstuRed. Los pagos posteriores se acuerdan con la residencia.",
+  renewal:
+    "Estos pesos usan el dólar blue (valor venta) del día en que se creó la oferta de renovación. Esa cotización queda fija para el fee EstuRed.",
+} as const;
 
-/** Frase corta aprobada por el dueño (auditoría 2026-11-03) para el tooltip de la tarjeta de /search. */
-const COMPACT_TIP = "Referencial: el importe final lo confirma la residencia según el tipo de cambio.";
+/** Frase corta aprobada por el dueño (DR72) para `showNote` y el tooltip de `compact`. Solo en precios antes de enviar. */
+const COMPACT_TIP = "Referencial · el pago de la reserva queda fijo en pesos al enviar la solicitud";
 
 /**
  * Docs/08 §9.9: aviso breve reutilizable, siempre junto a un monto convertido de USD a ARS.
- * `showNote` suma la frase corta siempre visible («Referencial · el importe final lo confirma la residencia»)
- * al lado del botón «i»; el texto oficial completo sigue en el panel que abre el botón.
+ * `showNote` suma la frase corta (`COMPACT_TIP`) siempre visible al lado del botón «i»;
+ * el texto oficial completo sigue en el panel que abre el botón.
  * `compact` (tarjeta de /search): solo el botón «i», con la frase corta en un tooltip (hover/foco en escritorio); al tocar abre el panel oficial.
  * Botón de 44px (área táctil), `aria-controls`, cierra con Esc / «Entendido» / clic afuera y devuelve el foco.
  * `onDark`: la «i» y el foco en tonos paper, para usarla sobre fondos forest-ink (placa de la ficha).
@@ -23,11 +31,13 @@ export function ExchangeRateNote({
   compact = false,
   onDark = false,
   align = "start",
+  variant = "before",
 }: {
   showNote?: boolean;
   compact?: boolean;
   onDark?: boolean;
   align?: "start" | "end";
+  variant?: "before" | "sent" | "renewal";
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
@@ -70,7 +80,7 @@ export function ExchangeRateNote({
   return (
     <span ref={containerRef} className={`group/rn relative inline-flex align-middle ${showNote ? "max-w-full items-start gap-0.5" : ""}`}>
       {showNote && (
-        <span className="text-xs font-semibold text-ink-soft">Referencial · el importe final lo confirma la residencia</span>
+        <span className="text-xs font-semibold text-ink-soft">{COMPACT_TIP}</span>
       )}
       <button
         ref={buttonRef}
@@ -104,11 +114,11 @@ export function ExchangeRateNote({
         <span
           id={panelId}
           role="region"
-          aria-label="Valor en pesos referencial"
+          aria-label="Valor en pesos"
           className={`absolute bottom-full z-20 mb-2 w-64 max-w-[80vw] rounded-field border-[1.5px] border-line bg-paper p-3 text-left text-xs font-normal leading-relaxed text-ink-soft shadow-float ${panelSide}`}
         >
           {compact && <b className="mb-1 block font-semibold text-ink">{COMPACT_TIP}</b>}
-          {EXCHANGE_RATE_DISCLAIMER}
+          {EXCHANGE_RATE_DISCLAIMER[variant]}
           <button
             type="button"
             onClick={close}

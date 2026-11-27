@@ -42,7 +42,7 @@ La prestación efectiva del alojamiento, las reglas internas, los pagos mensuale
 
 ## 4. Definiciones operativas
 
-**Estudiante:** usuario que busca, solicita, reserva o reside en una residencia estudiantil dentro de EstuRed.
+**Estudiante:** usuario que busca, envía solicitudes de reserva, reserva o reside en una residencia estudiantil dentro de EstuRed.
 
 **Familiar vinculado:** padre, madre, tutor, responsable económico o familiar que se vincula a la cuenta de un estudiante con autorización del estudiante. Puede acompañar operativamente, cargar documentación, sugerir favoritos, **proponer solicitudes de reserva sujetas a aprobación del estudiante**, pagar el fee EstuRed y acceder a comprobantes según permisos.
 
@@ -166,7 +166,7 @@ Los usuarios podrán buscar residencias en EstuRed, inicialmente con foco en CAB
 
 Las residencias podrán mostrar: fotos; ubicación o zona; servicios; reglas; composición de habitaciones; precios en USD y ARS; matrícula; depósito; política de ajustes; disponibilidad; comunidad visible, si aplica; condiciones de reserva; sello de Residencia Verificada; **preguntas frecuentes con información cargada por la residencia**.
 
-La disponibilidad puede mostrarse como: "Disponibilidad informada por la residencia. Requiere confirmación al solicitar."
+La disponibilidad puede mostrarse como: "Disponibilidad informada por la residencia. Requiere confirmación al enviar tu solicitud de reserva."
 
 Cuando una residencia utiliza Gestión Operativa y mantiene disponibilidad real actualizada, podrá mostrarse como: "Disponibilidad asegurada."
 
@@ -180,7 +180,7 @@ EstuRed podrá mostrar tarifas en dólares estadounidenses y pesos argentinos.
 
 El fee EstuRed podrá abonarse en pesos argentinos o en dólares estadounidenses, según el medio de pago que el usuario elija entre los habilitados por EstuRed.
 
-Las conversiones en pantalla se realizarán utilizando la fuente de tipo de cambio configurada por EstuRed, aclarando siempre que el valor en pesos es referencial y que el valor final se acuerda directamente con la residencia al momento del pago efectivo.
+Las conversiones en pantalla se realizarán utilizando la fuente de tipo de cambio configurada por EstuRed, aclarando que, antes de enviar una solicitud de reserva, el valor en pesos es referencial. Al enviarla, queda fija la cotización de ese día para el pago de la reserva y el fee EstuRed. El pago de la reserva en pesos se redondea a múltiplos de 500 pesos. Una propuesta de ajuste de condiciones puede cambiar los montos, pero no la cotización. En las renovaciones, la cotización del fee queda fija cuando se crea la oferta. Los pagos posteriores se acuerdan con la residencia.
 
 Cada solicitud guardará un snapshot con: tarifa en USD; tarifa en ARS; tipo de cambio utilizado; fecha y hora del cálculo; duración inicial declarada; matrícula; depósito; política de ajustes; base de cálculo del fee; fee EstuRed estimado o final. **Si la residencia envía una propuesta de ajuste de condiciones y el estudiante la acepta, se generará un nuevo snapshot con los valores acordados, que reemplazará al original a efectos del cálculo del fee y del comprobante.**
 
@@ -354,7 +354,7 @@ La residencia puede emitir una oferta formal de renovación con: período renova
 
 El estudiante puede aceptar o rechazar la oferta.
 
-El estudiante también puede solicitar renovación, pero esa solicitud no constituye una oferta formal hasta que la residencia la emita.
+El estudiante también puede pedir una renovación, pero ese pedido no constituye una oferta formal hasta que la residencia la emita.
 
 El fee de renovación se calculará con la misma lógica que la reserva inicial, sin excepciones: 5% del total del período renovado, calculado sobre tarifa actual, sin considerar ajustes futuros y excluyendo depósitos reembolsables.
 
@@ -470,7 +470,7 @@ EstuRed podrá registrar cuándo se habilitó el contacto, qué solicitud estaba
 
 La disponibilidad es informada o gestionada por cada residencia.
 
-En Modo Perfil Verificado, la disponibilidad requiere confirmación al solicitar.
+En Modo Perfil Verificado, la disponibilidad requiere confirmación al enviar tu solicitud de reserva.
 
 En Gestión Operativa, la disponibilidad puede tener mayor precisión si la residencia mantiene actualizado su inventario de habitaciones y plazas.
 

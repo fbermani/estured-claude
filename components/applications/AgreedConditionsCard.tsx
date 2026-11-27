@@ -128,13 +128,13 @@ export function AgreedConditionsCard({
         ))}
         {conditions.exchangeRate !== null && (
           <div className="flex justify-between gap-4 border-t border-sand-200 pt-3">
-            <dt className="text-ink-faint">Tipo de cambio de referencia</dt>
+            <dt className="text-ink-faint">Tipo de cambio de la solicitud</dt>
             <dd className="text-right font-medium text-ink">
               {formatArs(conditions.exchangeRate)} por USD
               {conditions.exchangeRateDate && (
                 <span className="block text-xs font-normal text-ink-faint">
                   al {formatDateOnly(conditions.exchangeRateDate)}
-                  <ExchangeRateNote />
+                  <ExchangeRateNote variant="sent" />
                 </span>
               )}
             </dd>

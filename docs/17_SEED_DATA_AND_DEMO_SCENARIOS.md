@@ -718,7 +718,7 @@ Para Casa Universitaria Sur:
 
 ```txt
 Pregunta predefinida: "¿El precio está en pesos o dólares?"
-Respuesta: La residencia muestra valores en USD y ARS. El valor en pesos es referencial según el dólar blue del día; el monto final en pesos se acuerda directamente con la residencia al momento del pago.
+Respuesta: La residencia muestra valores en USD y ARS. Antes de enviar la solicitud, el valor en pesos es referencial según el dólar blue del día. Al enviarla, queda fija esa cotización para el pago de la reserva y el fee EstuRed.
 ```
 
 Debe existir un caso de pregunta libre sin respuesta, registrada para que la residencia la revise.

@@ -465,7 +465,7 @@ Las tarifas se muestran en USD y ARS.
 
 **Se recomienda que las residencias configuren sus tarifas en USD** para mayor estabilidad. El sistema convierte a ARS usando el dólar blue (valor venta) de monedapi.ar, actualizado diariamente.
 
-Siempre que se muestren precios en ARS, debe aparecer un aviso aclarando que es un valor referencial y que el valor final en pesos lo define la residencia al momento del pago.
+Siempre que se muestren precios en ARS, debe aparecer un aviso: antes de enviar la solicitud el valor es referencial; al enviarla queda fija la cotización para el pago de la reserva y el fee EstuRed (`docs/00` DR72, §13.3).
 
 El fee puede cobrarse en ARS o USD, según lo elija el pagador.
 

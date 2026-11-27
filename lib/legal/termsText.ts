@@ -45,7 +45,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     title: "3. Definiciones",
     defs: [
-      ["Estudiante", "usuario que busca, solicita, reserva o reside en una residencia estudiantil dentro de EstuRed."],
+      ["Estudiante", "usuario que busca, envía solicitudes de reserva, reserva o reside en una residencia estudiantil dentro de EstuRed."],
       [
         "Familiar vinculado",
         "padre, madre, tutor, responsable económico o familiar que se vincula a la cuenta de un estudiante con autorización del estudiante. Puede acompañar operativamente, cargar documentación, proponer solicitudes de reserva sujetas a aprobación del estudiante, pagar el fee EstuRed y acceder a comprobantes según permisos.",
@@ -160,7 +160,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "9. Búsqueda de residencias y disponibilidad",
     paras: [
       "Podés buscar residencias en EstuRed, inicialmente con foco en CABA. Las fichas pueden mostrar fotos, ubicación o zona, servicios, reglas, composición de habitaciones, precios en USD y ARS, matrícula, depósito, política de ajustes, disponibilidad, comunidad visible (si aplica), condiciones de reserva, el sello de Residencia Verificada y preguntas frecuentes con información cargada por la residencia.",
-      "La disponibilidad que se muestra es informada por la residencia y requiere confirmación al solicitar. Cuando una residencia usa Gestión Operativa y mantiene actualizado su inventario de habitaciones y plazas, la información puede ser más precisa.",
+      "La disponibilidad que se muestra es informada por la residencia y requiere confirmación al enviar tu solicitud de reserva. Cuando una residencia usa Gestión Operativa y mantiene actualizado su inventario de habitaciones y plazas, la información puede ser más precisa.",
       "Entendés que ver disponibilidad no implica una reserva automática ni una garantía absoluta de disponibilidad hasta completar el proceso de confirmación.",
     ],
   },
@@ -168,7 +168,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "10. Tarifas, moneda y tipo de cambio",
     paras: [
       "EstuRed puede mostrar tarifas en dólares estadounidenses y pesos argentinos. El fee EstuRed puede abonarse en pesos o en dólares, según el medio de pago que elijas entre los habilitados.",
-      "Las conversiones en pantalla usan la fuente de tipo de cambio configurada por EstuRed. El valor en pesos es referencial y el valor final se acuerda directamente con la residencia al momento del pago efectivo.",
+      "Las conversiones en pantalla usan la fuente de tipo de cambio configurada por EstuRed. Antes de enviar una solicitud de reserva, el valor en pesos es referencial. Al enviarla, queda fija la cotización de ese día para el pago de la reserva y el fee EstuRed. El pago de la reserva en pesos se redondea a múltiplos de 500 pesos. Una propuesta de ajuste de condiciones puede cambiar los montos, pero no la cotización. En las renovaciones, la cotización del fee queda fija cuando se crea la oferta. Los pagos posteriores se acuerdan con la residencia.",
       "Cada solicitud guarda un snapshot con: tarifa en USD y en ARS, tipo de cambio utilizado, fecha y hora del cálculo, duración inicial declarada, matrícula, depósito, política de ajustes, base de cálculo del fee y fee EstuRed estimado o final. Si la residencia envía una propuesta de ajuste de condiciones y la aceptás, se genera un nuevo snapshot con los valores acordados, que reemplaza al original a efectos del cálculo del fee y del comprobante.",
       "Las tarifas de meses futuros pueden estar sujetas a modificaciones según la política de ajuste de cada residencia, que es responsable de informar si aplica ajuste mensual, trimestral, semestral, anual o ninguno. El fee EstuRed se calcula sobre las condiciones finalmente aceptadas y no considera ajustes futuros.",
     ],
@@ -235,7 +235,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     paras: [
       "Para el fee EstuRed elegís uno de los medios que EstuRed tenga habilitados en la pantalla del fee. Según el medio, pagás en pesos argentinos o en dólares estadounidenses. Ese medio sirve solo para el fee, no para los pagos a la residencia.",
       "Al avisar que pagaste el fee tenés que cargar el comprobante y esperar la validación.",
-      "Las residencias publican sus precios en dólares estadounidenses. El importe en pesos es una referencia: lo calculamos con la cotización del día de la fuente configurada por EstuRed y lo redondeamos a múltiplos de 500 pesos. El importe final del pago a la residencia lo fija la residencia al momento de cobrar.",
+      "Las residencias publican sus precios en dólares estadounidenses. El importe en pesos es una referencia: lo calculamos con la cotización del día de la fuente configurada por EstuRed y lo redondeamos a múltiplos de 500 pesos. El importe en pesos del pago de la reserva queda fijo al enviar la solicitud de reserva (sección 10).",
       "Los medios de pago a la residencia los define cada residencia.",
     ],
   },
@@ -265,7 +265,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "19. Renovaciones",
     paras: [
       "EstuRed puede permitir renovaciones de estadía dentro de la plataforma. La residencia puede emitir una oferta formal de renovación con: período renovado, tarifa actual, moneda, política de ajustes, monto requerido para asegurar la renovación (si aplica), fecha límite de aceptación y condiciones específicas. El estudiante puede aceptarla o rechazarla.",
-      "El estudiante también puede solicitar una renovación, pero esa solicitud no es una oferta formal hasta que la residencia la emita.",
+      "El estudiante también puede pedir una renovación, pero esa solicitud no es una oferta formal hasta que la residencia la emita.",
       "El fee de renovación se calcula con la misma lógica que el de la reserva inicial: 5% del total del período renovado, sobre la tarifa actual, sin considerar ajustes futuros y excluyendo depósitos reembolsables. Una vez confirmada la renovación y abonado el fee, se emite un Comprobante de Renovación Confirmada junto con el comprobante fiscal correspondiente.",
     ],
   },
@@ -313,7 +313,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
   {
     title: "25. Disponibilidad, responsabilidad de la residencia y sello Residencia Verificada",
     paras: [
-      "La disponibilidad es informada o gestionada por cada residencia. En Modo Perfil Verificado, la disponibilidad requiere confirmación al solicitar; en Gestión Operativa puede tener mayor precisión si la residencia mantiene actualizado su inventario.",
+      "La disponibilidad es informada o gestionada por cada residencia. En Modo Perfil Verificado, la disponibilidad requiere confirmación al enviar tu solicitud de reserva; en Gestión Operativa puede tener mayor precisión si la residencia mantiene actualizado su inventario.",
       "Si una residencia informa disponibilidad incorrecta, cancela sin causa suficiente o no respeta las condiciones publicadas o acordadas, EstuRed puede registrar el incidente, intervenir en su resolución, reducir su visibilidad, suspenderla o tomar medidas internas. Puede ayudarte a buscar alternativas ante una cancelación imprevista atribuible a la residencia, pero no garantiza disponibilidad de reemplazo ni asume la prestación directa del alojamiento.",
       "El sello Residencia Verificada indica que EstuRed revisó la identidad responsable, la dirección y la similitud básica entre las fotos publicadas y los espacios reales mediante verificación presencial. No implica garantía absoluta sobre todos los servicios, certificación legal integral, garantía de convivencia futura, garantía de conducta de residentes o personal, garantía de inexistencia de conflictos ni sustitución de contratos o acuerdos particulares. Revisá las condiciones de cada residencia antes de avanzar.",
     ],

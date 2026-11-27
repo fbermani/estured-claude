@@ -164,8 +164,8 @@ export default async function NegotiationResponsePage({
       </Card>
 
       <p className="mt-3 text-xs text-ink-faint">
-        El fee EstuRed estimado en ARS es referencial.
-        <ExchangeRateNote />
+        El fee EstuRed es estimado. En pesos, usa la cotización del día en que se envió la solicitud de reserva.
+        <ExchangeRateNote variant="sent" />
       </p>
 
       <NegotiationResponse applicationId={id} />

@@ -2303,7 +2303,7 @@ Response:
     "rate_type": "blue_sell",
     "is_manual_override": false,
     "updated_at": "ISO_DATE",
-    "modal_text": "El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia."
+    "modal_text": "El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia."
   }
 }
 ```

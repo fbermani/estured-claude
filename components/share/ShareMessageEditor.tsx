@@ -190,8 +190,8 @@ export function ShareMessageEditor({
         <p className="mt-3 rounded-field bg-cream-2 px-4 py-3 text-sm text-ink-soft">Cuando escribas el mensaje, lo ves acá.</p>
       )}
       <p className="mt-2 text-xs text-ink-faint">
-        Los datos resaltados se completan solos con lo que cargaste en tu ficha. El precio en pesos es una referencia: el importe final lo confirma
-        la residencia.
+        Los datos resaltados se completan solos con lo que cargaste en tu ficha. El precio en pesos es una referencia. El pago de la reserva queda
+        fijo en pesos cuando el estudiante envía la solicitud.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {canShare ? (

@@ -62,8 +62,8 @@ export function WhatYouPay({ variant = "student" }: { variant?: "student" | "res
         ))}
       </div>
       <p className="mt-6 text-center text-sm text-ink-soft">
-        Los precios se publican en dólares, con su equivalente referencial en pesos actualizado a
-        diario. <ExchangeRateNote />
+        Los precios están en dólares. El pago de la reserva y el fee EstuRed quedan fijos en pesos cuando
+        enviás tu solicitud de reserva. <ExchangeRateNote />
       </p>
       <p className="mt-4 text-center">
         <Link

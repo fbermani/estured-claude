@@ -433,7 +433,7 @@ Las tarifas deben mostrarse en USD y ARS. El valor en ARS es siempre referencial
 - Debe guardar `official_exchange_rate_ars_per_usd`, actualizado automáticamente una vez por día.
 - Admin puede corregir manualmente si la fuente falla, con motivo obligatorio y auditoría.
 - Cada solicitud guarda snapshot del tipo de cambio usado; **si hay negociación aceptada, el snapshot final hereda el tipo de cambio, la fuente y la fecha del snapshot original de la solicitud — la aceptación de la propuesta nunca actualiza la cotización** (decisión confirmada, ver `00_DECISION_LOG.md` §13.4).
-- Todo precio en ARS mostrado en la interfaz debe ir acompañado de un aviso: **"Valor referencial en pesos según cotización del dólar blue (venta) del día. El valor final en pesos se determina al momento del pago a la residencia."**
+- Todo precio en ARS mostrado en la interfaz debe ir acompañado de un aviso: **"El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia."** (`docs/00` §13.3, DR72)
 
 ### 13.3 Redondeo de tarifas
 

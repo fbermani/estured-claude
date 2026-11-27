@@ -424,7 +424,7 @@ Las tarifas de las residencias se publican en dólares estadounidenses (USD) y s
 
 - el tipo de cambio a pesos se actualiza diariamente (dólar blue, valor venta);
 - los valores en ARS se redondean para comodidad visual;
-- la tarifa final en pesos se acuerda entre la residencia y el estudiante al momento del pago, ya que puede haber variaciones del tipo de cambio entre la solicitud y el pago efectivo;
+- al enviar la solicitud queda fija la cotización para el pago de la reserva (redondeado a 500 pesos) y el fee EstuRed; la residencia asume la variación del dólar hasta el cobro; los pagos posteriores se acuerdan con la residencia (`docs/00` DR72);
 - las tarifas en USD son más estables y evitan tener que actualizar el perfil constantemente.
 
 Si una residencia configura tarifas en ARS (no recomendado operativamente), el sistema mostrará también la referencia en USD calculada al dólar blue del día, redondeada para comodidad visual. En ese caso aplica el mismo aviso referencial.
@@ -441,7 +441,9 @@ Si una residencia configura tarifas en ARS (no recomendado operativamente), el s
 
 Siempre que se muestren precios en ARS convertidos desde USD, debe mostrarse un aviso claro con este contenido:
 
-> El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento.
+> El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia.
+
+(Textos con la solicitud enviada y en renovaciones: `docs/00` §13.3.)
 
 Este modal debe mostrarse en:
 
@@ -484,7 +486,7 @@ Cuando una solicitud vence, el sistema debe:
 
 1. Mostrar al estudiante el detalle completo de la solicitud vencida: residencia, tipo de habitación, fechas, duración, tarifa original, fee estimado, tipo de cambio usado.
 2. Mostrar un botón de **"Actualizar con mismos parámetros"** que permita al estudiante verificar si esa residencia todavía tiene disponibilidad y cuál sería la tarifa aproximada actualizada.
-3. Aclarar que la tarifa final en pesos es siempre definida por la residencia al momento del pago.
+3. Aclarar que la nueva solicitud fija una cotización nueva al enviarse (`docs/00` DR72).
 4. Si hay disponibilidad y el estudiante confirma, se crea una nueva solicitud con los parámetros actualizados (nuevo snapshot, nueva cotización).
 5. Si no hay disponibilidad, ofrecer la opción de entrar en lista de espera.
 

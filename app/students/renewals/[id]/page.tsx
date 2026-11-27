@@ -96,7 +96,7 @@ export default async function StudentRenewalOfferDetailPage({
             <dt className="text-ink-faint">Tarifa mensual</dt>
             <dd className="font-medium text-ink">
               {formatUsd(Number(offer.monthly_price_usd))} (≈ {formatArs(roundArs(Number(offer.monthly_price_ars)))})
-              <ExchangeRateNote />
+              <ExchangeRateNote variant="renewal" />
             </dd>
           </div>
           {offer.enrollment_or_renewal_fee_usd && (
@@ -119,7 +119,7 @@ export default async function StudentRenewalOfferDetailPage({
             <dt className="text-ink-faint">Fee EstuRed (misma lógica que tu reserva inicial)</dt>
             <dd className="font-medium text-ink">
               ≈ {formatArs(roundArs(Number(offer.estimated_estured_fee_ars)))}
-              <ExchangeRateNote />
+              <ExchangeRateNote variant="renewal" />
             </dd>
           </div>
           {canRespond && (

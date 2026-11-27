@@ -62,7 +62,7 @@ export function StudentPaymentCard({ applicationId, view }: { applicationId: str
     <p className="text-sm text-ink">
       {view.amountUsd !== null && <span className="text-2xl font-bold tabular-nums">{formatUsd(view.amountUsd)}</span>}
       {view.amountArs !== null && <span className="ml-2 tabular-nums text-ink-soft">· {formatArs(view.amountArs)}</span>}
-      <span className="mt-1 block text-xs text-ink-faint">Monto de la reserva fijado por la residencia al habilitar el pago.</span>
+      <span className="mt-1 block text-xs text-ink-faint">Monto de la reserva según las condiciones de la solicitud.</span>
     </p>
   );
 

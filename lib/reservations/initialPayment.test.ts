@@ -50,11 +50,10 @@ describe("resolveInitialPaymentUsd", () => {
 });
 
 describe("buildInitialPayment", () => {
-  it("devuelve USD, ARS para snapshot (exacto) y ARS para mostrar (redondeado a 500)", () => {
+  it("DR72 (e): el ARS del snapshot queda redondeado a 500, igual al que se muestra", () => {
     const p = buildInitialPayment({ mode: "one_month", customUsd: null }, 333, 1481);
     expect(p.usd).toBe(333);
-    expect(p.arsSnapshot).toBe(Math.round(333 * 1481)); // 493173
-    expect(p.arsDisplay % 500).toBe(0);
+    expect(p.arsSnapshot).toBe(493000); // 333 × 1481 = 493173
     expect(p.arsDisplay).toBe(493000);
     expect(p.mode).toBe("one_month");
   });

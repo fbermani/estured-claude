@@ -22,13 +22,21 @@
 
 `public/landing/proceso-*.webp` todavía dicen «al solicitar». La captura de la ficha completa para `/for-residences` también falta.
 
-## [ABIERTO — decisión del dueño] Pesos: valor al pagar vs. monto fijo (DR70, 2026-11-26)
+## [RESUELTO 2026-11-26, fase 1 de DR72] Pesos: valor al pagar vs. monto fijo; «al solicitar» en `/terms`
 
-`docs/00` §13.3, `ExchangeRateNote` y `/terms` dicen que el valor final en pesos se fija al pagar. El snapshot, las instrucciones de pago y DR70 usan el monto fijado al enviar la solicitud. Definir una sola regla.
+La cotización queda fija al enviar la solicitud (DR72). Avisos, `/terms` (versión 2026-11-26), condiciones para residencias y `docs/` alineados. El pago de la reserva en pesos se guarda redondeado a 500. Las solicitudes ya enviadas conservan su monto guardado.
 
-## [ABIERTO — texto legal] «Al solicitar» en `/terms` y plantillas (DR68, 2026-11-26)
+## [ABIERTO — decisión tomada, sin código] Monto de las renovaciones (DR70 (c), 2026-11-26)
 
-`lib/legal/termsText.ts`, `docs/20` y `docs/21` conservan la frase. Cambiarla exige versionar el texto legal.
+`docs/03` §16.3 pide fijar el monto del pago de la renovación. El dueño decidió dejarlo libre, como hoy. Alinear `docs/03` §16.3 con DR70 (c).
+
+## [ABIERTO — bajo] Fee en pesos: la pantalla del fee y las renovaciones redondean distinto (2026-11-26)
+
+`fee/page.tsx` y `AgreedConditionsCard` redondean el fee guardado para mostrarlo; las renovaciones muestran otro redondeo. Unificar cuando se toque el fee. En solicitudes viejas, el pago de la reserva guardado sin redondear puede diferir del que muestra la tarjeta de condiciones (aceptado).
+
+## [ABIERTO — legal, antes de producción] Aviso de cambio de términos (DR72, 2026-11-26)
+
+`/terms` §30 promete avisar por email o en la app antes de que un cambio rija; las condiciones para residencias §13 prometen email con anticipación. No hay mecanismo de aviso ni de reaceptación. Antes de pasar `staging` a `main`, avisar a los usuarios. La fase 3 (DR73) traerá otra versión de `/terms`.
 
 ## [ABIERTO — medio, rendimiento] Material Symbols bloquea el primer pintado (2026-11-08)
 

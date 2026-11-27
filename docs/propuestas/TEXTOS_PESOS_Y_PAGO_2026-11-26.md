@@ -4,7 +4,7 @@ El dueño aprobó cada texto. Reglas: `docs/00` DR70, DR72, DR73 y DR74.
 
 | Fase | Qué incluye | Estado |
 |---|---|---|
-| 1 | Redondeo, avisos, frases cortas, términos y condiciones (secciones 1, 2 y 3) | En curso |
+| 1 | Redondeo, avisos, frases cortas, términos y condiciones (secciones 1, 2 y 3) | En `staging` |
 | 2 | «Pago recibido» y contacto directo (sección 4) | Sin código |
 | 3 | «Ya pagué» en contacto directo, Soporte, alertas y plazo nuevo (sección 5) | Sin código |
 

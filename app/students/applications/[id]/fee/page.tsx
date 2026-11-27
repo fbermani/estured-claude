@@ -247,7 +247,7 @@ export default async function FeePaymentPage({
             <dt className="text-ink-faint">Fee EstuRed (5%)</dt>
             <dd className="font-bold text-forest-700">
               {formatArs(Number(feePayment.fee_amount_ars))}
-              <ExchangeRateNote />
+              <ExchangeRateNote variant="sent" />
             </dd>
           </div>
           <div className="flex justify-between">

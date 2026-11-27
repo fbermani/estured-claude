@@ -109,7 +109,9 @@ Cada pantalla vinculada a solicitudes, negociación, reservas, pagos y comproban
 
 Siempre que se muestren precios en ARS convertidos desde USD, debe aparecer un aviso o modal con este texto exacto:
 
-> "El valor en pesos es referencial, calculado en base al dólar blue (valor venta) del día de hoy. El valor final en pesos será determinado en el momento en que realices el pago directamente a la residencia, según la cotización vigente en ese momento."
+> "El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia."
+
+(Textos con la solicitud enviada y en renovaciones: `docs/00` §13.3.)
 
 Debe aparecer en: ficha de residencia, resumen de solicitud, pantalla de negociación, pantalla de fee, y cualquier otra pantalla con conversión USD → ARS.
 

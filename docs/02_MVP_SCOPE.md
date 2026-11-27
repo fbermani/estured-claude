@@ -808,7 +808,7 @@ Si la residencia envía y el estudiante acepta una propuesta de ajuste, el snaps
 
 - Tarifas mostradas en USD y ARS.
 - **Fuente del tipo de cambio: monedapi.ar — dólar blue valor venta.** Actualización diaria automática.
-- Modal referencial obligatorio: "El valor en pesos es referencial. El valor final lo define la residencia al momento del pago."
+- Modal referencial obligatorio (`docs/00` §13.3, DR72): "El valor en pesos es referencial, con el dólar blue (valor venta) de hoy. Para el pago de la reserva y el fee EstuRed, queda fija la cotización del día en que se envía la solicitud de reserva. Los pagos posteriores se acuerdan con la residencia."
 - El snapshot guarda el tipo de cambio usado.
 - Fee EstuRed: puede cobrarse en ARS (MercadoPago) o USD (PayU).
 - Tarifas en USD: deben terminar en 0 o 5.

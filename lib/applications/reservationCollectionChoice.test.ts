@@ -111,6 +111,15 @@ describe("resolveExpectedAmounts", () => {
   it("sin pago inicial usa la tarifa; sin ARS usa el tipo de cambio del snapshot", () => {
     expect(resolveExpectedAmounts({ monthly_price_usd: 250, exchange_rate_ars_per_usd: 1500 })).toEqual({ ok: true, value: { usd: 250, ars: 375000 } });
   });
+  it("DR72 (e): sin ARS guardado, calcula redondeado a 500", () => {
+    expect(resolveExpectedAmounts({ monthly_price_usd: 230, exchange_rate_ars_per_usd: 1485 })).toEqual({ ok: true, value: { usd: 230, ars: 341500 } });
+  });
+  it("DR72 (e): un ARS ya guardado no cambia, aunque no esté redondeado", () => {
+    expect(resolveExpectedAmounts({ reservation_payment_amount_usd: 230, reservation_payment_amount_ars: 341550, exchange_rate_ars_per_usd: 1485 })).toEqual({
+      ok: true,
+      value: { usd: 230, ars: 341550 },
+    });
+  });
   it("rechaza monto cero, ausente o sin tipo de cambio", () => {
     expect(resolveExpectedAmounts({ reservation_payment_amount_usd: 0, monthly_price_usd: 0 }).ok).toBe(false);
     expect(resolveExpectedAmounts({}).ok).toBe(false);

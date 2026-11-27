@@ -753,7 +753,7 @@ Propósito: monitorear el tipo de cambio oficial usado para visualización y cá
 - El fee puede cobrarse en ARS (MercadoPago) o USD (PayU Argentina), no solo en ARS.
 - La conversión usa el tipo de cambio diario de la fuente confirmada.
 - Admin puede hacer override manual si la fuente falla, **con motivo obligatorio**.
-- Cada solicitud guarda un snapshot del tipo de cambio usado al momento de enviarse (o de aceptar la propuesta de ajuste, si hubo negociación).
+- Cada solicitud guarda un snapshot del tipo de cambio usado al momento de enviarse. Una propuesta de ajuste aceptada no cambia esa cotización (`docs/00` DR72).
 
 ### 25.2 La pantalla debe mostrar
 

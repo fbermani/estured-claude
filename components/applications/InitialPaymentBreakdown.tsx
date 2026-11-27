@@ -52,7 +52,7 @@ export function InitialPaymentBreakdown({
           {residenceArs != null && (
             <span className="block text-xs font-normal text-ink-soft">
               ≈ {formatArs(residenceArs)}
-              <ExchangeRateNote />
+              <ExchangeRateNote variant="sent" />
             </span>
           )}
         </p>
@@ -69,7 +69,7 @@ export function InitialPaymentBreakdown({
             {feeArs != null && (
               <span className="block text-xs font-normal text-ink-soft">
                 ≈ {formatArs(feeArs)}
-                <ExchangeRateNote />
+                <ExchangeRateNote variant="sent" />
               </span>
             )}
           </p>

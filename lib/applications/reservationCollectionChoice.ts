@@ -1,7 +1,7 @@
 import { isPaymentMethodKey, paymentMethodLabel, type Checked, type PaymentMethodKey } from "@/lib/payments/paymentMethods";
 import { RESERVATION_MODE_LABELS, effectiveReservationModes, isReservationPaymentMode, type ReservationPaymentMode } from "@/lib/residences/reservationCollection";
 import { ALTERNATIVE_PREFERENCE_KEY, offeredReservationCollection, type ApprovedCollectionMethod, type OfferedPaymentMethod } from "@/lib/residences/offeredPaymentMethods";
-import { usdToArs } from "@/lib/mock/exchange";
+import { usdToArsRounded } from "@/lib/mock/exchange";
 
 /**
  * Cómo cobra la residencia la reserva de UNA solicitud (DR63 (d), `docs/00`; `docs/07` §16.5). Lógica PURA, sin `server-only`: la usan
@@ -135,7 +135,7 @@ export function resolveExpectedAmounts(snapshot: {
   const usd = Math.round(usdRaw * 100) / 100;
   const arsSnapshot = num(snapshot.reservation_payment_amount_ars);
   const rate = num(snapshot.exchange_rate_ars_per_usd);
-  const ars = arsSnapshot !== null && arsSnapshot > 0 ? arsSnapshot : rate !== null && rate > 0 ? usdToArs(usd, rate) : null;
+  const ars = arsSnapshot !== null && arsSnapshot > 0 ? arsSnapshot : rate !== null && rate > 0 ? usdToArsRounded(usd, rate) : null; // DR72 (e): un ARS ya guardado no se toca.
   if (ars === null || ars <= 0) return { ok: false, error: "No pudimos determinar el monto en pesos de esta solicitud. Escribile a Soporte." };
   return { ok: true, value: { usd, ars: Math.round(ars * 100) / 100 } };
 }

@@ -134,7 +134,7 @@ EstuRed podrá contactar a la Residencia para sugerir ajustes, pedir aclaracione
 
 La Residencia podrá publicar tarifas en dólares estadounidenses y pesos argentinos, según la configuración de la plataforma. Se recomienda operativamente configurar las tarifas en dólares estadounidenses.
 
-EstuRed mostrará conversiones utilizando una fuente de tipo de cambio configurada por la plataforma, aclarando siempre que el valor en pesos es referencial y que el valor final se determina entre la Residencia y el estudiante al momento del pago efectivo.
+EstuRed mostrará conversiones utilizando una fuente de tipo de cambio configurada por la plataforma, aclarando que el valor en pesos es referencial antes de enviar la solicitud de reserva. El importe del pago de la reserva queda fijo en pesos al enviarse la solicitud, con la cotización de ese día y redondeado a múltiplos de 500 pesos. La Residencia asume las variaciones del dólar hasta el cobro. Si cobra en dólares, vale el monto en dólares de la solicitud. Solo una propuesta de ajuste aceptada puede cambiar el importe.
 
 Para solicitudes de reserva, el sistema guardará un snapshot de: tarifa en USD; tarifa en ARS; tipo de cambio utilizado; fecha y hora del cálculo; duración inicial reservada; matrícula; depósito; política de ajustes; base de cálculo del fee EstuRed. **Si la Residencia envía una propuesta de ajuste de condiciones y el estudiante la acepta, se generará un nuevo snapshot con los valores acordados, el cual reemplazará al original a efectos del cálculo del fee EstuRed y del comprobante.**
 

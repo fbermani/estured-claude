@@ -2040,7 +2040,7 @@ Decisión del dueño. Hasta hoy el estudiante solo subía el **archivo** `studen
 | DR72 (e) | El pago de la reserva en pesos queda fijo redondeado a múltiplos de 500 (§13.5). Vale para solicitudes nuevas. Las enviadas conservan su monto. El fee no cambia. |
 | DR72 (f) | Con contacto directo, la tarjeta de pago muestra el monto en USD y ARS y la fecha límite. Nunca un teléfono. Modifica DR63 (c) y (d). |
 
-**Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) se aplican en la fase 1; (f), en la fase 2. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
+**Textos exactos:** `docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`. (a) a (e) aplicados en la fase 1 (`staging`, 2026-11-26); (f), en la fase 2. Al publicar hay que avisar los cambios antes de que rijan (`/terms` §30; condiciones de residencias §13).
 
 ### DR73: un caso de Soporte por el pago frena el vencimiento (2026-11-26, sin implementar)
 

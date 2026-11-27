@@ -8,7 +8,7 @@ import { confirmedEmptyMonthsCharge } from "@/lib/applications/emptyMonths";
 import { todayIso } from "@/lib/applications/reservationMoney";
 import { loadVacancyOutlooks } from "@/lib/residences/vacancy";
 import { calculateFeeEstimate } from "@/lib/applications/fee";
-import { usdToArs } from "@/lib/mock/exchange";
+import { usdToArsRounded } from "@/lib/mock/exchange";
 import { normalizeInitialPaymentMode, resolveNegotiatedInitialPaymentUsd } from "@/lib/reservations/initialPayment";
 import { createPendingResidencePayment } from "@/lib/applications/residencePayment";
 import { promoteNextQueuedApplication } from "@/lib/applications/roomTypeQueue";
@@ -165,7 +165,7 @@ export async function recordNegotiationResponse(
         deposit_excluded_from_fee: true,
         reservation_payment_amount_usd: initialPaymentUsd,
         // ARS recalculado con la cotización del original, para que nunca quede desfasado del USD.
-        reservation_payment_amount_ars: usdToArs(initialPaymentUsd, Number(original.exchange_rate_ars_per_usd)),
+        reservation_payment_amount_ars: usdToArsRounded(initialPaymentUsd, Number(original.exchange_rate_ars_per_usd)),
         adjustment_policy: proposal.proposed_adjustment_policy ?? original.adjustment_policy,
         fee_base_usd: fee.feeBaseUsd,
         fee_base_ars: fee.feeBaseArs,

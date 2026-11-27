@@ -46,6 +46,7 @@ export const RESIDENCE_TERMS_SECTIONS: ResidenceTermsSection[] = [
       "La residencia cobra la reserva directamente al estudiante, por los medios que carga en la plataforma. EstuRed no recibe, no retiene y no administra ese dinero.",
       "La residencia carga sus datos de cobro y responde por ellos. EstuRed no los revisa ni los aprueba, y no respalda el medio de pago ni la cuenta de destino. La residencia mantiene esos datos correctos y al día.",
       "La residencia informa en la plataforma cuando recibe el pago. La residencia es la única responsable de los cobros y devoluciones de lo que cobra, y de los reclamos que surjan de datos de cobro erróneos, desactualizados o falsos.",
+      "El importe del pago de la reserva queda fijo en pesos al enviarse la solicitud de reserva, con la cotización de ese día y redondeado a múltiplos de 500 pesos. La residencia asume las variaciones del dólar hasta el cobro. Si cobra en dólares, vale el monto en dólares de la solicitud. Solo una propuesta de ajuste aceptada puede cambiar el importe.",
     ],
   },
   {

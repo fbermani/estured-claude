@@ -1,4 +1,4 @@
-import { usdToArs, usdToArsRounded } from "@/lib/mock/exchange";
+import { usdToArsRounded } from "@/lib/mock/exchange";
 import { FEE_PERCENT } from "@/lib/applications/fee";
 
 /**
@@ -84,9 +84,9 @@ export type InitialPayment = {
   mode: InitialPaymentMode;
   /** Lo que se paga a la residencia (USD). */
   usd: number;
-  /** ARS exactos para guardar en el snapshot (mismo criterio que matrícula/fee). */
+  /** ARS para guardar en el snapshot: redondeado a 500, queda fijo al enviar (DR72 (e)). */
   arsSnapshot: number;
-  /** ARS redondeados a 500/000, solo para mostrar (referencial, con `ExchangeRateNote`). */
+  /** ARS redondeados a 500/000 para mostrar (hoy igual a `arsSnapshot`). */
   arsDisplay: number;
 };
 
@@ -106,7 +106,7 @@ export function buildInitialPayment(
         : config.mode === "deposit_only" && depositUsd != null && depositUsd > 0
           ? "deposit_only"
           : "one_month";
-  return { mode, usd, arsSnapshot: usdToArs(usd, arsPerUsd), arsDisplay: usdToArsRounded(usd, arsPerUsd) };
+  return { mode, usd, arsSnapshot: usdToArsRounded(usd, arsPerUsd), arsDisplay: usdToArsRounded(usd, arsPerUsd) };
 }
 
 /** Fee EstuRed estimado en USD (5% de la base), solo para el desglose "A la residencia / A EstuRed". */
@@ -166,7 +166,7 @@ export function parseInitialPaymentInput(raw: { mode?: unknown; usd?: unknown })
  *  3. Si no (modo `custom_usd`, o un original que no era el primer mes), queda
  *     el monto del snapshot original.
  * El ARS se recalcula siempre con la cotización del snapshot original
- * (`usdToArs(usd, original.exchange_rate_ars_per_usd)`): la negociación nunca
+ * (`usdToArsRounded(usd, original.exchange_rate_ars_per_usd)`, DR72 (e)): la negociación nunca
  * actualiza la cotización (docs/06 §11.2).
  */
 export function resolveNegotiatedInitialPaymentUsd(params: {

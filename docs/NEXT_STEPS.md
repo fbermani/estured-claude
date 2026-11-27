@@ -6,12 +6,15 @@
 
 - [x] Textos de páginas públicas, ficha, registro y paneles en `staging`.
 - [x] Bloqueo desde el día 45 sin actualizar (DR69), con tests. Sin probar en pantalla.
-- [ ] **Dueño:** definir la regla de pesos (`docs/00` §13.3 vs. monto fijo, DR70).
-- [ ] **Dueño:** aprobar el aviso «el monto no coincide» (DR70).
+- [x] Regla de pesos decidida (DR72) y textos aprobados (`docs/propuestas/TEXTOS_PESOS_Y_PAGO_2026-11-26.md`).
+- [x] Fase 1 en `staging`: redondeo a 500, avisos, frases cortas, `/terms` y condiciones para residencias (versión 2026-11-26).
+- [ ] **Antes de `main`:** avisar a los usuarios el cambio de términos (`GAPS.md`). No pasar `staging` a `main` entre la fase 1 y la fase 3 sin ese aviso.
+- [ ] Fase 2: «Pago recibido» con monto fijo (DR70) y contacto directo con monto y fecha límite. Opus, esfuerzo alto.
+- [ ] Fase 3: «Ya pagué» en contacto directo, Soporte frena el vencimiento (DR73) y alertas de 12/24/36/42 h (DR74, migración).
 - [ ] Apertura: 2,5 s, una vez por visita y toque para saltear (DR68 h). Esperar a que termine la sesión que la diagnostica.
 - [ ] Recordatorio a la residencia antes del día 45 (`GAPS.md`).
 - [ ] Capturas `public/landing/proceso-*.webp` y captura de la ficha completa.
-- [ ] «Al solicitar» en `/terms`, `docs/20` y `docs/21` (exige versionar el texto legal).
+- [x] «Al solicitar» en `/terms`, `docs/20` y `docs/21` (versión 2026-11-26).
 
 ## Apertura con el sello (2026-11-26)
 
