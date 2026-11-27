@@ -12,11 +12,17 @@ git push origin eca0a46:main
 ```
 
 Es el único comando vigente. 47 commits sobre `main`, sin merge.
+Condición: la cuenta creada a las 18:42 es tuya. Si no, avisale antes.
+
+El modo preapertura no se probó antes de publicar. Staging corre sin `PREAPERTURA`.
+Vuelta atrás: *Instant Rollback* en Vercel.
 
 Después:
 
-1. [Yo] Verifico en `estured.com` `/terms`, `/terms/residencias`, `/email/*.png` y logs.
-2. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de `eca0a46`.
+1. [Yo] Verifico en `estured.com`: `/`, popup, `/preregistro`, `/fundadoras`, footer y redirección de `/search`.
+2. [Yo] Verifico `/terms`, `/terms/residencias`, `/email/*.png` y logs.
+3. [Vos] Hacé un alta de prueba. Confirmá que llega la bienvenida.
+4. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html` de `eca0a46`.
 
 Queda fuera: `9966802` (campos nuevos en 45 archivos, sin validar).
 
@@ -28,7 +34,8 @@ Queda fuera: `9966802` (campos nuevos en 45 archivos, sin validar).
 | Suite completa | 3143 pasan, 1 falla, 10 salteados |
 | Archivos con fallo | `expireContactEstablished`, `expireNegotiationProposals` |
 | Esos 2 en `main` (`4f82924`) | Fallan igual: datos demo de Lucía |
-| Deploy de staging | `READY` |
+| Deploy de staging de `eca0a46` | `READY` |
+| Páginas vistas en `estured.vercel.app` | Con `82fa96d`, igual salvo docs |
 
 ## Base de prod (solo lectura)
 
