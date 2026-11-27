@@ -16,7 +16,7 @@ export function resolveMetaPixelId(env: Env): string | null {
   return id;
 }
 
-type FbqFn = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; loaded: boolean; version: string; push: unknown; disablePushState?: boolean };
+type FbqFn = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; loaded: boolean; version: string; push: unknown; disablePushState?: boolean; allowDuplicatePageViews?: boolean };
 type PixelWindow = { fbq?: FbqFn; _fbq?: FbqFn; location?: { search: string } };
 type PixelDocument = {
   createElement: (tag: string) => { async: boolean; src: string };
@@ -45,7 +45,11 @@ export function loadMetaPixel(pixelId: string | null, win: PixelWindow = window 
   fbq.loaded = true;
   fbq.version = "2.0";
   fbq.push = fbq;
-  fbq.disablePushState = true; // las navegaciones se cuentan a mano: sin esto el pixel duplicaría el PageView
+  // Las pantallas se cuentan a mano, desde `MetaPixel`: el envío automático saltearía la exclusión de invitaciones y de menores.
+  fbq.disablePushState = true;
+  // Sin esto el script descarta todo `PageView` después del primero y las pantallas sin recarga no se cuentan. Meta no lo
+  // documenta: verificado con el script real en estured.com (2026-11-27). Si los públicos por pantalla bajan, revisar acá.
+  fbq.allowDuplicatePageViews = true;
   win.fbq = fbq;
   win._fbq = fbq;
   const script = doc.createElement("script");
