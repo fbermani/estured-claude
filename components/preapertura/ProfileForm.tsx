@@ -341,7 +341,7 @@ export function ProfileForm({ initial, age, isMinor, devAccount = false }: { ini
               <Input
                 id="pre-current_residence"
                 name="current_residence"
-                label="Nombre de la residencia"
+                label="Residencia"
               className="min-w-[220px] flex-1"
                 maxLength={120}
                 autoComplete="off"

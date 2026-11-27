@@ -62,7 +62,7 @@ function VerifiedSeal() {
           Verificado
         </span>
       </span>
-      <span className="-mt-2 rounded-full bg-butter px-3 py-1 text-center text-xs font-bold text-butter-fg shadow-card">Sin costo de verificación</span>
+      <span className="-mt-2 max-w-[8.5rem] rounded-field bg-butter px-3 py-1 text-center text-xs font-bold leading-tight text-butter-fg shadow-card sm:max-w-none sm:rounded-full">Sin costo de verificación</span>
     </div>
   );
 }
@@ -81,7 +81,7 @@ export function FoundersContent({ state, closure, counter }: { state: FounderSta
             <BackNav href="/" tone="dark">
               Volver al inicio
             </BackNav>
-            <span className="inline-flex items-center gap-2 rounded-full bg-gold py-1.5 pl-1.5 pr-4 text-sm font-bold text-forest-ink">
+            <span className="inline-flex items-center gap-2 rounded-full bg-gold py-1.5 pl-1.5 pr-3 text-[13px] font-bold whitespace-nowrap text-forest-ink sm:pr-4 sm:text-sm">
               <Icon name="workspace_premium" className="rounded-full bg-forest-ink p-1 text-base text-gold" />
               Residencias fundadoras
             </span>
