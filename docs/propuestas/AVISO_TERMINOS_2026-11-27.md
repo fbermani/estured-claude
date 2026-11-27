@@ -1,6 +1,6 @@
 # Aviso de cambios en los términos (versión 2026-11-27)
 
-**Estado:** borrador del 2026-11-27. Sin enviar. Falta la aprobación del dueño.
+**Estado:** texto aprobado por el dueño el 2026-11-27. Sin enviar. Falta la fecha de vigencia.
 
 Cubre DR72 (cotización fija) y DR73 (un caso en Soporte frena el vencimiento). Compara `main` (`4f82924`) con `staging`.
 
