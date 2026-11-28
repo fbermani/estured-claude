@@ -38,11 +38,12 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 | Bienvenida | *Delivered*; número de registro 14 |
 | Cupo Resend tras el alta | 1 de 100 |
 | Logs 22:10 | `refresh_token_not_found`, tratado como sesión cerrada |
-| Cron | `401`: Vault guarda el texto de relleno |
+| Cron a las 22:00 | `401`: Vault guardaba el texto de relleno |
+| Cron a las 23:00, con secreto nuevo | `200`, 19 tareas sin errores |
 | SMTP de Supabase | Apagado: recuperar contraseña no llega a usuarios reales |
 | Teclado en teléfono real | Sin probar. El simulador tampoco arrancó: falta Xcode completo |
 
-1. [Vos] Pegá `CRON_SECRET` en Vault (runbook §D1).
+1. [Vos o Yo] Vaciá la descripción de `cron_secret`: tiene el secreto en texto.
 2. [Vos] Activá SMTP propio con una key nueva (runbook §D3).
 3. [Yo] Pego la plantilla cuando haya SMTP.
 4. [Vos] Decidí el retiro de la opción C.
@@ -64,8 +65,8 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 - Solicitudes de reserva: 0.
 - Cuentas: 1 estudiante, creada 27/11 18:42. La sesión de Meta la informa como prueba del dueño.
 - Solicitudes de residencia sin descartar: 0.
-- **Cron:** las 6 respuestas guardadas son `401`. Revisar `cron_secret` en Vault antes de abrir.
-- Cron y push en dispositivo: sin probar.
+- **Cron:** `401` hasta las 22:00; `200` a las 23:00.
+- Push en dispositivo: sin probar.
 
 ## Decisiones tomadas
 
@@ -74,7 +75,7 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 - Fecha visible en `/terms`: 27 de noviembre. Coincide.
 - En preapertura rige la sección «Términos de la preapertura» de `/terms`. El resto aplica al abrir.
 - Las ramas `publicar/web-*` quedan sin uso. No correr sus comandos.
-- *Instant Rollback* solo llega a `150c334`. Deshacer pesos y pago pide un commit que lo revierta.
+- *Instant Rollback* solo llega al deploy anterior, con el secreto viejo del cron. Deshacer pesos y pago pide un commit que lo revierta.
 
 ## Destinatarios contados a la mañana
 
