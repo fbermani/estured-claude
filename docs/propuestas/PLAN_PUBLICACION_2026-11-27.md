@@ -1,6 +1,6 @@
 # Salida a producción de «pesos y pago» (DR72–DR74)
 
-**Estado al 2026-11-27 19:45:** publicado en `main` (`150c334`). Mails de aviso sin enviar.
+**Estado al 2026-11-27 22:20:** publicado y alta probada. Mails de aviso sin enviar.
 Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 
 ## Publicación
@@ -28,11 +28,24 @@ Texto de los mails: `AVISO_TERMINOS_2026-11-27.md`, ya con la fecha.
 - La CSP citada en el error no es la de `estured.com`: viene del marco del anti-bots.
 - Sin probar: alta real, mail de bienvenida, teclado en teléfono, cron y push.
 
-Pendiente:
+## Alta de prueba y pendientes (22:20)
 
-1. [Vos] Alta de prueba en `estured.com`. Confirmá que llega la bienvenida.
-2. [Vos] Pegá en Supabase `docs/mail/recuperar-contrasena.html`.
-3. [Vos] Cargá bien `cron_secret` en Vault. Las respuestas guardadas eran `401`.
+Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
+
+| Control | Resultado |
+|---|---|
+| Alta 22:11 | Cuenta creada; 2 en total |
+| Bienvenida | *Delivered*; número de registro 14 |
+| Cupo Resend tras el alta | 1 de 100 |
+| Logs 22:10 | `refresh_token_not_found`, tratado como sesión cerrada |
+| Cron | `401`: Vault guarda el texto de relleno |
+| SMTP de Supabase | Apagado: recuperar contraseña no llega a usuarios reales |
+| Teclado en teléfono | Sin probar: la Mac no tiene Xcode completo |
+
+1. [Vos] Pegá `CRON_SECRET` en Vault (runbook §D1).
+2. [Vos] Activá SMTP propio con una key nueva (runbook §D3).
+3. [Yo] Pego la plantilla cuando haya SMTP.
+4. [Vos] Decidí el retiro de la opción C.
 
 ## Validación de `eca0a46`
 
