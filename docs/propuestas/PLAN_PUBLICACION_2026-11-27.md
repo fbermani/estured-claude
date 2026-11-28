@@ -40,13 +40,12 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 | Logs 22:10 | `refresh_token_not_found`, tratado como sesión cerrada |
 | Cron a las 22:00 | `401`: Vault guardaba el texto de relleno |
 | Cron a las 23:00, con secreto nuevo | `200`, 19 tareas sin errores |
-| SMTP de Supabase | Apagado: recuperar contraseña no llega a usuarios reales |
+| SMTP de Supabase, a la noche | Activado; plantilla guardada. Envío sin probar |
 | Teclado en teléfono real | Sin probar. El simulador tampoco arrancó: falta Xcode completo |
 
 1. [Vos o Yo] Vaciá la descripción de `cron_secret`: tiene el secreto en texto.
-2. [Vos] Activá SMTP propio con una key nueva (runbook §D3).
-3. [Yo] Pego la plantilla cuando haya SMTP.
-4. [Vos] Decidí el retiro de la opción C.
+2. [Vos] Pedí el cambio de contraseña con tu mail. [Yo] Reviso Resend.
+3. [Vos] Decidí el retiro de la opción C.
 
 ## Validación de `eca0a46`
 
