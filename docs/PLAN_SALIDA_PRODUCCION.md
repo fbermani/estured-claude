@@ -43,7 +43,7 @@ Estado del código (2026-11-13): rama `hardening/pre-produccion-2026-11`, migrac
 - [ ] **Mails** (C3, A4): `hola@estured.com` leída por alguien y Resend con SPF/DKIM. Sin esto no hay confirmación del preregistro ni mail a fundadoras.
 - [x] **Variables de Vercel** (E) con `PREAPERTURA=on`. Sin `DEMO_LOGIN_ENABLED`. Hecho el 2026-11-25.
 - [ ] **Medición.** Pixel de Meta y eventos: `PageView`, preregistro completado (estudiante y familiar), solicitud de fundadora. Verificar el dominio en el Business Manager. Cargar el pixel con consentimiento y sin enviar datos personales en claro. **[Yo]** el código; **[Vos]** las cuentas de Meta.
-  - Código listo (2026-11-22); `NEXT_PUBLIC_META_PIXEL_ID` cargada en Production el 2026-11-27. Falta verificar dominio en Meta **[Vos]**.
+  - Código listo (2026-11-22); `NEXT_PUBLIC_META_PIXEL_ID` cargada en Production el 2026-11-27. Falta verificar dominio en Meta **[Vos]**. Visto el 2026-11-27: portfolio sin dominios; DNS de `estured.com` en Hostinger, sin registro ni etiqueta de verificación. La ayuda leída de Meta (facebook.com/business/help/286768115176155 y 245311299870862) la describe para controlar quién edita vistas previas y enlaces, y para verificar el negocio; no la pide para anunciar (fuentes externas dicen que ya no hace falta para eventos, sin confirmar en Meta). Recomendado: verificar con un TXT **nuevo** (no tocar el SPF ni otros registros). Sin decidir.
   - Aviso de cookies hecho (2026-11-22); el pixel carga solo con consentimiento.
   - Visto en `estured.com` el 2026-11-26: sin ID no hay aviso, `fbq` ni orígenes de Meta en la CSP (esperado).
   - Contradicción de cookies en `/privacy` corregida en `staging` (aprobada el 2026-11-26).
