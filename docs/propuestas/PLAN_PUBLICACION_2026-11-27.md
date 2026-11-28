@@ -40,7 +40,7 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 | Logs 22:10 | `refresh_token_not_found`, tratado como sesión cerrada |
 | Cron | `401`: Vault guarda el texto de relleno |
 | SMTP de Supabase | Apagado: recuperar contraseña no llega a usuarios reales |
-| Teclado en teléfono | Sin probar: la Mac no tiene Xcode completo |
+| Teclado en teléfono real | Sin probar. El simulador tampoco arrancó: falta Xcode completo |
 
 1. [Vos] Pegá `CRON_SECRET` en Vault (runbook §D1).
 2. [Vos] Activá SMTP propio con una key nueva (runbook §D3).
@@ -74,7 +74,7 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 - Fecha visible en `/terms`: 27 de noviembre. Coincide.
 - En preapertura rige la sección «Términos de la preapertura» de `/terms`. El resto aplica al abrir.
 - Las ramas `publicar/web-*` quedan sin uso. No correr sus comandos.
-- *Instant Rollback* también devuelve los textos legales anteriores.
+- *Instant Rollback* solo llega a `150c334`. Deshacer pesos y pago pide un commit que lo revierta.
 
 ## Destinatarios contados a la mañana
 
