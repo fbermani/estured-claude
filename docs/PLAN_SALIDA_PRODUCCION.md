@@ -517,9 +517,10 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] **[Yo]** (2026-11-27, SQL solo lectura en prod) 0 residencias, 0 archivos en Storage, 0 mails demo. Hay 2 cuentas de estudiante y 2 solicitudes de residencia (fechas de pruebas ya anotadas), más datos de referencia.
 - [ ] **[Vos]** Decidir si se borran esas 4 pruebas (y reiniciar `preapertura_registro_seq` en 11 si no hay estudiantes reales).
 - [ ] **[Vos]** Decidir sobre el contenido de ejemplo publicado a propósito: capturas de la home («Residencia Norte» y «Río de la Plata» con «Residencia Verificada»), nombre «Residencia Norte» en `ResidenceHeroPanel`, captura de comunidad y perfiles ficticios del popup (DR67 h).
-- [ ] **[Vos] OK + [Yo]** Retirada en Search Console del prefijo `https://estured.com/r/` (temporal). Sin ella, Google las saca al volver a rastrear.
+- [ ] **[Vos] OK + [Yo]** Retirada en Search Console del prefijo `https://estured.com/r/` (temporal). Sin ella, Google las saca al volver a rastrear. El 2026-11-28 el dueño respondió «Todavía no». Revisar el 2026-12-04.
 - [x] **[Yo]** (2026-11-27) Fichas inexistentes responden 404 (`32bf1ba` en `staging`, sin migración ni variables). Verificado en staging: inexistente y `/r/` vieja 404; ficha real, comunidad e imagen 200.
-  - [ ] **[Vos]** Publicar: `git push origin 9d068d2:main` (rama local `publicar/404-ficha-2026-11-27` = `main` + ese cambio; build y typecheck ok). Después, **[Yo]** verificar en `estured.com` y mergear `main` en `staging`.
+  - [x] **[Vos]** (2026-11-28) Publicado: `git push origin 9d068d2:main` (`8ef6faf..9d068d2`).
+  - [x] **[Yo]** (2026-11-28) Verificado en `estured.com`: ficha inexistente, su comunidad y las cinco `/r/` ficticias responden 404, con `noindex`. `/`, `/preregistro`, `/for-students`, `/for-residences`, `/search`, `/guias`, `robots.txt`, `sitemap.xml` y `llms.txt` en 200. Sin residencias en prod: ficha real no probada ahí. `main` mergeada en `staging` (`89cbc03`, sin cambios de archivos). Vuelta atrás: promover `dpl_A9Hnx8n4dR9GuaWTEGnWU13GFoTb` o revertir `9d068d2`.
 - [ ] **[Yo]** Sitemap y `llms.txt` en preapertura: sacar `/search` (307 a `/preregistro`, `noindex`) y `/for-students` (copia de `/`).
 - [ ] **[Yo]** Preapertura: canonical `/` (también cubre `/preapertura`) y un solo H1.
 - [ ] **[Yo]** `sameAs` con `https://www.instagram.com/estured.residencias/` (perfil existe; 0 publicaciones).
