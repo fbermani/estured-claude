@@ -504,7 +504,9 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - Bien: `robots.txt`, host del sitemap, sin `-demo`, `llms.txt`, favicon, `security.txt`, caché `HIT` en `/guias`, `www` → dominio raíz, staging con `Disallow: /`.
 - Google indexa el sitio. Para «estured» salimos primeros. Para «residencias estudiantiles buenos aires» no salimos en la página 1.
 - [ ] **Search Console** (OK del dueño el 2026-11-27). **[Yo]** Propiedad de dominio `estured.com` creada en la cuenta Google personal del dueño y TXT `google-site-verification` agregado en Hostinger (raíz, TTL 14400), al lado del SPF y del de Meta. Primer intento de verificación: Google aún no veía el registro.
-  - [ ] Verificar, enviar `sitemap.xml` y después Bing Webmaster Tools (con OK aparte). No borrar los TXT: se pierde la verificación.
+  - [x] **[Yo]** (2026-11-27) Propiedad verificada por DNS. `sitemap.xml` enviado: estado «Correcto», 14 páginas descubiertas. «Rendimiento» todavía procesando datos. No borrar el TXT: se pierde la verificación.
+  - [ ] Revisar «Páginas» y «Rendimiento» una semana después (2026-12-04).
+  - [ ] **[Vos] OK + [Yo]** Bing Webmaster Tools.
 - [ ] **[Yo]** Retirar de Google las entradas viejas `/r/<slug>` (5 residencias ficticias). Hoy redirigen a «Residencia no encontrada» (200 con `noindex`). Origen sin confirmar.
 - [ ] **[Yo]** Fichas inexistentes: devolver 404 o 410 real, no 200.
 - [ ] **[Yo]** Sitemap y `llms.txt` en preapertura: sacar `/search` (307 a `/preregistro`, `noindex`) y `/for-students` (copia de `/`).
