@@ -513,8 +513,13 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
   - [ ] Revisar «Páginas» y «Rendimiento» una semana después (2026-12-04). Revisar también el TXT: el 27/11 los nodos DNS respondían desparejo (servidor de Hostinger consultado desde la compu: serial SOA 2026112802; dns.google: 2026112803).
   - [ ] Segundo propietario en Search Console, si el dueño quiere otra cuenta.
   - [ ] **[Vos] OK + [Yo]** Bing Webmaster Tools.
-- [ ] **[Yo]** Retirar de Google las entradas viejas `/r/<slug>` (5 residencias ficticias). Hoy redirigen a «Residencia no encontrada» (200 con `noindex`). Origen sin confirmar.
-- [ ] **[Yo]** Fichas inexistentes: devolver 404 o 410 real, no 200.
+- [x] **[Yo]** (2026-11-27) Origen de las entradas `/r/<slug>`: el catálogo ficticio escrito en el código (`lib/mock/residences.ts`, retirado en `58ea629`). Del 21/11 (dominio asignado) al 25/11, el único build de Production era `3daf6a5` (julio). No vino de la base ni de staging.
+- [x] **[Yo]** (2026-11-27, SQL solo lectura en prod) 0 residencias, 0 archivos en Storage, 0 mails demo. Hay 2 cuentas de estudiante y 2 solicitudes de residencia (fechas de pruebas ya anotadas), más datos de referencia.
+- [ ] **[Vos]** Decidir si se borran esas 4 pruebas (y reiniciar `preapertura_registro_seq` en 11 si no hay estudiantes reales).
+- [ ] **[Vos]** Decidir sobre el contenido de ejemplo publicado a propósito: capturas de la home («Residencia Norte» y «Río de la Plata» con «Residencia Verificada»), nombre «Residencia Norte» en `ResidenceHeroPanel`, captura de comunidad y perfiles ficticios del popup (DR67 h).
+- [ ] **[Vos] OK + [Yo]** Retirada en Search Console del prefijo `https://estured.com/r/` (temporal). Sin ella, Google las saca al volver a rastrear.
+- [x] **[Yo]** (2026-11-27) Fichas inexistentes responden 404 (`32bf1ba` en `staging`, sin migración ni variables). Verificado en staging: inexistente y `/r/` vieja 404; ficha real, comunidad e imagen 200.
+  - [ ] **[Vos]** Publicar: `git push origin 9d068d2:main` (rama local `publicar/404-ficha-2026-11-27` = `main` + ese cambio; build y typecheck ok). Después, **[Yo]** verificar en `estured.com` y mergear `main` en `staging`.
 - [ ] **[Yo]** Sitemap y `llms.txt` en preapertura: sacar `/search` (307 a `/preregistro`, `noindex`) y `/for-students` (copia de `/`).
 - [ ] **[Yo]** Preapertura: canonical `/` (también cubre `/preapertura`) y un solo H1.
 - [ ] **[Yo]** `sameAs` con `https://www.instagram.com/estured.residencias/` (perfil existe; 0 publicaciones).
