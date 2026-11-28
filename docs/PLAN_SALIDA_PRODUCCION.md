@@ -505,7 +505,8 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - Google indexa el sitio. Para «estured» salimos primeros. Para «residencias estudiantiles buenos aires» no salimos en la página 1.
 - [ ] **Search Console** (OK del dueño el 2026-11-27). **[Yo]** Propiedad de dominio `estured.com` creada en la cuenta Google personal del dueño y TXT `google-site-verification` agregado en Hostinger (raíz, TTL 14400), al lado del SPF y del de Meta. Primer intento de verificación: Google aún no veía el registro.
   - [x] **[Yo]** (2026-11-27) Propiedad verificada por DNS. `sitemap.xml` enviado: estado «Correcto», 14 páginas descubiertas. «Rendimiento» todavía procesando datos. No borrar el TXT: se pierde la verificación.
-  - [ ] Revisar «Páginas» y «Rendimiento» una semana después (2026-12-04).
+  - [ ] Revisar «Páginas» y «Rendimiento» una semana después (2026-12-04). Revisar también el TXT: el 27/11 los nodos DNS respondían desparejo (servidor de Hostinger consultado desde la compu: serial SOA 2026112802; dns.google: 2026112803).
+  - [ ] Segundo propietario en Search Console, si el dueño quiere otra cuenta.
   - [ ] **[Vos] OK + [Yo]** Bing Webmaster Tools.
 - [ ] **[Yo]** Retirar de Google las entradas viejas `/r/<slug>` (5 residencias ficticias). Hoy redirigen a «Residencia no encontrada» (200 con `noindex`). Origen sin confirmar.
 - [ ] **[Yo]** Fichas inexistentes: devolver 404 o 410 real, no 200.
@@ -520,7 +521,7 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 - [x] (verificado en vivo 2026-11-27) `https://estured.com/robots.txt` muestra `Allow: /` + Disallow de áreas privadas + bloques de crawlers de IA + `Sitemap`; `/sitemap.xml` sin `-demo` y con host `estured.com`; `/llms.txt` responde 200.
 - [ ] En una ficha: `og:image`, `canonical` y `og:url` absolutos con `estured.com` (ya no el host de staging); `curl -s https://estured.com/residencias/<slug> | grep -o 'og:image[^>]*'`.
 - [ ] Rich Results Test de Google sobre una ficha (LodgingBusiness, FAQPage, BreadcrumbList) y una guía (Article).
-- [ ] **Search Console y Bing Webmaster Tools (el mismo día del despliegue en `estured.com`):** el dueño crea las dos cuentas (Claude no puede) y agrega el registro TXT de verificación en el DNS de Hostinger; luego enviar `sitemap.xml` y revisar Cobertura a la semana.
+- [x] **Search Console y Bing Webmaster Tools:** estado vigente en «Verificación en vivo 2026-11-27», arriba (Search Console hecho; Bing pendiente).
 - [ ] **Solo residencias reales en prod:** el sitemap lista las `verified_active`; sin demos (el prod nuevo nace sin seeds).
 - [ ] **Preapertura:** con `PREAPERTURA=on`, `/` sirve la página de preapertura (title «acceso anticipado…», 2 H1, sin canonical/OG/JSON-LD). Aceptado mientras sea temporal; al apagarla, la home real ya tiene canonical, OG del layout y FAQPage. Si la preapertura se alarga, darle canonical + OG + un solo H1.
 - [ ] Medir **Core Web Vitals reales** (PageSpeed/CrUX) de `/`, `/search` y una ficha una vez en `estured.com`; el informe SEO solo pudo estimarlos.
