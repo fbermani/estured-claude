@@ -499,9 +499,21 @@ Vercel → Settings → Environment Variables, entorno **Production** (y Preview
 
 **Ya aplicado en `staging` (bloque técnico, copy aprobado, schema de ficha, `llms.txt`, robots):** `metadataBase`, canonical y OG por página, JSON-LD Organization/WebSite/LodgingBusiness/BreadcrumbList/FAQPage, sitemap sin `-demo`, `noindex` en `/login` y fichas `-demo`, `/llms.txt`, robots con crawlers de IA permitidos.
 
+**Verificación en vivo 2026-11-27 (`estured.com` en preapertura):**
+- Bien: `robots.txt`, host del sitemap, sin `-demo`, `llms.txt`, favicon, `security.txt`, caché `HIT` en `/guias`, `www` → dominio raíz, staging con `Disallow: /`.
+- Google indexa el sitio. Para «estured» salimos primeros. Para «residencias estudiantiles buenos aires» no salimos en la página 1.
+- [ ] **[Vos] OK + [Yo]** Search Console (propiedad de dominio, TXT en Hostinger; el DNS hoy solo tiene SPF), enviar sitemap y después Bing.
+- [ ] **[Yo]** Retirar de Google las entradas viejas `/r/<slug>` (5 residencias ficticias). Hoy redirigen a «Residencia no encontrada» (200 con `noindex`). Origen sin confirmar.
+- [ ] **[Yo]** Fichas inexistentes: devolver 404 o 410 real, no 200.
+- [ ] **[Yo]** Sitemap y `llms.txt` en preapertura: sacar `/search` (307 a `/preregistro`, `noindex`) y `/for-students` (copia de `/`).
+- [ ] **[Yo]** Preapertura: canonical `/` (también cubre `/preapertura`) y un solo H1.
+- [ ] **[Yo]** `sameAs` con `https://www.instagram.com/estured.residencias/` (perfil existe; 0 publicaciones).
+- [ ] Guías sin pixel ni UTM (ya anotado en Etapa 2). Son la entrada orgánica: revisar su llamado a la acción (texto con OK).
+- [ ] GA4: no sumar sin decisión (cambia `/privacy`, consentimiento y CSP). Perfil de Empresa de Google: revisar elegibilidad antes.
+
 **Al desplegar (verificar):**
-- [ ] `NEXT_PUBLIC_SITE_URL=https://estured.com` en Production (ya está en la tabla de E). **`app/robots.ts` cierra todo con `Disallow: /` si el host no es `estured.com`:** staging y previews deben tener su propia URL en esa variable (así no se indexan); si Production quedara con otro valor, el sitio entero saldría bloqueado a Google.
-- [ ] `https://estured.com/robots.txt` muestra `Allow: /` + Disallow de áreas privadas + bloques de crawlers de IA + `Sitemap`; `/sitemap.xml` sin `-demo` y con host `estured.com`; `/llms.txt` responde 200.
+- [x] (verificado en vivo 2026-11-27) `NEXT_PUBLIC_SITE_URL=https://estured.com` en Production (ya está en la tabla de E). **`app/robots.ts` cierra todo con `Disallow: /` si el host no es `estured.com`:** staging y previews deben tener su propia URL en esa variable (así no se indexan); si Production quedara con otro valor, el sitio entero saldría bloqueado a Google.
+- [x] (verificado en vivo 2026-11-27) `https://estured.com/robots.txt` muestra `Allow: /` + Disallow de áreas privadas + bloques de crawlers de IA + `Sitemap`; `/sitemap.xml` sin `-demo` y con host `estured.com`; `/llms.txt` responde 200.
 - [ ] En una ficha: `og:image`, `canonical` y `og:url` absolutos con `estured.com` (ya no el host de staging); `curl -s https://estured.com/residencias/<slug> | grep -o 'og:image[^>]*'`.
 - [ ] Rich Results Test de Google sobre una ficha (LodgingBusiness, FAQPage, BreadcrumbList) y una guía (Article).
 - [ ] **Search Console y Bing Webmaster Tools (el mismo día del despliegue en `estured.com`):** el dueño crea las dos cuentas (Claude no puede) y agrega el registro TXT de verificación en el DNS de Hostinger; luego enviar `sitemap.xml` y revisar Cobertura a la semana.
