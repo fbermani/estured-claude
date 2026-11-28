@@ -41,12 +41,11 @@ Producción sirve `8ef6faf` (Pixel, 20:26). El alta se hizo sobre ese deploy.
 | Cron a las 22:00 | `401`: Vault guardaba el texto de relleno |
 | Cron a las 23:00, con secreto nuevo | `200`, 19 tareas sin errores |
 | SMTP de Supabase, a la noche | Activado; plantilla guardada |
-| Mail de contraseña, 23:44 | *Delivered*. Link sin confirmar |
+| Mail de contraseña, 23:44 | *Delivered*. El dueño guardó una contraseña nueva |
 | Teclado en teléfono real | Sin probar. El simulador tampoco arrancó: falta Xcode completo |
 
 1. [Vos o Yo] Vaciá la descripción de `cron_secret`: tiene el secreto en texto.
-2. [Vos] Usá el link del mail y guardá una contraseña nueva.
-3. [Vos] Decidí el retiro de la opción C.
+2. [Vos] Decidí el retiro de la opción C.
 
 ## Validación de `eca0a46`
 
